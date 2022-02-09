@@ -1,51 +1,64 @@
 import mongoose from 'mongoose'
-import Media from '~/server/models/media'
 
 const schema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      trim: true,
-      required: [true, 'Category Name is required'],
-      minlength: [3, 'Name too short'],
-      maxlength: [100, 'Name too long'],
-    },
-    slug: {
-      type: String,
-      unique: true,
-      lowercase: true,
-      required: [true, 'Category Slug is required'],
-      minlength: [3, 'Slug too short'],
-      maxlength: [100, 'Slug too long'],
-    },
-    permalink: {
-      type: String,
-      unique: true,
-      lowercase: true,
-      required: [true, 'Category Permalink is required'],
-      minlength: [3, 'Permalink too short'],
-      maxlength: [100, 'Permalink too long'],
-    },
-    description: {
-      type: String,
-      maxlength: [2000, 'Description cannot be more than 2000 characters long'],
-    },
-    parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
-    gallery: [{ type: mongoose.Schema.Types.ObjectId, ref: Media }],
-  },
-  {
-    timestamps: true,
-  }
+	{
+		name: {
+			type: String,
+			required: [true, 'File Name is required'],
+			maxlength: [500, 'Name cannot be more than 100 characters long'],
+			default: 'placeholder.png',
+			// text: true,
+		},
+		slug: {
+			type: String,
+			unique: true,
+		},
+		// originalname: {
+		//   type: String,
+		//   required: [true, 'File Name is required'],
+		//   maxlength: [500, 'Name cannot be more than 100 characters long'],
+		//   default: 'user-placeholder-image.jpg',
+		// },
+		filename: {
+			type: String,
+			unique: true,
+		},
+
+		path: {
+			type: String,
+			default: '/placeholder.png',
+		},
+		url: {
+			type: String,
+		},
+		mimetype: {
+			type: String,
+		},
+		size: {
+			type: Number,
+			max: [20000000, 'File size ({{VALUE}}) is greater that the maximum allowed of 200000000'],
+			required: [true, 'File Size is required'],
+		},
+		folder: { type: mongoose.Schema.Types.ObjectId, ref: 'Folder', required: [true, 'Folder is required'] },
+		// originalName: {
+		//   type: String,
+		// },
+		// dateCreated: {
+		//   type: Date,
+		//   default: Date.now(),
+		// },
+		// folder: {
+		//   type: String,
+		//   default: 'drive',
+		// },
+		// folder: { type: mongoose.Schema.Types.ObjectId, ref: 'Folder' },
+	},
+	{
+		timestamps: true,
+	}
 )
 
-// schema.index({ name: 'text', slug: 'text' })
-
-// Document Middleware, runs before save() and create()
-// schema.pre('save', function (next) {
-//   this.slug = slugify(this.name, { lower: true })
-//   // this.path = `/${this.slug}`
-//   next()
-// })
+// schema.index({ name: 'text', mimetype: 'text' })
 
 // // Document Middleware, runs before save() and create()
 // schema.pre('save', async function (next) {
@@ -85,4 +98,4 @@ const schema = new mongoose.Schema(
 //   return false
 // }
 
-export default mongoose.model('Category', schema)
+export default mongoose.model('Media', schema)

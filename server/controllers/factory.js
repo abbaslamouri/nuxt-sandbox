@@ -4,52 +4,41 @@ import path from 'path'
 import ApiFeatures from '~/server/utils/ApiFeatures'
 import AppError from '~/server//utils/AppError'
 import asyncHandler from '~/server/utils/asyncHandler'
+import errorHandler from '../utils/errorHandler'
 // import { features } from 'process'
 
-const getAllDocs = (Model) => {
-  // asyncHandler(async (req, res) => {
-  // return next(new AppError(`We can't find a document with ID`, 404))
+// const getAllDocs = async (Model, params) => {
+//   let features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
+//   let docs = []
+//   if (params.populate) {
+//     console.log(params.populate)
+//     const populateOptions = `${params.populate.split(',').join(' ')}`
+//     docs = await features.query.populate(populateOptions)
+//   } else {
+//     docs = await features.query
+//   }
+//   return docs
+// }
 
-  // console.log('=======', req.query)
-
-  // return next(new AppError(`We can't find a document with ID`, 404))
-  // let features
-  let features = new ApiFeatures(Model.find(), req.query).fields().filter().search().sort().paginate()
-  // if (req.query.populate) {
-  // 	features.populate(populateOptions)
-  // }
-  // else {
-  //   features = new ApiFeatures(Model.find(), req.query).filter().search().sort().fields().paginate()
-  // }
-  let docs = []
-  if (req.query.populate) {
-    // let newPopulate = null
-    // console.log('QS', req.query.populate)
-
-    // // const popArray = req.query.populate.split(',')
-    // if (req.query.populate.includes('thumbImage')) {
-    //   newPopulate = req.query.populate.replace(' thumbImage ', ' ')
-    //   features.query.populate('thumbImage', { path: 1 })
-    // }
-    // if (req.query.populate.includes('recipeImage')) {
-    //   newPopulate = newPopulate.replace(' recipeImage ', ' ')
-    //   features.query.populate('recipeImage', { path: 1 })
-    // }
-    // // console.log('PPPPRRRR', popArray)
-    const populateOptions = `${req.query.populate.split(',').join(' ')}`
-    docs = await features.query.populate(populateOptions)
-  } else {
-    docs = await features.query
+const createDoc = async (Model, body) => {
+  try {
+    const doc = await Model.create(body)
+    // if (!doc) return new AppError(`We are not able to create a new document`, 404)
+    return doc
+  } catch (error) {
+    return errorHandler(error)
   }
-  // const count = await Model.count({})
-  // res.status(200).json({
-  // 	status: 'succes',
-  // 	results: docs.length,
-  // 	count,
-  // 	docs,
-  // })
-  return docs
-  // res.status(200).json(docs)
+}
+
+const getDoc = async (Model) => {
+  let query = Model.findById(req.params.id)
+  if (req.query.populate) {
+    const populateOptions = `${req.query.populate.split(',').join(' ')}`
+    query.populate(populateOptions)
+  }
+  const doc = await query
+  if (!doc) return next(new AppError(`We can't find a document with ID = ${req.params.id}`, 404))
+  return doc
 }
 
 const getDocsCount = (Model) =>
@@ -90,17 +79,6 @@ const deleteMedia = (Model) =>
     })
   })
 
-const createDoc = (Model) =>
-  asyncHandler(async (req, res, next) => {
-    // console.log('RRRRRRBBBBBB', req.body)
-    // return next(new AppError(`We are not able to create a new document`, 404))
-    // console.log('Body', req.body)
-    // console.log('File', req.file)
-    const doc = await Model.create(req.body)
-    if (!doc) return next(new AppError(`We are not able to create a new document`, 404))
-    res.status(201).json(doc)
-  })
-
 const updateDoc = (Model) =>
   asyncHandler(async (req, res, next) => {
     // console.log('XCXCXCXCXXC', req.body);
@@ -135,18 +113,6 @@ const createMedia = (Model) =>
     res.status(201).json(doc)
   })
 
-const getDoc = (Model) =>
-  asyncHandler(async (req, res, next) => {
-    let query = Model.findById(req.params.id)
-    if (req.query.populate) {
-      const populateOptions = `${req.query.populate.split(',').join(' ')}`
-      query.populate(populateOptions)
-    }
-    const doc = await query
-    if (!doc) return next(new AppError(`We can't find a document with ID = ${req.params.id}`, 404))
-    res.status(200).json(doc)
-  })
-
 const searchDb = (Model) =>
   asyncHandler(async (req, res) => {
     // console.log('=======', JSON.stringify(req.query));
@@ -163,7 +129,6 @@ const searchDb = (Model) =>
 // });
 
 export {
-  getAllDocs,
   deleteDoc,
   deleteManyDocs,
   deleteMedia,

@@ -1,49 +1,54 @@
 import colors from 'colors'
-import AppError from './AppError'
 
-export default (err, req, res, next) => {
-  // console.log('ERRRRRR', err.message)
-  // console.log(colors.brightRed(err))
-  // console.log(colors.brightYellow(err))
-
-  let error = { ...err }
-  error.message = err.message
-
-  // Mongoose bad ObjectId
-  if (err.name === 'CastError') {
-    error = new AppError(`Unable to find a document with this this id: ${error.value}`, 404)
-  }
+export default (error) => {
+  // console.log(colors.red.bold('ERR', error))
+  let statusCode = 200
+  let message = ''
 
   // Mongoose validation error
-  if (err.name === 'ValidationError') {
-    error = new AppError(
-      Object.values(err.errors).map((item) => item.message),
-      400
-    )
+  if (error.errors) {
+    for (const prop in error.errors) {
+      const err = error.errors[prop]
+
+      if (err.name === 'ValidatorError') {
+        message += `${err.message}.<br>`
+        statusCode = 400
+      }
+    }
+  }
+
+  // Mongoose bad ObjectId
+  if (error.name === 'CastError') {
+    message += `Unable to find a document with this id: ${error.value}.<br>`
+    statusCode = 404
   }
 
   // Mongoose duplicate key
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0]
-    const fieldValue = Object.values(err.keyValue)[0]
-    error = new AppError(
-      `${
-        field[0].toUpperCase() + field.substring(1)
-      } must be unique.  A document with ${field} = ${fieldValue} exists in the database`,
-      400
-    )
+  if (error.code === 11000) {
+    const field = Object.keys(error.keyValue)[0]
+    const fieldValue = Object.values(error.keyValue)[0]
+    message += `${
+      field[0].toUpperCase() + field.substring(1)
+    } must be unique.  A document with ${field} = ${fieldValue} exists in the database.<br>`
+    statusCode = 400
   }
 
-  console.log('ERR', error.message)
-  // console.log('ERR', error.message.split(',').join('<br>'))?
+  // ReferenceError error
+  if (error.name === 'ReferenceError') {
+    message += `${error.message}.<br>`
+    statusCode = 400
+  }
 
-  res.status(error.statusCode || 500).json({
-    // statusCode: error.statusCode || 500,
-    name: error.name,
+  // custom error
+  if (error.customError) {
+    message += `${error.message}.<br>`
+    statusCode = error.statusCode
+  }
+
+  return {
+    statusCode: statusCode || 500,
     errors: error.errors,
-    errorCode: error.code,
-    errorValue: error.value,
     status: 'error',
-    message: error.message.split(',').join('<br>') || 'Server error',
-  })
+    message: message || 'Server error',
+  }
 }
