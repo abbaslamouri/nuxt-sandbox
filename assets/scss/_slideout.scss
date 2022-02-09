@@ -1,0 +1,67 @@
+.slideout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9;
+  // height: 100vh;
+  // width: 100vw;
+
+  // overflow:scroll;
+  // min-height: 100vh;
+
+  // .overlay {
+  //   // opacity: 0.8;
+  //   // z-index: 99;
+  //   overflow: hidden;
+  // }
+
+  .dialog {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    max-width: 1040px;
+
+    // height:80vh;
+    // max-width: 800px;
+    background-color: white;
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2rem;
+      background-color: white;
+      .btn {
+        svg {
+          width: 1.8rem;
+          height: 1.8rem;
+        }
+      }
+    }
+
+    .main {
+      background-color: $slate-100;
+      border: 1px solid teal;
+      flex: 1;
+      overflow-y: scroll;
+      padding: 2rem;
+
+      // border: 1px solid green;
+      // min-height: 100%;
+    }
+
+    .footer {
+      align-self: flex-end;
+      display: flex;
+      align-items: center;
+      // justify-content: space-between;
+      gap: 2rem;
+      padding: 2rem;
+      background-color: white;
+    }
+  }
+}

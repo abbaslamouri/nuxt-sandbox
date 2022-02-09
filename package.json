@@ -9,7 +9,12 @@
     "nuxt3": "latest"
   },
   "dependencies": {
+    "@pinia/nuxt": "^0.1.8",
     "colors": "^1.4.0",
-    "mongoose": "^6.2.1"
+    "mongoose": "^6.2.1",
+    "pinia": "^2.0.11",
+    "sass": "^1.49.7",
+    "sass-loader": "^12.4.0",
+    "slugify": "^1.6.5"
   }
 }

@@ -1,4 +1,7 @@
 <script setup>
+definePageMeta({
+  // layout: 'admin',
+})
 const categories = ref([])
 
 try {
