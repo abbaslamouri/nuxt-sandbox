@@ -28,7 +28,7 @@ if (process.client) {
     <main :class="{ full: !showAdminSidebar }">
       <header>
         <MobileNavToggler @hideAdminSidebar="showAdminSidebar = !showAdminSidebar" />
-        <ProfileNav class="profile" />
+        <!-- <ProfileNav class="profile" /> -->
       </header>
       <div class="content">
         <slot />
