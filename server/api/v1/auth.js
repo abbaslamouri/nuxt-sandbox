@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import Email from '~/server/utils/Email'
 import { useBody, useQuery, setCookie } from 'h3'
 import config from '#config'
@@ -10,121 +11,170 @@ import User from '~/server/models/user'
 import errorHandler from '~/server/utils/errorHandler'
 
 export default async (req, res) => {
-	const sendTokenResponse = async (res, user = null, expiresIn = null) => {
-		let auth = null
-		if (user) {
-			const token = await user.getSinedJwtToken()
-			auth = { token, user: { name: user.name, email: user.email, role: user.role } }
-		}
-		const expires = !expiresIn
-			? new Date(Date.now() + config.COOKIE_EXPIRE * 24 * 60 * 60 * 1000)
-			: new Date(Date.now() + expiresIn)
+  const sendTokenResponse = async (res, user = null, expiresIn = null) => {
+    let auth = null
+    if (user) {
+      const token = await user.getSinedJwtToken()
+      auth = { token, user: { name: user.name, email: user.email, role: user.role } }
+    }
+    const expires = !expiresIn
+      ? new Date(Date.now() + config.COOKIE_EXPIRE * 24 * 60 * 60 * 1000)
+      : new Date(Date.now() + expiresIn)
 
-		setCookie(res, 'auth', JSON.stringify(auth), {
-			expires,
-			httpOnly: true,
-			secure: config.NODE_ENV === 'production' ? true : false,
-			path: '/',
-		})
-		return auth
-	}
+    setCookie(res, 'auth', JSON.stringify(auth), {
+      expires,
+      httpOnly: true,
+      secure: config.NODE_ENV === 'production' ? true : false,
+      path: '/',
+    })
+    return auth
+  }
 
-	let response = null
-	res.statusCode = 200
-	// const params = await useQuery(req)
-	const urlPath = req.url.split('/')
-	console.log(urlPath)
+  res.statusCode = 200
+  const urlPath = req.url.split('/')
 
-	// Register
-	if (req.method === 'POST' && urlPath[1] === 'register') {
-		let user = null
-		try {
-			const body = await useBody(req)
-			user = await User.create({
-				name: body.name,
-				email: body.email,
-				password: '@#ASgghgjjjjj&*LKKLKLKLKpppp',
-			})
-		} catch (error) {
-			const err = errorHandler(error)
-			res.statusCode = err.statusCode
-			return err.message
-		}
+  // @desc      signup
+  // @route     POST /api/v1/auth/signup
+  // @access    Public
+  if (req.method === 'POST' && urlPath[1] === 'signup') {
+    let user = null
+    try {
+      const body = await useBody(req)
+      user = await User.create({
+        name: body.name,
+        email: body.email,
+        password: '@#ASgghgjjjjj&*LKKLKLKLKpppp',
+      })
+    } catch (error) {
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
 
-		try {
-			const token = await user.createPasswordResetToken()
-			const url = `${config.BASE_URL}/auth/complete-registration?token=${token}`
-			await user.save()
-			user.password = undefined
+    try {
+      const token = await user.createPasswordResetToken()
+      const url = `${config.BASE_URL}/signup-complete?token=${token}`
+      await user.save()
+      user.password = undefined
+      await new Email(user, url).sendCompleteRegistration()
+      // res.statusCode = 200
+      return {
+        // ...(await sendTokenResponse(res, user)),
+        status: 'success',
+        message: `Email sent to ${user.email}.  Please follow the link in your email to complete your registration`,
+      }
+    } catch (err) {
+      console.log(err)
+      user.passwordResetToken = undefined
+      user.passwordResetExpire = undefined
+      await user.save({ validateBeforeSave: false })
+      res.statusCode = 500
+      return 'Email coulnd not be sent, please try agian later'
+    }
+  }
 
-			await new Email(user, url).sendCompleteRegistration()
-			res.statusCode = 200
-			return {
-				...(await sendTokenResponse(res, user)),
-				status: 'success',
-				message: `Email sent to ${user.email}.  Please follow the link in your email to complete your registration`,
-			}
-		} catch (err) {
-			console.log(err)
-			user.passwordResetToken = undefined
-			user.passwordResetExpire = undefined
-			await user.save({ validateBeforeSave: false })
-			res.statusCode = 500
-			return 'Email coulnd not be sent, please try agian later'
-		}
-	}
+  // @desc      signup-complete
+  // @route     POST /api/v1/auth/signup-complete
+  // @access    Public
+  if (req.method === 'PATCH' && urlPath[1] === 'signup-complete') {
+    try {
+      const body = await useBody(req)
+      console.log(body)
+      const hashedToken = await crypto.createHash('sha256').update(body.token).digest('hex')
+      const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpire: { $gt: Date.now() },
+      })
 
-	// Login
-	if (req.method === 'POST' && urlPath[1] === 'login') {
-		try {
-			const body = await useBody(req)
-			const { email, password } = body
-			if (!email || !password) {
-				const newError = new Error(`Email and Password are required`)
-				newError.customError = true
-				newError.statusCode = 401
-				throw newError
-			}
-			const user = await User.findOne({ email }).select('+password').populate({ path: 'avatar' })
-			if (!user || !(await user.checkPassword(password))) {
-				user.password = undefined
-				const newError = new Error(`Invalid email and/or password`)
-				newError.customError = true
-				newError.statusCode = 401
-				throw newError
-			}
-			res.statusCode = 200
-			return await sendTokenResponse(res, user)
-		} catch (error) {
-			const err = errorHandler(error)
-			res.statusCode = err.statusCode
-			return err.message
-		}
-	}
+      if (!user) {
+        const newError = new Error(`Your registration token is invlaid or has expired`)
+        newError.customError = true
+        newError.statusCode = 400
+        throw newError
+      }
 
-	// Logout
-	if (urlPath[1] === 'logout') {
-		try {
-			res.statusCode = 200
-			await sendTokenResponse(res)
-			return 'DONE'
-		} catch (error) {
-			const err = errorHandler(error)
-			res.statusCode = err.statusCode
-			return err.message
-		}
-	}
+      if (user.email !== body.email.toLowerCase()) {
+        const newError = new Error(`Invlaid email for this token`)
+        newError.customError = true
+        newError.statusCode = 400
+        throw newError
+      }
+      user.password = body.password
+      user.passwordResetToken = undefined
+      user.passwordResetExpire = undefined
+      await user.save()
+      user.password = undefined
 
-	try {
-		const newError = new Error(`No match found for location with path ${req.url}`)
-		newError.customError = true
-		newError.statusCode = 401
-		throw newError
-	} catch (error) {
-		const err = errorHandler(error)
-		res.statusCode = err.statusCode
-		return err.message
-	}
+      const url = `${config.BASE_URL}`
+      await new Email(user, url).sendWelcome()
+      // res.statusCode = 200
+      return {
+        ...(await sendTokenResponse(res, user)),
+        status: 'success',
+        message: `Registration succesful`,
+      }
+    } catch (error) {
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
+
+  // @desc      login
+  // @route     POST /api/v1/auth/login
+  // @access    Public
+  if (req.method === 'POST' && urlPath[1] === 'login') {
+    try {
+      const body = await useBody(req)
+      const { email, password } = body
+      if (!email || !password) {
+        const newError = new Error(`Email and Password are required`)
+        newError.customError = true
+        newError.statusCode = 401
+        throw newError
+      }
+      const user = await User.findOne({ email }).select('+password').populate({ path: 'avatar' })
+      if (!user || !(await user.checkPassword(password))) {
+        user.password = undefined
+        const newError = new Error(`Invalid email and/or password`)
+        newError.customError = true
+        newError.statusCode = 401
+        throw newError
+      }
+      // res.statusCode = 200
+      return await sendTokenResponse(res, user)
+    } catch (error) {
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
+
+  // @desc      logout
+  // @route     POST /api/v1/auth/logout
+  // @access    Public
+  if (urlPath[1] === 'logout') {
+    try {
+      // res.statusCode = 200
+      await sendTokenResponse(res)
+      return null
+    } catch (error) {
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
+
+  try {
+    const newError = new Error(`No match found for location with path ${req.url}`)
+    newError.customError = true
+    newError.statusCode = 401
+    throw newError
+  } catch (error) {
+    const err = errorHandler(error)
+    res.statusCode = err.statusCode
+    return err.message
+  }
 }
 
 // const id = req.url.split('/')[1]

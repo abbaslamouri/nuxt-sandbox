@@ -1,72 +1,91 @@
 .slide-right-enter-from,
 .slide-right-leave-to {
-	transform: translateX(-100%);
-	opacity: 0;
+  transform: translateX(-100%);
+  opacity: 0;
 }
 
 .slide-right-enter-to,
 .slide-right-leave-from {
-	transform: translateX(0);
-	opacity: 1;
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .slide-right-enter-active,
 .slide-right-leave-active {
-	transition: all 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .slide-enter-from,
 .slide-leave-to {
-	transform: translateX(100%);
-	opacity: 0;
+  transform: translateX(100%);
+  opacity: 0;
 }
 
 .slide-enter-to,
 .slide-leave-from {
-	transform: translateX(0);
-	opacity: 1;
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .slide-enter-active,
 .slide-leave-active {
-	transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .dropdown-leave-from,
 .dropdown-enter-to {
-	// max-height: 50rem;
-	// overflow: hidden;
-	opacity: 1;
+  // max-height: 50rem;
+  // overflow: hidden;
+  opacity: 1;
 }
 
 .dropdown-enter-from,
 .dropdown-leave-to {
-	// overflow: hidden;
-	// max-height: 0;
+  // overflow: hidden;
+  // max-height: 0;
 
-	opacity: 0;
+  opacity: 0;
 }
 
 .dropdown-enter-active,
 .dropdown-leave-active {
-	transition: all 1s ease-in-out;
+  transition: all 1s ease-in-out;
 }
 
 .carousel-rtl-enter-from,
 .carousel-ltr-leave-to {
-	transform: translateX(100%);
-	// opacity: 0;
+  transform: translateX(100%);
+  // opacity: 0;
 }
 
 .carousel-rtl-leave-to,
 .carousel-ltr-enter-from {
-	transform: translateX(-100%);
-	// opacity: 0;
+  transform: translateX(-100%);
+  // opacity: 0;
 }
 
 .carousel-rtl-enter-active,
 .carousel-rtl-leave-active,
 .carousel-ltr-enter-active,
 .carousel-ltr-leave-active {
-	transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+}
+
+.rtl-enter-active,
+.rtl-leave-active,
+.ltr-enter-active,
+.ltr-leave-active {
+  transition: all 0.5s ease-in-out;
+}
+
+.rtl-enter-from,
+.rtl-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.ltr-enter-from,
+.ltr-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
 }
