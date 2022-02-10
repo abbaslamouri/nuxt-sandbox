@@ -144,20 +144,6 @@ const logout = asyncHandler(async (req, res, next) => {
 		httpOnly: true,
 	})
 
-	// res.cookie('user', null, {
-	//   expires: new Date(Date.now() + 1000),
-	//   httpOnly: true,
-	// })
-
-	// res.cookie('user-name', '', {
-	//   expires: new Date(Date.now() + 1000),
-	//   httpOnly: true,
-	// })
-	// res.cookie('user-avatar', '', {
-	//   expires: new Date(Date.now() + 1000),
-	//   httpOnly: true,
-	// })
-
 	res.status(200).json({
 		status: 'success',
 		data: null,

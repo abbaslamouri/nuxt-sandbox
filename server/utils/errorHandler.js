@@ -29,7 +29,7 @@ export default (error) => {
 		const fieldValue = Object.values(error.keyValue)[0]
 		message += `${
 			field[0].toUpperCase() + field.substring(1)
-		} must be unique.  A document with ${field} = ${fieldValue} exists in the database.<br>`
+		} must be unique.  A document with ${field} = ${fieldValue} exists in the database.\n`
 		statusCode = 400
 	}
 

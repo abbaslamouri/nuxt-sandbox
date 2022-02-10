@@ -1,34 +1,21 @@
 <script setup>
 	import { useAuth } from '~/store/useAuth'
 
+	const router = useRouter()
 	const auth = useAuth()
-
 	const showAuthForm = ref(false)
-
 	const user = reactive({
 		email: '',
 		password: '',
 	})
 
-	const handleSignin = async () => {
-		try {
-			const response = await $fetch('/api/v1/auth/login', { method: 'POST', body: user })
-			console.log(response)
-		} catch (error) {
-			console.log(error.data)
-		}
+	const register = async () => {
+		router.push({ name: 'register' })
 		showAuthForm.value = false
 	}
 
-	const handleSignup = async () => {
-		// console.log(user);
-		// mainStore.setSnackbar({ show: false })
-		await auth.login(user)
-		if (!auth.errorMsg) {
-			// router.push(route.path || '/admin')
-			// } else {
-			//   mainStore.setSnackbar({ show: true, message: auth.errorMsg })
-		}
+	const signin = async () => {
+		auth.login(user)
 		showAuthForm.value = false
 	}
 </script>
@@ -48,17 +35,21 @@
 			</div>
 
 			<div>
-				<!-- <NuxtLink class="forgot-password" :to="{ name: `auth-forgot-password` }">Forgot Password?</NuxtLink> -->
+				<!-- <NuxtLink class="link btn" :to="{ name: `auth-forgot-password` }">Forgot Password?</NuxtLink> -->
 			</div>
-			<button class="btn btn-primary flex" @click.prevent="handleSignin">
+			<button class="btn btn-primary" @click.prevent="signin">
 				<p>Sign in</p>
 				<IconsChevronRight />
 			</button>
 			<p class="new-user">New User?</p>
-			<button class="btn btn-primary flex" @click.prevent="handleSignup">
+			<button class="btn btn-primary" @click.prevent="register">
 				<p>Create an account</p>
 				<IconsChevronRight />
 			</button>
+			<!-- <NuxtLink class="link btn" :to="{ name: `register` }">
+        <p>Create an account</p>
+        <IconsChevronRight />
+      </NuxtLink> -->
 		</form>
 		<div class="overlay" v-if="showAuthForm" @click="showAuthForm = !showAuthForm"></div>
 	</div>
@@ -140,6 +131,10 @@
 				background-color: $slate-50;
 				color: $slate-800;
 				border-radius: 3px;
+
+				svg {
+					fill: $slate-800;
+				}
 			}
 		}
 	}

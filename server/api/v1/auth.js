@@ -1,4 +1,7 @@
+import Email from '~/server/utils/Email'
 import { useBody, useQuery, setCookie } from 'h3'
+import config from '#config'
+
 // import { getDoc, createDoc, deleteDoc, updateDoc } from '~/server/controllers/factory'
 // import { login } from '~/server/controllers/auth'
 // import ApiFeatures from '~/server/utils/ApiFeatures'
@@ -7,25 +10,73 @@ import User from '~/server/models/user'
 import errorHandler from '~/server/utils/errorHandler'
 
 export default async (req, res) => {
-	const sendTokenResponse = async (user, res) => {
-		const token = await user.getSinedJwtToken()
-		const auth = { token, user: { name: user.name, email: user.email, role: user.role } }
+	const sendTokenResponse = async (res, user = null, expiresIn = null) => {
+		let auth = null
+		if (user) {
+			const token = await user.getSinedJwtToken()
+			auth = { token, user: { name: user.name, email: user.email, role: user.role } }
+		}
+		const expires = !expiresIn
+			? new Date(Date.now() + config.COOKIE_EXPIRE * 24 * 60 * 60 * 1000)
+			: new Date(Date.now() + expiresIn)
 
 		setCookie(res, 'auth', JSON.stringify(auth), {
-			expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
+			expires,
 			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production' ? true : false,
+			secure: config.NODE_ENV === 'production' ? true : false,
+			path: '/',
 		})
 		return auth
 	}
 
-	try {
-		let response = null
-		res.statusCode = 200
-		const params = await useQuery(req)
-		const urlPath = req.url.split('/')
+	let response = null
+	res.statusCode = 200
+	// const params = await useQuery(req)
+	const urlPath = req.url.split('/')
+	console.log(urlPath)
 
-		if (req.method === 'POST' && urlPath[1] === 'login') {
+	// Register
+	if (req.method === 'POST' && urlPath[1] === 'register') {
+		let user = null
+		try {
+			const body = await useBody(req)
+			user = await User.create({
+				name: body.name,
+				email: body.email,
+				password: '@#ASgghgjjjjj&*LKKLKLKLKpppp',
+			})
+		} catch (error) {
+			const err = errorHandler(error)
+			res.statusCode = err.statusCode
+			return err.message
+		}
+
+		try {
+			const token = await user.createPasswordResetToken()
+			const url = `${config.BASE_URL}/auth/complete-registration?token=${token}`
+			await user.save()
+			user.password = undefined
+
+			await new Email(user, url).sendCompleteRegistration()
+			res.statusCode = 200
+			return {
+				...(await sendTokenResponse(res, user)),
+				status: 'success',
+				message: `Email sent to ${user.email}.  Please follow the link in your email to complete your registration`,
+			}
+		} catch (err) {
+			console.log(err)
+			user.passwordResetToken = undefined
+			user.passwordResetExpire = undefined
+			await user.save({ validateBeforeSave: false })
+			res.statusCode = 500
+			return 'Email coulnd not be sent, please try agian later'
+		}
+	}
+
+	// Login
+	if (req.method === 'POST' && urlPath[1] === 'login') {
+		try {
 			const body = await useBody(req)
 			const { email, password } = body
 			if (!email || !password) {
@@ -43,58 +94,73 @@ export default async (req, res) => {
 				throw newError
 			}
 			res.statusCode = 200
-			return sendTokenResponse(user, res)
-
-			// response = await login(await useBody(req))
-			// if (response && response.status === 'error') {
-			// 	console.log('PPPPP', response)
-			// 	res.statusCode = response.statusCode
-			// 	return response.message
-			// } else {
-			// 	return response
-			// }
+			return await sendTokenResponse(res, user)
+		} catch (error) {
+			const err = errorHandler(error)
+			res.statusCode = err.statusCode
+			return err.message
 		}
+	}
+
+	// Logout
+	if (urlPath[1] === 'logout') {
+		try {
+			res.statusCode = 200
+			await sendTokenResponse(res)
+			return 'DONE'
+		} catch (error) {
+			const err = errorHandler(error)
+			res.statusCode = err.statusCode
+			return err.message
+		}
+	}
+
+	try {
+		const newError = new Error(`No match found for location with path ${req.url}`)
+		newError.customError = true
+		newError.statusCode = 401
+		throw newError
 	} catch (error) {
 		const err = errorHandler(error)
 		res.statusCode = err.statusCode
 		return err.message
 	}
-
-	// const id = req.url.split('/')[1]
-	// console.log('ID', id)
-	// console.log('RM', req.method)
-
-	// // // Get all categories
-	// if (req.method === 'GET' && !id) {
-	// 	let features = new ApiFeatures(Category.find(), params).filter().fields().search().sort().paginate()
-	// 	const docs = await features.query.populate('gallery', { name: 1, path: 1 }).populate('parent', { name: 1 })
-	// 	return docs
-	// }
-
-	// if (req.method === 'POST') {
-	// 	const body = await useBody(req)
-	// 	// console.log(body)
-	// 	const doc = await createDoc(Category, body)
-	// 	// console.log(doc)
-	// 	return doc
-	// }
-
-	// // Get category by ID
-	// if (req.method === 'GET' && id) {
-	// 	try {
-	// 		const doc = await Category.findById(id).select('name').populate('gallery', { path: 1 })
-	// 		if (!doc) {
-	// 			const newError = new Error(`We cannot find any documents with this ID = ${id}`)
-	// 			newError.customError = true
-	// 			newError.statusCode = 400
-	// 			throw newError
-	// 		}
-	// 		return doc
-	// 	} catch (error) {
-	// 		return errorHandler(error)
-	// 	}
-	// }
 }
+
+// const id = req.url.split('/')[1]
+// console.log('ID', id)
+// console.log('RM', req.method)
+
+// // // Get all categories
+// if (req.method === 'GET' && !id) {
+// 	let features = new ApiFeatures(Category.find(), params).filter().fields().search().sort().paginate()
+// 	const docs = await features.query.populate('gallery', { name: 1, path: 1 }).populate('parent', { name: 1 })
+// 	return docs
+// }
+
+// if (req.method === 'POST') {
+// 	const body = await useBody(req)
+// 	// console.log(body)
+// 	const doc = await createDoc(Category, body)
+// 	// console.log(doc)
+// 	return doc
+// }
+
+// // Get category by ID
+// if (req.method === 'GET' && id) {
+// 	try {
+// 		const doc = await Category.findById(id).select('name').populate('gallery', { path: 1 })
+// 		if (!doc) {
+// 			const newError = new Error(`We cannot find any documents with this ID = ${id}`)
+// 			newError.customError = true
+// 			newError.statusCode = 400
+// 			throw newError
+// 		}
+// 		return doc
+// 	} catch (error) {
+// 		return errorHandler(error)
+// 	}
+// }
 
 // import express from 'express';
 // import errorHandler from '~/server/utils/errorHandler';
