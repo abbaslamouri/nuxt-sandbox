@@ -12,32 +12,11 @@
 
 	const handleSignin = async () => {
 		try {
-			// // const appError = useError()
-			// this.errorMsg = ''
-			// try {
-			//   const response = await http.post('v1/auth/login', payload)
-			//   // console.log(response.data)
-			//   // this.auth = response.data
-			//   this.user = response.data.user
-			//   this.token = response.data.token
-			// } catch (err) {
-			//   console.log('MyERROR', err.response)
-			//   this.errorMsg = err.response.data.message || err.response.data.statusMessage
-			//   // appError.setSnackbar(true, this.errorMsg)
-			// }
 			const response = await $fetch('/api/v1/auth/login', { method: 'POST', body: user })
 			console.log(response)
 		} catch (error) {
 			console.log(error.data)
 		}
-		// console.log(user);
-		// mainStore.setSnackbar({ show: false })
-		// await auth.login(user)
-		// if (!auth.errorMsg) {
-		// router.push(route.path || '/admin')
-		// } else {
-		//   mainStore.setSnackbar({ show: true, message: auth.errorMsg })
-		// }
 		showAuthForm.value = false
 	}
 
