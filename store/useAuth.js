@@ -77,23 +77,30 @@ export const useAuth = defineStore('auth', {
         console.log('MyERROR', err.data)
         this.errorMsg = err.data
       }
-      // // const mainStore = useMainStore()
-      // this.errorMsg = ''
-      // try {
-      //   const response = await http.patch(`v1/auth/complete-registration/${payload.token}`, payload.user)
-      //   // console.log(response)
-      //   this.user = response.data.user
-      //   this.token = response.data.token
-      // } catch (err) {
-      //   console.log('MyERROR', err.response)
-      //   this.errorMsg = err.response.data.message || err.response.data.statusMessage
-      //   // mainStore.setSnackbar({
-      //   //   show: true,
-      //   //   snackbarType: 'error',
-      //   //   message: this.errorMsg,
-      //   //   duration: 5,
-      //   // })
-      // }
+    },
+
+    async forgotPassword(payload) {
+      this.errorMsg = ''
+      try {
+        const response = await $fetch('auth/forgot-password', { baseURL: this.apiURL, method: 'POST', body: payload })
+        this.message = response.message
+        console.log(response)
+      } catch (err) {
+        console.log('MyERROR', err.data)
+        this.errorMsg = err.data
+      }
+    },
+
+    async resetPassword(payload) {
+      this.errorMsg = ''
+      try {
+        const response = await $fetch('auth/resetpassword', { baseURL: this.apiURL, method: 'PATCH', body: payload })
+        this.message = response.message
+        console.log(response)
+      } catch (err) {
+        console.log('MyERROR', err.data)
+        this.errorMsg = err.data
+      }
     },
 
     async updateCurrentUserAvatar(payload) {

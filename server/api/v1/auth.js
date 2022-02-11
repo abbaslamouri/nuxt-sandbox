@@ -1,12 +1,7 @@
 import crypto from 'crypto'
 import Email from '~/server/utils/Email'
-import { useBody, useQuery, setCookie } from 'h3'
+import { useBody, setCookie } from 'h3'
 import config from '#config'
-
-// import { getDoc, createDoc, deleteDoc, updateDoc } from '~/server/controllers/factory'
-// import { login } from '~/server/controllers/auth'
-// import ApiFeatures from '~/server/utils/ApiFeatures'
-
 import User from '~/server/models/user'
 import errorHandler from '~/server/utils/errorHandler'
 
@@ -45,31 +40,29 @@ export default async (req, res) => {
         email: body.email,
         password: '@#ASgghgjjjjj&*LKKLKLKLKpppp',
       })
-    } catch (error) {
-      const err = errorHandler(error)
-      res.statusCode = err.statusCode
-      return err.message
-    }
-
-    try {
+      if (!user) {
+        const newError = new Error(`We are not able to create a new user at this time, please try again later`)
+        newError.customError = true
+        newError.statusCode = 400
+        throw newError
+      }
       const token = await user.createPasswordResetToken()
       const url = `${config.BASE_URL}/signup-complete?token=${token}`
       await user.save()
-      user.password = undefined
       await new Email(user, url).sendCompleteRegistration()
-      // res.statusCode = 200
       return {
-        // ...(await sendTokenResponse(res, user)),
-        status: 'success',
-        message: `Email sent to ${user.email}.  Please follow the link in your email to complete your registration`,
+        message: `Email sent to ${user.email}.  Please follow the link in your email to complete your registration.  Please note that you have 1 hour to complete your registration`,
       }
-    } catch (err) {
-      console.log(err)
-      user.passwordResetToken = undefined
-      user.passwordResetExpire = undefined
-      await user.save({ validateBeforeSave: false })
-      res.statusCode = 500
-      return 'Email coulnd not be sent, please try agian later'
+    } catch (error) {
+      // console.log(error)
+      if (user) {
+        user.passwordResetToken = undefined
+        user.passwordResetExpire = undefined
+        user.save({ validateBeforeSave: false })
+      }
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
     }
   }
 
@@ -79,20 +72,17 @@ export default async (req, res) => {
   if (req.method === 'PATCH' && urlPath[1] === 'signup-complete') {
     try {
       const body = await useBody(req)
-      console.log(body)
       const hashedToken = await crypto.createHash('sha256').update(body.token).digest('hex')
       const user = await User.findOne({
         passwordResetToken: hashedToken,
         passwordResetExpire: { $gt: Date.now() },
       })
-
       if (!user) {
         const newError = new Error(`Your registration token is invlaid or has expired`)
         newError.customError = true
         newError.statusCode = 400
         throw newError
       }
-
       if (user.email !== body.email.toLowerCase()) {
         const newError = new Error(`Invlaid email for this token`)
         newError.customError = true
@@ -103,14 +93,9 @@ export default async (req, res) => {
       user.passwordResetToken = undefined
       user.passwordResetExpire = undefined
       await user.save()
-      user.password = undefined
-
       const url = `${config.BASE_URL}`
       await new Email(user, url).sendWelcome()
-      // res.statusCode = 200
       return {
-        ...(await sendTokenResponse(res, user)),
-        status: 'success',
         message: `Registration succesful`,
       }
     } catch (error) {
@@ -133,17 +118,18 @@ export default async (req, res) => {
         newError.statusCode = 401
         throw newError
       }
-      const user = await User.findOne({ email }).select('+password').populate({ path: 'avatar' })
+      const user = await User.findOne({ email }).select('+password').populate('avatar', { path: 1 })
       if (!user || !(await user.checkPassword(password))) {
-        user.password = undefined
         const newError = new Error(`Invalid email and/or password`)
         newError.customError = true
         newError.statusCode = 401
         throw newError
       }
-      // res.statusCode = 200
+      user.password = undefined
+
       return await sendTokenResponse(res, user)
     } catch (error) {
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -165,6 +151,75 @@ export default async (req, res) => {
     }
   }
 
+  // @desc      forgot-password
+  // @route     POST /api/v1/auth/forgot-password
+  // @access    Public
+  if (req.method === 'POST' && urlPath[1] === 'forgot-password') {
+    let user = null
+    try {
+      const { email } = await useBody(req)
+      console.log(email)
+      if (!email) {
+        const newError = new Error(`Please enter a valid email`)
+        newError.customError = true
+        newError.statusCode = 404
+        throw newError
+      }
+      user = await User.findOne({ email })
+      if (!user) {
+        const newError = new Error(`We cannot find user with this email in our database`)
+        newError.customError = true
+        newError.statusCode = 404
+        throw newError
+      }
+      const resetToken = await user.createPasswordResetToken()
+      const url = `${config.BASE_URL}/${resetToken}`
+      await user.save({ validateBeforeSave: false })
+      await new Email(user, url).sendPasswordReset()
+      return {
+        message: `Email sent to ${user.email}.  Please follow the link in your email to reset your pasword.  Please note that you have 1 hour to reset your password`,
+      }
+    } catch (error) {
+      // console.log(error)
+      if (user) {
+        user.passwordResetToken = undefined
+        user.passwordResetExpire = undefined
+        user.save({ validateBeforeSave: false })
+      }
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
+
+  // @desc      resetpassword
+  // @route     POST /api/v1/auth/resetpassword
+  // @access    Public
+  if (req.method === 'PATCH' && urlPath[1] === 'resetpassword') {
+    try {
+      const { password, resetToken } = await useBody(req)
+      const hashedToken = await crypto.createHash('sha256').update(resetToken).digest('hex')
+      const user = await User.findOne({ passwordResetToken: hashedToken, passwordResetExpire: { $gt: Date.now() } })
+      if (!user) {
+        const newError = new Error(`Token is invlaid or has expired`)
+        newError.customError = true
+        newError.statusCode = 400
+        throw newError
+      }
+      user.password = password
+      user.passwordResetToken = undefined
+      user.passwordResetExpire = undefined
+      await user.save()
+      return {
+        message: `password reset succesful`,
+      }
+    } catch (error) {
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
+
   try {
     const newError = new Error(`No match found for location with path ${req.url}`)
     newError.customError = true
@@ -176,41 +231,6 @@ export default async (req, res) => {
     return err.message
   }
 }
-
-// const id = req.url.split('/')[1]
-// console.log('ID', id)
-// console.log('RM', req.method)
-
-// // // Get all categories
-// if (req.method === 'GET' && !id) {
-// 	let features = new ApiFeatures(Category.find(), params).filter().fields().search().sort().paginate()
-// 	const docs = await features.query.populate('gallery', { name: 1, path: 1 }).populate('parent', { name: 1 })
-// 	return docs
-// }
-
-// if (req.method === 'POST') {
-// 	const body = await useBody(req)
-// 	// console.log(body)
-// 	const doc = await createDoc(Category, body)
-// 	// console.log(doc)
-// 	return doc
-// }
-
-// // Get category by ID
-// if (req.method === 'GET' && id) {
-// 	try {
-// 		const doc = await Category.findById(id).select('name').populate('gallery', { path: 1 })
-// 		if (!doc) {
-// 			const newError = new Error(`We cannot find any documents with this ID = ${id}`)
-// 			newError.customError = true
-// 			newError.statusCode = 400
-// 			throw newError
-// 		}
-// 		return doc
-// 	} catch (error) {
-// 		return errorHandler(error)
-// 	}
-// }
 
 // import express from 'express';
 // import errorHandler from '~/server/utils/errorHandler';

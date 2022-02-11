@@ -6,7 +6,7 @@ const router = useRouter()
 const auth = useAuth()
 const appMessage = useMessage()
 const user = reactive({
-  name: 'AXL Lamouri',
+  name: 'Abbas Lamouri',
   email: 'lamouri@genvac.com',
   // password: 'arar0714',
 })
@@ -27,7 +27,6 @@ const signup = async () => {
 <template>
   <div class="signup">
     <form @submit.prevent="signup">
-      {{ appMessage.snackbar }}======{{ appMessage.snackbar }}
       <p>Please fill the form below. Fields marked with * are required.</p>
       <FormsBaseInput v-model="user.name" label="Name" placeholder="name" />
       <FormsBaseInput type="email" v-model="user.email" label="Email" placeholder="Email" />

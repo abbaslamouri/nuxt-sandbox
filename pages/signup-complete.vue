@@ -21,15 +21,16 @@ const signupComplete = async () => {
   }
   if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
 }
+
+const getNewToken = async () => {
+  router.push({ name: 'forgot-password' })
+  showAuthForm.value = false
+}
 </script>
 
 <template>
   <main class="signup-complete">
     <form @submit.prevent="signupComplete">
-      <!-- <p class="account-check">
-        Already have an account?
-        <NuxtLink class="nuxt-link" :to="{ name: `auth-login` }">Login</NuxtLink>
-      </p> -->
       <h2>Complete Registration</h2>
       <FormsBaseInput type="email" label="Email" placeholder="Email" v-model="user.email" :required="true" />
       <FormsBaseInput
@@ -40,6 +41,12 @@ const signupComplete = async () => {
         :required="true"
         minlength="8"
       />
+      <div class="invalid-token" v-if="auth.errorMsg">
+        <p>{{ auth.errorMsg }}</p>
+        <button class="btn btn-primary" @click.prevent="getNewToken">
+          <p>Click Here to get a new token</p>
+        </button>
+      </div>
       <button class="btn btn-primary">Sign Up</button>
     </form>
   </main>
@@ -66,6 +73,14 @@ const signupComplete = async () => {
     height: 50%;
     padding: 3rem 4rem;
     border-radius: 5px;
+
+    .invalid-token {
+      margin-top: 2rem;
+      border-radius: 5px;
+      background-color: $amber-200;
+      padding: 4rem 2rem;
+      line-height: 3rem;
+    }
 
     .btn {
       align-self: flex-end;

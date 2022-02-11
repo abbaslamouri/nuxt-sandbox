@@ -1,8 +1,10 @@
 <script setup>
 import { useAuth } from '~/store/useAuth'
+import { useMessage } from '~/store/useMessage'
 
 const router = useRouter()
 const auth = useAuth()
+const appMessage = useMessage()
 const showAuthForm = ref(false)
 const user = reactive({
   email: '',
@@ -15,7 +17,15 @@ const register = async () => {
 }
 
 const signin = async () => {
-  auth.login(user)
+  appMessage.snackbar.show = false
+  await auth.login(user)
+  showAuthForm.value = false
+  if (auth.message) appMessage.setSnackbar(true, auth.message, 'Success')
+  if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
+}
+
+const forgotPassword = async () => {
+  router.push({ name: 'forgot-password' })
   showAuthForm.value = false
 }
 </script>
@@ -35,7 +45,11 @@ const signin = async () => {
       </div>
 
       <div>
-        <!-- <NuxtLink class="link btn" :to="{ name: `auth-forgot-password` }">Forgot Password?</NuxtLink> -->
+        <button class="btn btn-primary" @click.prevent="forgotPassword">
+          <p>Forgot Password?</p>
+          <IconsChevronRight />
+        </button>
+        <!-- <NuxtLink class="link btn" :to="{ name: `forgot-password` }">Forgot Password?</NuxtLink> -->
       </div>
       <button class="btn btn-primary" @click.prevent="signin">
         <p>Sign in</p>
@@ -120,17 +134,18 @@ const signin = async () => {
       margin-bottom: 2rem;
     }
 
-    .forgot-password,
-    .new-user {
-      text-transform: uppercase;
-      font-size: 1.2rem;
-    }
+    // .forgot-password,
+    // .new-user {
+    //   text-transform: uppercase;
+    //   font-size: 1.2rem;
+    // }
 
     .btn {
       justify-content: space-between;
       background-color: $slate-50;
       color: $slate-800;
       border-radius: 3px;
+      width: 100%;
 
       svg {
         fill: $slate-800;

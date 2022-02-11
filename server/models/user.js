@@ -82,7 +82,7 @@ schema.pre('save', async function (next) {
   if (!this.isModified('password')) return next()
   const salt = await bcrypt.genSalt(10)
   this.password = await bcrypt.hash(this.password, salt)
-  this.confirmPassword = undefined
+  // this.confirmPassword = undefined
   next()
 })
 
@@ -97,7 +97,7 @@ schema.methods.checkPassword = async function (password) {
 schema.methods.createPasswordResetToken = async function () {
   const resetToken = crypto.randomBytes(32).toString('hex')
   this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex')
-  this.passwordResetExpire = Date.now() + 10 * 60 * 1000
+  this.passwordResetExpire = Date.now() + 60 * 60 * 1000
   return resetToken
 }
 

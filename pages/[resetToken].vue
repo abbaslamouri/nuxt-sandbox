@@ -3,55 +3,60 @@ import { useAuth } from '~/store/useAuth'
 import { useMessage } from '~/store/useMessage'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuth()
 const appMessage = useMessage()
+const password = ref('')
 
-const email = ref('lamouri@genvac.com')
-
-const forgotPassword = async () => {
+const resetPassword = async () => {
   appMessage.snackbar.show = false
-  await auth.forgotPassword({ email: email.value })
+  await auth.resetPassword({ password: password.value, resetToken: route.params.resetToken })
   if (auth.message) {
     appMessage.setSnackbar(true, auth.message, 'Success')
     router.push({ name: 'index' })
   }
   if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
 }
+
+const getNewToken = async () => {
+  router.push({ name: 'forgot-password' })
+  showAuthForm.value = false
+}
 </script>
 
 <template>
-  <div class="forgot-password">
-    <form @submit.prevent="forgotPassword">
+  <main class="reset-password">
+    <form @submit.prevent="resetPassword">
       <header>
-        <h3>Forgot you password?</h3>
+        <h2>Reset Password</h2>
       </header>
       <main>
         <FormsBaseInput
-          type="email"
-          label="Email Address"
-          placeholder="Email Address"
-          v-model="email"
+          type="password"
+          label="Password"
+          placeholder="Password"
+          v-model="password"
           :required="true"
           minlength="8"
           maxlength="25"
         />
-        <p>
-          We will send you an email with a link to assist you with resetting your password. Check your spam folder for
-          an email from: identification@nespresso.com.
-        </p>
-        <p>If you have questions, please call customer service at 1-800-555-5555.</p>
+        <div class="invalid-token" v-if="auth.errorMsg">
+          <p>{{ auth.errorMsg }}</p>
+          <button class="btn btn-primary" @click.prevent="getNewToken">
+            <p>Click Here to get a new token</p>
+          </button>
+        </div>
       </main>
-
       <footer>
         <button class="btn btn-primary">Reset Password</button>
       </footer>
     </form>
-  </div>
+  </main>
 </template>
 
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
-.forgot-password {
+.reset-password {
   height: 100vh;
   background-color: #111;
   display: flex;
@@ -65,7 +70,7 @@ const forgotPassword = async () => {
     justify-content: space-between;
     gap: 1rem;
     background-color: $slate-50;
-    max-width: 70%;
+    width: 70%;
     border-radius: 5px;
     overflow: hidden;
 
@@ -79,6 +84,14 @@ const forgotPassword = async () => {
       justify-content: space-between;
       gap: 4rem;
       padding: 3rem 4rem;
+
+      .invalid-token {
+        margin-top: 2rem;
+        border-radius: 5px;
+        background-color: $amber-200;
+        padding: 4rem 2rem;
+        line-height: 3rem;
+      }
     }
 
     footer {
@@ -87,13 +100,13 @@ const forgotPassword = async () => {
       justify-content: flex-end;
       padding: 2rem 4rem;
       align-items: center;
+    }
 
-      .btn {
-        font-size: 1.2rem;
-        padding: 1rem 2rem;
-        border-radius: 5px;
-        letter-spacing: 0.1rem;
-      }
+    .btn {
+      font-size: 1.2rem;
+      padding: 1rem 2rem;
+      border-radius: 5px;
+      letter-spacing: 0.1rem;
     }
   }
 }
