@@ -1,15 +1,15 @@
 <script setup>
 definePageMeta({
-  layout: 'admin',
+  // layout: 'admin',
 })
 const categories = ref([])
 
 try {
-  categories.value = await $fetch('/api/v1/categories', {
-    params: { slug: 'original', populate: 'gallery parent', fields: 'name slug' },
-  })
+  // categories.value = await $fetch('/api/v1/categories', {
+  //   params: { slug: 'original', populate: 'gallery parent', fields: 'name slug' },
+  // })
 
-  // categories.value = await $fetch('/api/v1/categories/61ff01236543ad8f41ddd64')
+  categories.value = await $fetch('/api/v1/categories/61ff01236543ad8f41ddd64')
   // categories.value = await $fetch('/api/v1/categories/', {
   //   method: 'POST',
   //   body: { name: 'original', slug: 'original', permalink: 'original' },

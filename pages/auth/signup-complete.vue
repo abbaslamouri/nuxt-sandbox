@@ -23,7 +23,7 @@ const signupComplete = async () => {
 }
 
 const getNewToken = async () => {
-  router.push({ name: 'forgot-password' })
+  router.push({ name: 'auth-forgot-password' })
   showAuthForm.value = false
 }
 </script>

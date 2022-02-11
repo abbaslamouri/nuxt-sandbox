@@ -7,18 +7,18 @@ import asyncHandler from '~/server/utils/asyncHandler'
 import errorHandler from '../utils/errorHandler'
 // import { features } from 'process'
 
-// const getAllDocs = async (Model, params) => {
-//   let features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
-//   let docs = []
-//   if (params.populate) {
-//     console.log(params.populate)
-//     const populateOptions = `${params.populate.split(',').join(' ')}`
-//     docs = await features.query.populate(populateOptions)
-//   } else {
-//     docs = await features.query
-//   }
-//   return docs
-// }
+const getAllDocs = async (Model, params) => {
+  let features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
+  let docs = []
+  if (params.populate) {
+    console.log(params.populate)
+    const populateOptions = `${params.populate.split(',').join(' ')}`
+    docs = await features.query.populate(populateOptions)
+  } else {
+    docs = await features.query
+  }
+  return docs
+}
 
 const createDoc = async (Model, body) => {
   try {
@@ -129,6 +129,7 @@ const searchDb = (Model) =>
 // });
 
 export {
+  getAllDocs,
   deleteDoc,
   deleteManyDocs,
   deleteMedia,

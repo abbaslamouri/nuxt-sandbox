@@ -1,7 +1,5 @@
 <script setup>
 import { useAuth } from '~/store/useAuth'
-
-// const cart = useCart()
 const auth = useAuth()
 
 // console.log(useCookie('auth'))

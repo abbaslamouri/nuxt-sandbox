@@ -1,65 +1,43 @@
 import mongoose from 'mongoose'
-import Folder from '~/server/models/folder'
+// import slugify from 'slugify'
 
 const schema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'File Name is required'],
-      maxlength: [500, 'Name cannot be more than 100 characters long'],
-      default: 'placeholder.png',
-      // text: true,
+      unique: true,
+      required: [true, 'Folder Name is required'],
+      maxlength: [100, 'Name cannot be more than 100 characters long'],
     },
     slug: {
       type: String,
       unique: true,
+      // required: [true, 'Folder Slug is required'],
     },
-    // originalname: {
+    // path: {
     //   type: String,
-    //   required: [true, 'File Name is required'],
+    //   unique: true,
+    //   // required: [true, 'Folder Name is required'],
     //   maxlength: [500, 'Name cannot be more than 100 characters long'],
-    //   default: 'user-placeholder-image.jpg',
+    //   // default: () => `/${this.slug}`,
     // },
-    filename: {
-      type: String,
-      unique: true,
-    },
-
-    path: {
-      type: String,
-      default: '/placeholder.png',
-    },
-    url: {
-      type: String,
-    },
-    mimetype: {
-      type: String,
-    },
-    size: {
-      type: Number,
-      max: [20000000, 'File size ({{VALUE}}) is greater that the maximum allowed of 200000000'],
-      required: [true, 'File Size is required'],
-    },
-    folder: { type: mongoose.Schema.Types.ObjectId, ref: Folder, required: [true, 'Folder is required'] },
-    // originalName: {
-    //   type: String,
-    // },
-    // dateCreated: {
+    // createdDate: {
     //   type: Date,
     //   default: Date.now(),
     // },
-    // folder: {
-    //   type: String,
-    //   default: 'drive',
-    // },
-    // folder: { type: mongoose.Schema.Types.ObjectId, ref: 'Folder' },
+    // parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Folder' },
   },
   {
     timestamps: true,
   }
 )
 
-// schema.index({ name: 'text', mimetype: 'text' })
+// Document Middleware, runs before save() and create()
+// schema.pre('save', function (next) {
+//   this.slug = slugify(this.name, { lower: true })
+//   this.path = `/${this.slug}`
+//   next()
+// })
 
 // // Document Middleware, runs before save() and create()
 // schema.pre('save', async function (next) {
@@ -99,4 +77,4 @@ const schema = new mongoose.Schema(
 //   return false
 // }
 
-export default mongoose.model('Media', schema)
+export default mongoose.model('Folder', schema)

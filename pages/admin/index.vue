@@ -1,7 +1,15 @@
-<script setup></script>
+<script setup>
+definePageMeta({
+  layout: 'admin',
+})
+</script>
 
-<template lang="">
-  <div>Dashboard</div>
+<template>
+  <div class="dashboard">Dashboard</div>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+.dashboard {
+  min-height: 100vh;
+}
+</style>

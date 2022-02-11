@@ -1,4 +1,6 @@
 <script setup>
+import { useAuth } from '~/store/useAuth'
+const auth = useAuth()
 const showAdminSidebar = ref(true)
 
 const checkScreen = () => {
@@ -16,19 +18,25 @@ if (process.client) {
 
 <template>
   <div class="app admin">
-    <transition name="slide-right">
+    <transition name="admin-nav">
       <aside v-show="showAdminSidebar">
-        <div class="branding">
+        <div class="nav-branding">
           <IconsHomeFill />
           <Branding />
         </div>
-        <!-- <AdminNav /> -->
+        <AdminNav />
       </aside>
     </transition>
     <main :class="{ full: !showAdminSidebar }">
       <header>
         <MobileNavToggler @hideAdminSidebar="showAdminSidebar = !showAdminSidebar" />
-        <!-- <ProfileNav class="profile" /> -->
+        <div class="profile-cart">
+          <div class="profile">
+            <LoginDropdown v-if="!auth.authenticated" />
+            <ProfileDropdown v-else />
+          </div>
+          <!-- <NavCart /> -->
+        </div>
       </header>
       <div class="content">
         <slot />
@@ -42,46 +50,29 @@ if (process.client) {
 @import '@/assets/scss/variables';
 
 .app.admin {
-  display: grid;
-  grid-template-columns: 25rem 1fr;
+  display: flex;
 
-  @media (min-width: 768px) {
-    // grid-template-columns: 25rem 1fr;
-  }
   aside {
     position: sticky;
     top: 0;
     display: flex;
     flex-direction: column;
-
     background-color: $slate-800;
-    // width: 25rem;
-    // top: 0;
-    // bottom: 0;
-    // left: 0;
     height: 100vh;
     transition: all 0.2s ease-in-out;
     color: white;
     font-size: 1.4rem;
-    gap: 2rem;
-    // padding: 2rem 1rem;
-    // grid-column: 1 / 2;
-    // z-index: 999;
+    min-width: 25rem;
+    border: 1px solid teal;
 
-    @media (max-width: 768px) {
-      // grid-column: 1 /2;
-    }
-
-    .branding {
+    .nav-branding {
       display: flex;
       align-items: center;
-      // background-color: $slate-900;
       height: 6rem;
       padding: 0 1rem;
-
-      // border:1px solid white;
-
+      border-bottom: 1px solid $slate-400;
       gap: 1rem;
+
       svg {
         width: 2rem;
         height: 2rem;
@@ -92,19 +83,8 @@ if (process.client) {
   }
 
   main {
-    // grid-column: 2 / 3;
-    // padding-top: 5rem;
-    // padding-left: 25rem;
-
-    // @media (min-width: 768px) {
-    //   grid-column: 2 / 3;
-    // }
     transition: all 0.2s ease;
-
-    &.full {
-      grid-column: 1 / 3;
-      padding-left: 0;
-    }
+    width: 100%;
 
     header {
       position: sticky;
@@ -112,25 +92,15 @@ if (process.client) {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      // top: 0;
-      // left: 0;
-      // width: 100%;
       height: 6rem;
       background-color: #222;
       color: white;
       padding: 0 2rem;
       z-index: 1;
-
-      // .profile {
-      //   justify-self: flex-end;
-      //   border: 1px solid red;
-      // }
     }
 
     .content {
       background-color: $slate-100;
-      // min-height: 100%;
-      // border: 1px solid red;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -141,6 +111,23 @@ if (process.client) {
       color: white;
       padding: 1rem 2rem;
     }
+  }
+
+  .admin-nav-enter-from,
+  .admin-nav-leave-to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  .admin-nav-enter-to,
+  .admin-nav-leave-from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  .admin-nav-enter-active,
+  .admin-nav-leave-active {
+    transition: all 0.2s ease;
   }
 }
 </style>

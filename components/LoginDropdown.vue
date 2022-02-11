@@ -12,7 +12,7 @@ const user = reactive({
 })
 
 const register = async () => {
-  router.push({ name: 'signup' })
+  router.push({ name: 'auth-signup' })
   showAuthForm.value = false
 }
 
@@ -25,7 +25,7 @@ const signin = async () => {
 }
 
 const forgotPassword = async () => {
-  router.push({ name: 'forgot-password' })
+  router.push({ name: 'auth-forgot-password' })
   showAuthForm.value = false
 }
 </script>
