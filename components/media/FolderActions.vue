@@ -1,90 +1,117 @@
 <script setup>
+import slugify from 'slugify'
+import { useMessage } from '~/store/useMessage'
+
 const props = defineProps({
+  media: {
+    type: Array,
+  },
+  folderSortOrder: {
+    type: String,
+  },
   selectedFolder: {
     type: Object,
   },
 })
 
-const emit = defineEmits(['folderSelected', 'saveFolderEmitted'])
-// import { useError } from '~/pinia/useError'
+const emit = defineEmits(['folderSelected', 'folderSaved', 'folderDeleted', 'toggleFolderSortOrder'])
 
-// const appError = useError()
-// const folderState = inject('folderState')
-// const folderActions = inject('folderActions')
-// const mediaState = inject('mediaState')
-// const mediaActions = inject('mediaActions')
-
+const appMessage = useMessage()
 const showForm = ref(false)
-const newFolder = reactive({
-  name: '',
-})
+const ItemToDelete = ref(null)
+const showAlert = ref(false)
+const newFolder = ref({})
 
-const toggleSort = async () => {
-  // folderState.sort.order = folderState.sort.order == '-' ? `` : `-`
-  // folderState.query.sort = `${folderState.sort.order}${folderState.sort.field}`
-  // await folderActions.fetchAll()
-}
-
-const setSelectedFolder = (event) => {
-  // emit('folderSelected', event)
-  // selectedI = event
+const editFolder = () => {
+  newFolder.value = props.selectedFolder
   showForm.value = true
 }
 
-const handleSave = () => {
-  emit('saveFolderEmitted', newFolder)
-  // folderActions.saveItem()
-  showForm.value = false
+const saveNewFolder = async () => {
+  appMessage.snackbar.show = false
+  try {
+    newFolder.value.slug = slugify(newFolder.value.name, { lower: true })
+    let savedFolder = null
+    if (newFolder.value._id)
+      savedFolder = await $fetch('/api/v1/folders/', {
+        method: 'PATCH',
+        body: newFolder.value,
+        params: { id: newFolder.value._id },
+      })
+    else savedFolder = await $fetch('/api/v1/folders/', { method: 'POST', body: newFolder.value })
+    emit('folderSaved', savedFolder)
+    showForm.value = false
+    newFolder.value = {}
+  } catch (error) {
+    appMessage.setSnackbar(true, error.data, 'Error')
+  }
 }
 
-const handleDelete = async () => {
-  // if (!confirm('Are you sure?')) return
-  // if (mediaState.items.length) {
-  //   const errorMsg = 'You cannot delete non-empty folders'
-  //   appError.setSnackbar(true, errorMsg)
-  // } else {
-  //   await folderActions.deleteItem()
-  //   folderState.selectedItem = {}
-  //   delete mediaState.query.folder
-  //   await mediaActions.fetchAll()
-  // }
+const selectFolderToDelete = async () => {
+  ItemToDelete.value = props.selectedFolder
+  showAlert.value = true
+}
+
+const deleteFolder = async () => {
+  appMessage.snackbar.show = false
+  showAlert.value = false
+  if (props.media.filter((m) => m.folder._id == props.selectedFolder._id).length) {
+    return appMessage.setSnackbar(
+      true,
+      'You cannot delete non-empty folders.  Please delete or move all media to another folder before deleting folders.',
+      'Error'
+    )
+  }
+  try {
+    const response = await $fetch('/api/v1/folders/', { method: 'DELETE', params: { id: props.selectedFolder._id } })
+    console.log(response)
+    emit('folderDeleted')
+    appMessage.setSnackbar(true, `Folder ${props.selectedFolder.name} deleted succesfully`, 'Success')
+  } catch (error) {
+    appMessage.setSnackbar(true, error.data, 'Error')
+  }
+  showAlert.value = false
 }
 </script>
 
 <template>
   <div class="folder-actions">
     <div class="new-folder">
-      <button class="btn add-new-folder" @click="setSelectedFolder({ name: '' })">
+      <button class="btn add-new-folder" @click="showForm = true">
         <IconsFolderPlus />
         <span> New Folder </span>
       </button>
       <transition name="folder-form">
-        <form class="form" v-if="showForm" @submit.prevent="handleSave">
+        <form class="form" v-if="showForm" @submit.prevent="saveNewFolder">
           <FormsBaseInput type="text" label="Folder" v-model="newFolder.name" />
           <div class="actions">
             <button class="submit btn btn-primary" type="submit">OK</button>
-            <button class="submit btn btn-secondary" @click.prevent="showForm = false">Cancel</button>
+            <button class="btn btn-secondary" @click.prevent="showForm = false">Cancel</button>
           </div>
         </form>
       </transition>
     </div>
     <div class="sort-actions">
-      <div class="sort" @click="toggleSort">
+      <div class="sort" @click="$emit('toggleFolderSortOrder')">
         <span>Sort Order</span>
         <button class="btn">
-          <!-- <IconsSouth v-if="folderState.sort.order == '-'" /> -->
-          <!-- <IconsNorth v-else /> -->
+          <IconsSouth v-if="folderSortOrder == '-'" />
+          <IconsNorth v-else />
         </button>
       </div>
       <div class="actions" v-if="selectedFolder._id">
-        <button class="btn edit" @click="setSelectedFolder(selectedFolder)">
+        <button class="btn edit" @click="editFolder">
           <IconsEditFill />
         </button>
-        <button class="btn delete" @click="handleDelete">
+        <button class="btn delete" @click="selectFolderToDelete">
           <IconsDeleteFill />
         </button>
       </div>
     </div>
+    <Alert v-if="showAlert" @ok="deleteFolder">
+      <h3>Are you sure you want to delete this folder?</h3>
+      <p>this folder will be deleted if it does not contain any media</p>
+    </Alert>
   </div>
 </template>
 
@@ -106,7 +133,8 @@ const handleDelete = async () => {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      border: 1px solid $sky-400;
+      border: 1px solid $sky-600;
+      border-radius: 5px;
       color: $sky-600;
 
       svg {

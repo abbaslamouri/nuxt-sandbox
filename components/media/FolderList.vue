@@ -1,5 +1,5 @@
 <script setup>
-const props = defineProps({
+defineProps({
   folders: {
     type: Array,
   },
@@ -8,21 +8,6 @@ const props = defineProps({
   },
 })
 defineEmits(['folderSelected'])
-// const folderState = inject('folderState');
-// const mediaState = inject('mediaState');
-// const mediaActions = inject('mediaActions');
-
-// const folders = computed(() => folderState.items);
-
-// const handleSelectFolder = async (selectedFolder) => {
-//   if (Object.values(selectedFolder).length) {
-//     mediaState.query.folder = selectedFolder._id
-//   } else {
-//     delete mediaState.query.folder
-//   }
-//   selectedFolder = selectedFolder
-//   await Promise.all([mediaActions.fetchAll(), mediaActions.fetchCount()])
-// }
 </script>
 
 <template>
@@ -50,53 +35,24 @@ defineEmits(['folderSelected'])
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
 
-// .selected {
-//   background-color: #e3f2fd;
-// }
 .folder-list {
   display: flex;
   flex-wrap: wrap;
-  // justify-content: space-evenly;
   gap: 2rem;
-  // padding: 1rem;
 
   .btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    // width: auto;
+    border-radius: 5px;
+
+    svg {
+      fill: $slate-800;
+    }
 
     &.selected {
-      background-color: $slate-200;
+      background-color: $slate-300;
     }
-    // border border-gray-400 flex justify-between items-center gap-2 px-4 py-1 rounded hover:bg-gray-900 hover:text-white text-gray-800 text-sm
-
-    // border border-gray-400 flex justify-between items-center gap-2 px-4 py-1 rounded hover:bg-gray-900 hover:text-white text-gray-800 text-sm
   }
-
-  //   .btn {
-  //     display: flex;
-  //     align-items: center;
-  //     gap: 1rem;
-  //     color: #263238;
-  //     background-color: #fff;
-
-  //     cursor: pointer;
-  //     border: 1px solid grey;
-  //     padding: 0.5rem 3rem;
-  //     border-radius: 3px;
-
-  //     svg {
-  //       width: 1.5rem;
-  //     }
-
-  //     span {
-  //       color: #303030;
-  //     }
-
-  //     &.selected {
-  //       background-color: #e3f2fd;
-  //     }
-  //   }
 }
 </style>

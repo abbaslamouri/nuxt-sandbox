@@ -1,14 +1,14 @@
-.flex-cc {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+// .flex-cc {
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+// }
 
-.flex-bc {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+// .flex-bc {
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+// }
 
 //   &-col {
 //     flex-direction: column;
@@ -58,6 +58,7 @@
   transition: opacity 0.3s ease;
   background-color: $slate-900;
   opacity: 0.7;
+  z-index: 9;
 
   &-white {
     background-color: white;

@@ -55,10 +55,7 @@ export default async (req, res) => {
   if (req.method === 'POST') {
     try {
       const body = await useBody(req)
-      console.log('HHHHHHHHHHHHHHHZZZZZ', body)
-      console.log('H')
       const folder = await Folder.create(body)
-      console.log(folder)
       if (!folder) {
         const newError = new Error(`We are not able to create a new folderument`)
         newError.customError = true
@@ -67,7 +64,49 @@ export default async (req, res) => {
       }
       return folder
     } catch (error) {
-      // console.log(error)
+      console.log(error)
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
+
+  if (req.method === 'PATCH') {
+    try {
+      const body = await useBody(req)
+      const folder = await Folder.findByIdAndUpdate(params.id, body, {
+        new: true,
+        runValidators: true,
+      })
+      if (!folder) {
+        const newError = new Error(`We are not able to update this document`)
+        newError.customError = true
+        newError.statusCode = 400
+        throw newError
+      }
+      return folder
+    } catch (error) {
+      console.log(error)
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
+
+  if (req.method === 'DELETE') {
+    try {
+      const doc = await Folder.findByIdAndDelete(params.id)
+      if (!doc) {
+        const newError = new Error(`We can't find a document with ID = ${params.id}`)
+        newError.customError = true
+        newError.statusCode = 404
+        throw newError
+      }
+      res.statusCode = 204
+      return null
+      // res.status(204).json(null)
+    } catch (error) {
+      console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message

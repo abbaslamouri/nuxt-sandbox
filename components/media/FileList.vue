@@ -3,6 +3,9 @@ const props = defineProps({
   media: {
     type: Array,
   },
+  selectedFolder: {
+    type: Object,
+  },
   // itemsToUpload: {
   //   type: Array,
   // },
@@ -120,7 +123,7 @@ const handleMediaUploadError = (event) => {
           @click.exact="addSelected(file)"
           @itemUploadedError="errorMsg += $event"
         /> -->
-        <MediaFileCard :file="file" :key="file._id" />
+        <MediaFileCard :file="file" :key="file._id" :selectedFolder="selectedFolder" />
 
         <!-- <div
           class="actions"

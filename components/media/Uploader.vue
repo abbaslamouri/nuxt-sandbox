@@ -1,28 +1,50 @@
 <script setup>
-import slugify from 'slugify'
+import { useMessage } from '~/store/useMessage'
 
-const selectedItems = ref([])
 const route = useRoute()
-
+const appMessage = useMessage()
+const selectedMedia = ref([])
 const media = ref([])
 const folders = ref([])
 const selectedFolder = ref({})
 const page = ref(1)
 const perPage = ref(10)
+const folderSortField = ref('name')
+const folderSortOrder = ref('')
+const mediaSortField = ref('name')
+const mediaSortOrder = ref('-')
+const showDropZone = ref(false)
 
-// Set media query
-const mediaParams = {
-  fields: 'name, slug, filename, folder, path, mimetype',
-  page: 1,
-  limit: perPage.value,
-  sort: '-name',
+//Set folder query params
+const folderParams = computed(() => {
+  return {
+    fields: 'name, slug, path',
+    sort: `${folderSortOrder.value}${folderSortField.value}`,
+  }
+})
+
+// Set media query params
+const mediaParams = computed(() => {
+  return {
+    fields: 'name, slug, filename, folder, path, mimetype',
+    page: 1,
+    limit: perPage.value,
+    sort: `${mediaSortOrder.value}${mediaSortField.value}`,
+  }
+})
+
+appMessage.snackbar.show = false
+try {
+  const [mediaData, folderData] = await Promise.all([
+    $fetch('/api/v1/media', { params: mediaParams.value }),
+    $fetch('/api/v1/folders', { params: folderParams.value }),
+  ])
+  media.value = mediaData
+  folders.value = folderData
+} catch (error) {
+  appMessage.setSnackbar(true, error.data, 'Error')
 }
-const folderParams = {
-  fields: 'name, slug, path',
-  sort: '-name',
-}
-media.value = await $fetch('/api/v1/media', { params: mediaParams })
-folders.value = await $fetch('/api/v1/folders', { params: folderParams })
+
 // console.log('Media', media.value)
 // console.log('Folders', folders.value)
 
@@ -73,17 +95,28 @@ folders.value = await $fetch('/api/v1/folders', { params: folderParams })
 // await Promise.all([folderActions.fetchAll(), mediaActions.fetchAll(), mediaActions.fetchCount()])
 
 const handleFileUploadBtnClicked = () => {
-  // if (!folderState.selectedItem._id) appError.setSnackbar(true, 'Please selecet a folder', 'Error', 0)
-  // else showDropZone.value = !showDropZone.value
+  if (!selectedFolder.value._id) appMessage.setSnackbar(true, 'Please selecet a folder', 'Error', 5)
+  else showDropZone.value = !showDropZone.value
 }
 
 const handleUplodItemsSelected = async (ulploadItems) => {
-  // showDropZone.value = false
+  showDropZone.value = false
+  media.value.unshift({ uploadState: 'uploading', file: ulploadItems })
+  // const numFiles = ulploadItems.length
+  // for (let i = 0, numFiles = ulploadItems.length; i < numFiles; i++) {
+  //   media.value.unshift({
+  //     uploadState: 'uploading',
+  //     uploadProgress: 0,
+  //     file: ulploadItems[i],
+  //     xx: ulploadItems,
+  //   })
+  // }
   // for (const prop in ulploadItems) {
-  //   mediaState.items.unshift({
+  //   media.value.unshift({
   //     uploadState: 'uploading',
   //     uploadProgress: 0,
   //     file: ulploadItems[prop],
+  //     xx: ulploadItems,
   //   })
   // }
 }
@@ -97,20 +130,50 @@ const setPage = (currentPage) => {
 const handleSelectFolder = async (event) => {
   selectedFolder.value = event
   if (Object.values(selectedFolder.value).length) {
-    mediaParams.folder = selectedFolder.value._id
+    mediaParams.value.folder = selectedFolder.value._id
   } else {
-    delete mediaParams.folder
+    delete mediaParams.value.folder
   }
-  media.value = await $fetch('/api/v1/media', { params: mediaParams })
+  media.value = await $fetch('/api/v1/media', { params: mediaParams.value })
   // await Promise.all([mediaActions.fetchAll(), mediaActions.fetchCount()])
 }
 
-const saveNewFolder = async (event) => {
-  event.slug = slugify(event.name, { lower: true })
-  console.log('KKKKKK', event)
-  const newFolder = await $fetch('/api/v1/folders/', { method: 'POST', body: event })
-  console.log(newFolder)
-  // folders.value.push(newFolder)
+const handleFolderSaved = async (event) => {
+  console.log('E', event)
+  const index = folders.value.findIndex((f) => f._id == event._id)
+  console.log(index)
+  if (index !== -1) folders.value.splice(index, 1, event)
+  else folders.value.push(event)
+
+  // folders.push(event)
+
+  // const index = folders.value.findIndex((f) => f._id == selectedFolder.value._id)
+  // if (index !== -1) folders.value.splice(index, 1)
+  // selectedFolder.value = {}
+  // console.log(mediaParams.value)
+  // delete mediaParams.value.folder
+  // media.value = await $fetch('/api/v1/media', { params: mediaParams.value })
+}
+
+const handleFolderDeleted = async () => {
+  const index = folders.value.findIndex((f) => f._id == selectedFolder.value._id)
+  if (index !== -1) folders.value.splice(index, 1)
+  selectedFolder.value = {}
+  delete mediaParams.value.folder
+  media.value = await $fetch('/api/v1/media', { params: mediaParams.value })
+}
+
+const toggleFolderSortOrder = async () => {
+  folderSortOrder.value = folderSortOrder.value == '-' ? `` : `-`
+  console.log(folderSortOrder.value)
+  console.log(folderParams.value)
+  folders.value = await $fetch('/api/v1/folders', { params: folderParams.value })
+}
+const toggleMediaSort = async (event) => {
+  console.log('E', event)
+  mediaSortField.value = event.field
+  mediaSortOrder.value = event.order
+  media.value = await $fetch('/api/v1/media', { params: mediaParams.value })
 }
 </script>
 
@@ -122,9 +185,14 @@ const saveNewFolder = async (event) => {
       <div class="content">
         <MediaFolderActions
           :selectedFolder="selectedFolder"
+          :media="media"
+          :folderSortOrder="folderSortOrder"
           @folderSelected="selectedFolder = $event"
-          @saveFolderEmitted="saveNewFolder"
+          @folderSaved="handleFolderSaved"
+          @folderDeleted="handleFolderDeleted"
+          @toggleFolderSortOrder="toggleFolderSortOrder"
         />
+
         <MediaFolderList
           v-if="folders.length"
           :folders="folders"
@@ -136,15 +204,22 @@ const saveNewFolder = async (event) => {
     <div class="files shadow-md">
       <h3 class="title">Files</h3>
       <div class="content">
-        <!-- <MediaFileActions @fileUploadBtnClicked="handleFileUploadBtnClicked" /> -->
-        <!-- <transition name="dropZone">
+        <MediaFileActions
+          :selectedMedia="selectedMedia"
+          :mediaSortField="mediaSortField"
+          :mediaSortOrder="mediaSortOrder"
+          @toggleMediaSort="toggleMediaSort"
+          @fileUploadBtnClicked="handleFileUploadBtnClicked"
+        />
+
+        <transition name="dropZone">
           <MediaDropZone
             v-show="showDropZone"
             @fileUploadBtnClicked="handleFileUploadBtnClicked"
             @uploadItemsSelected="handleUplodItemsSelected"
           />
-        </transition> -->
-        <MediaFileList :media="media" />
+        </transition>
+        <MediaFileList :media="media" :selectedFolder="selectedFolder" />
         <!-- <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" /> -->
       </div>
     </div>

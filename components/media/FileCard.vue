@@ -1,12 +1,17 @@
 <script setup>
 import iconType from '~/composables/useUtils'
+import { useMessage } from '~/store/useMessage'
+
 // import { useError } from '~/pinia/useError'
-// import axios from 'axios'
+import axios from 'axios'
 
 const props = defineProps({
   file: {
     type: Object,
     required: true,
+  },
+  selectedFolder: {
+    type: Object,
   },
 })
 const emit = defineEmits(['itemUploadedError'])
@@ -15,41 +20,63 @@ const emit = defineEmits(['itemUploadedError'])
 // const mediaState = inject('mediaState')
 // const appError = useError()
 
-// const http = axios.create({
-//   baseURL: 'http://localhost:3000/api',
-// })
-// let axiosSource = axios.CancelToken.source()
+const http = axios.create({
+  baseURL: 'http://localhost:3000/api',
+})
+let axiosSource = axios.CancelToken.source()
+const appMessage = useMessage()
+
 const uploadProgress = ref(0)
 const uploadState = ref('')
 
 const upload = async () => {
-  // let response = {}
-  // try {
-  //   uploadState.value = 'uploading'
-  //   const config = {
-  //     onUploadProgress: (e) => {
-  //       if (e.lengthComputable) uploadProgress.value = Math.round((e.loaded * 100) / e.total)
-  //     },
-  //     cancelToken: axiosSource.token,
-  //   }
-  //   const formData = new FormData()
-  //   formData.append('file', props.item.file)
-  //   formData.append('folder', folderState.selectedItem._id)
-  //   if (props.item.file.type.includes('image')) response = await http.post(`v1/media/image`, formData, config)
-  //   else response = await http.post(`v1/media`, formData, config)
-  //   uploadState.value = 'complete'
-  //   const index = mediaState.items.findIndex((m) => m.file && m.file.name == props.item.file.name)
-  //   if (index !== -1) mediaState.items.splice(index, 1, response.data)
-  // } catch (err) {
-  //   console.log('MyERROR', err)
-  //   const index = mediaState.items.findIndex((m) => m.file && m.file.name == props.item.file.name)
-  //   if (index !== -1) mediaState.items.splice(index, 1)
-  //   emit('itemUploadedError', `<p>${err.response.data.message || err.response.data.statusMessage}</p>`)
-  // }
+  console.log('HHHere', props.file)
+  console.log(props.file.file)
+  console.log(props.file.xx)
+  console.log(props.selectedFolder._id)
+
+  let response = null
+  try {
+    //   uploadState.value = 'uploading'
+    const config = {
+      onUploadProgress: (e) => {
+        if (e.lengthComputable) uploadProgress.value = Math.round((e.loaded * 100) / e.total)
+      },
+      cancelToken: axiosSource.token,
+    }
+    const formData = new FormData(props.file.file)
+    // formData.append('file', props.file.file)
+    // formData.append('folder', props.selectedFolder._id)
+    // console.log('FD', formData.getAll('file'))
+    // if (props.file.file.type.includes('image'))
+    response = await $fetch('/api/v1/media/image', {
+      method: 'POST',
+      body: formData,
+    })
+
+    // response = await http.post(`v1/media/image`, formData)
+
+    console.log(response)
+
+    // await http.post(`v1/media/image`, formData, config)
+    //   else response = await http.post(`v1/media`, formData, config)
+    //   uploadState.value = 'complete'
+    //   const index = mediaState.items.findIndex((m) => m.file && m.file.name == props.item.file.name)
+    //   if (index !== -1) mediaState.items.splice(index, 1, response.data)
+    // } catch (err) {
+    //   console.log('MyERROR', err)
+    //   const index = mediaState.items.findIndex((m) => m.file && m.file.name == props.item.file.name)
+    //   if (index !== -1) mediaState.items.splice(index, 1)
+    //   emit('itemUploadedError', `<p>${err.response.data.message || err.response.data.statusMessage}</p>`)
+    // }
+  } catch (error) {
+    console.log(error)
+    appMessage.setSnackbar(true, error.data, 'Error')
+  }
 }
 
 onMounted(async () => {
-  // if (props.item.uploadState === 'uploading') await upload()
+  if (props.file.uploadState === 'uploading') await upload()
 })
 </script>
 

@@ -1,17 +1,29 @@
 <script setup>
-defineEmits(['fileUploadBtnClicked'])
+defineProps({
+  selectedMedia: {
+    type: Array,
+  },
+  mediaSortField: {
+    type: String,
+  },
+  mediaSortOrder: {
+    type: String,
+  },
+})
+defineEmits(['fileUploadBtnClicked', 'toggleMediaSort'])
+const keyword = ref(null)
 
-const mediaState = inject('mediaState')
-const mediaActions = inject('mediaActions')
+// const mediaState = inject('mediaState')
+// const mediaActions = inject('mediaActions')
 
 const handleDeleteMedia = async () => {
-  if (!confirm('Are you sure?')) return
-  await mediaActions.deleteItems()
-  await Promise.all([mediaActions.fetchAll(), mediaActions.fetchCount()])
+  // if (!confirm('Are you sure?')) return
+  // await mediaActions.deleteItems()
+  // await Promise.all([mediaActions.fetchAll(), mediaActions.fetchCount()])
 }
 
 const handleSearch = async () => {
-  await Promise.all([mediaActions.fetchAll(), mediaActions.fetchCount()])
+  // await Promise.all([mediaActions.fetchAll(), mediaActions.fetchCount()])
 }
 </script>
 
@@ -22,12 +34,16 @@ const handleSearch = async () => {
       <span>Upload Files</span>
     </button>
     <div class="search-sort">
-      <Search v-model="mediaState.query.keyword" @handleSubmit="handleSearch" />
-      <MediaSort />
+      <Search v-model="keyword" @handleSubmit="handleSearch" />
+      <MediaSort
+        :mediaSortField="mediaSortField"
+        :mediaSortOrder="mediaSortOrder"
+        @toggleMediaSort="$emit('toggleMediaSort', $event)"
+      />
     </div>
     <div class="actions">
-      <MediaMoveToFolder />
-      <button class="btn delete" v-if="mediaState.selectedItems.length" @click="handleDeleteMedia">
+      <!-- <MediaMoveToFolder /> -->
+      <button class="btn delete" v-if="selectedMedia.length" @click="handleDeleteMedia">
         <IconsDeleteFill />
       </button>
     </div>
@@ -83,6 +99,10 @@ const handleSearch = async () => {
         fill: $green-800;
       }
     }
+  }
+
+  .btn {
+    border-radius: 5px;
   }
 }
 </style>

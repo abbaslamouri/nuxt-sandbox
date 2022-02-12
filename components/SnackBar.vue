@@ -87,12 +87,12 @@ const transitionName = computed(() => (getPosition().includes('right') ? 'rtl' :
   padding: 2rem;
   position: fixed;
   z-index: 99;
-  top: 4rem;
+  top: 7rem;
   font-size: 1.4rem;
   z-index: 999999;
   color: $slate-50;
   letter-spacing: 0.1rem;
-  max-width: 80%;
+  max-width: 60%;
 
   &.top-left {
     left: 5rem;
