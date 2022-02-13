@@ -6,64 +6,11 @@ import User from '~/server/models/user'
 import Media from '~/server/models/media'
 import errorHandler from '~/server/utils/errorHandler'
 import ApiFeatures from '~/server/utils/ApiFeatures'
-import multer from 'multer'
-import sharp from 'sharp'
-import slugify from 'slugify'
-import formidable from 'formidable'
-// import AppError from '~/server/utils/AppError'
 
-const form = new formidable.IncomingForm()
+// import AppError from '~/server/utils/AppError'
 
 export default async (req, res) => {
   console.log('here')
-  const memoryStorage = multer.memoryStorage()
-  const diskStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, 'public/uploads')
-    },
-    filename: function (req, file, cb) {
-      cb(null, file.originalname.toLowerCase().split(' ').join('-'))
-    },
-  })
-
-  function imageFilter(req, file, cb) {
-    if (file.mimetype.startsWith('image')) {
-      cb(null, true)
-    } else {
-      cb(new AppError('Only images are allowed', 403), false)
-    }
-  }
-
-  const resizeImage = async (req, res, next) => {
-    if (!req.file) return next()
-    req.file.destination = 'public/uploads'
-    req.file.filename = slugify(req.file.originalname, { lower: true })
-
-    await sharp(req.file.buffer)
-      // .resize(200, 200)
-      // .toFormat('jpeg')
-      // .jpeg({ quality: 80 })
-      .toFile(`public/uploads/${req.file.filename}`)
-
-    next()
-  }
-
-  function otherFileFilter(req, file, cb) {
-    // console.log('FF', file)
-    if (!file.originalname.match(/\.(pdf|PDF|xls|xlsx|video)$/))
-      return cb(
-        new AppError(
-          `Only  pdf and excel files are allowed. You are not allwed to upload "${file.mimetype.split('/')[1]}" files`,
-          403
-        ),
-        false
-      )
-
-    cb(null, true)
-  }
-
-  const imageUpload = multer({ storage: memoryStorage, fileFilter: imageFilter }).single('file')
-  const otherFileUpload = multer({ storage: diskStorage, fileFilter: otherFileFilter }).single('file')
 
   const sendTokenResponse = async (res, user = null, expiresIn = null) => {
     let auth = null
@@ -88,9 +35,25 @@ export default async (req, res) => {
   const urlPath = req.url.split('/')
   const params = await useQuery(req)
 
-  console.log('UUUUUU', urlPath[1])
+  console.log('UUUUUU', req.url.includes('count'))
   console.log('Params', params)
   console.log(req.method)
+  // @desc      signup
+  // @route     POST /api/v1/media
+  // @access    Public
+  if (req.method === 'GET' && req.url.includes('count')) {
+    try {
+      let features = new ApiFeatures(Media.find(), params).filter().fields().search()
+      const docs = await features.query
+      console.log('LLLLL', docs.length)
+      return docs.length
+    } catch (error) {
+      // console.log(error)
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
 
   // @desc      signup
   // @route     POST /api/v1/media
@@ -114,20 +77,15 @@ export default async (req, res) => {
   // @access    Public
   if (req.method === 'POST' && urlPath[1] === 'image') {
     try {
-      // const body = await useBody(req)
-      // console.log('Body', body)
-
-      form.parse(req, (err, fields, files) => {
-        const { data } = fields
-        console.log('error', err)
-        console.log('fields', fields)
-        console.log('files', files)
-      })
-      // multer({ storage: memoryStorage, fileFilter: imageFilter }).single('file')
-      // resizeImage()
-      // console.log('RF', req.file)
-
-      return 'body'
+      const body = await useBody(req)
+      const doc = await Media.create(body)
+      if (!doc) {
+        const newError = new Error(`We are not able to create a new document`)
+        newError.customError = true
+        newError.statusCode = 404
+        throw newError
+      }
+      return doc
     } catch (error) {
       console.log(error)
       const err = errorHandler(error)

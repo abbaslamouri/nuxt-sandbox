@@ -13,10 +13,8 @@ const handleItemsDropped = (event) => {
 
 const handleItemsSelected = (event) => {
   console.log(event.target.files)
-  const form = document.getElementById('upload')
-  // itemsToUpload.value = Array.from(event.target.files).map((item) => item)
-  // emit('uploadItemsSelected', itemsToUpload.value)
-  emit('uploadItemsSelected', form)
+  itemsToUpload.value = Array.from(event.target.files).map((item) => item)
+  emit('uploadItemsSelected', itemsToUpload.value)
 }
 </script>
 <template>

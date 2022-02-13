@@ -1,6 +1,8 @@
 <script setup>
+import slugify from 'slugify'
 import iconType from '~/composables/useUtils'
 import { useMessage } from '~/store/useMessage'
+const config = useRuntimeConfig()
 
 // import { useError } from '~/pinia/useError'
 import axios from 'axios'
@@ -20,10 +22,10 @@ const emit = defineEmits(['itemUploadedError'])
 // const mediaState = inject('mediaState')
 // const appError = useError()
 
-const http = axios.create({
-  baseURL: 'http://localhost:3000/api',
-})
-let axiosSource = axios.CancelToken.source()
+// const http = axios.create({
+//   baseURL: 'http://localhost:3000/api',
+// })
+// let axiosSource = axios.CancelToken.source()
 const appMessage = useMessage()
 
 const uploadProgress = ref(0)
@@ -38,21 +40,30 @@ const upload = async () => {
   let response = null
   try {
     //   uploadState.value = 'uploading'
-    const config = {
-      onUploadProgress: (e) => {
-        if (e.lengthComputable) uploadProgress.value = Math.round((e.loaded * 100) / e.total)
-      },
-      cancelToken: axiosSource.token,
-    }
-    const formData = new FormData(props.file.file)
-    // formData.append('file', props.file.file)
-    // formData.append('folder', props.selectedFolder._id)
-    // console.log('FD', formData.getAll('file'))
-    // if (props.file.file.type.includes('image'))
-    response = await $fetch('/api/v1/media/image', {
-      method: 'POST',
-      body: formData,
-    })
+    // const config = {
+    //   onUploadProgress: (e) => {
+    //     if (e.lengthComputable) uploadProgress.value = Math.round((e.loaded * 100) / e.total)
+    //   },
+    //   cancelToken: axiosSource.token,
+    // }
+    const formData = new FormData()
+    formData.append('filename', props.file.file.name)
+    formData.append('folder', props.selectedFolder._id)
+    console.log('FD', formData.getAll('file'))
+    if (props.file.file.type.includes('image'))
+      response = await $fetch('/api/v1/media/image', {
+        method: 'POST',
+        body: {
+          name: props.file.file.name,
+          filename: props.file.file.name,
+          path: `public/uploads/${props.file.file.name}`,
+          slug: slugify(props.file.file.name, { lower: true }),
+          mimetype: props.file.file.type,
+          size: props.file.file.size,
+          folder: props.selectedFolder._id,
+          url: `${config.BASE_URL}/public/uploads/${props.file.file.name}`,
+        },
+      })
 
     // response = await http.post(`v1/media/image`, formData)
 

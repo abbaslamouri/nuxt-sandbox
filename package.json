@@ -13,17 +13,14 @@
     "axios": "^0.25.0",
     "bcryptjs": "^2.4.3",
     "colors": "^1.4.0",
-    "formidable": "^2.0.1",
     "html-to-text": "^8.1.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.2.1",
-    "multer": "^1.4.4",
     "nodemailer": "^6.7.2",
     "pinia": "^2.0.11",
     "pug": "^3.0.2",
     "sass": "^1.49.7",
     "sass-loader": "^12.4.0",
-    "sharp": "^0.30.0",
     "slugify": "^1.6.5"
   }
 }

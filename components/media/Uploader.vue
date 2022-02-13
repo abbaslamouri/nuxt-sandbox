@@ -5,6 +5,7 @@ const route = useRoute()
 const appMessage = useMessage()
 const selectedMedia = ref([])
 const media = ref([])
+const mediaCount = ref(null)
 const folders = ref([])
 const selectedFolder = ref({})
 const page = ref(1)
@@ -35,24 +36,26 @@ const mediaParams = computed(() => {
 
 appMessage.snackbar.show = false
 try {
-  const [mediaData, folderData] = await Promise.all([
+  const [mediaData, mediaItemCount, folderData] = await Promise.all([
     $fetch('/api/v1/media', { params: mediaParams.value }),
+    $fetch('/api/v1/media/count', { params: mediaParams.value }),
     $fetch('/api/v1/folders', { params: folderParams.value }),
   ])
   media.value = mediaData
+  mediaCount.value = mediaItemCount
   folders.value = folderData
 } catch (error) {
   appMessage.setSnackbar(true, error.data, 'Error')
 }
 
-// console.log('Media', media.value)
+console.log('MediaCount', mediaCount.value)
 // console.log('Folders', folders.value)
 
-// const pages = computed(() =>
-//   mediaState.totalItemCount % perPage.value
-//     ? parseInt(mediaState.totalItemCount / perPage.value) + 1
-//     : parseInt(mediaState.totalItemCount / perPage.value)
-// )
+const pages = computed(() =>
+  mediaCount.value % perPage.value
+    ? parseInt(mediaCount.value / perPage.value) + 1
+    : parseInt(mediaCount.value / perPage.value)
+)
 
 // // const appError = useError()
 // const { state: folderState, actions: folderActions } = useFactory('folders')
@@ -101,24 +104,14 @@ const handleFileUploadBtnClicked = () => {
 
 const handleUplodItemsSelected = async (ulploadItems) => {
   showDropZone.value = false
-  media.value.unshift({ uploadState: 'uploading', file: ulploadItems })
-  // const numFiles = ulploadItems.length
-  // for (let i = 0, numFiles = ulploadItems.length; i < numFiles; i++) {
-  //   media.value.unshift({
-  //     uploadState: 'uploading',
-  //     uploadProgress: 0,
-  //     file: ulploadItems[i],
-  //     xx: ulploadItems,
-  //   })
-  // }
-  // for (const prop in ulploadItems) {
-  //   media.value.unshift({
-  //     uploadState: 'uploading',
-  //     uploadProgress: 0,
-  //     file: ulploadItems[prop],
-  //     xx: ulploadItems,
-  //   })
-  // }
+
+  for (const prop in ulploadItems) {
+    media.value.unshift({
+      uploadState: 'uploading',
+      uploadProgress: 0,
+      file: ulploadItems[prop],
+    })
+  }
 }
 
 const setPage = (currentPage) => {
@@ -179,7 +172,7 @@ const toggleMediaSort = async (event) => {
 
 <template>
   <div class="media-uploader">
-    {{ selectedFolder }}
+    {{ pages }}
     <div class="folders shadow-md">
       <h3 class="title">Folders</h3>
       <div class="content">
@@ -220,7 +213,7 @@ const toggleMediaSort = async (event) => {
           />
         </transition>
         <MediaFileList :media="media" :selectedFolder="selectedFolder" />
-        <!-- <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" /> -->
+        <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" />
       </div>
     </div>
     <div class="media-select-actions">
