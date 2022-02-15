@@ -1,4 +1,9 @@
 <script setup>
+	defineProps({
+		selectedFolder: {
+			type: Object,
+		},
+	})
 	const emit = defineEmits(['uploadItemsSelected', 'fileUploadBtnClicked'])
 
 	const fileRef = ref(null)
@@ -29,12 +34,13 @@
 		<p>Drop files here</p>
 		<a class="heading" href="#" @click="fileRef.click()">Or click here to choose your files</a>
 		<form enctype="multipart/form-data" action="/api/v1/media/image" method="POST">
-			<input id="upload" name="upload" type="file" :multiple="true" ref="fileRef" />
+			<input id="upload" name="upload" type="file" multiple />
+			<input type="hidden" name="folder-id" :value="selectedFolder._id" />
 			<button class="btn" type="submit">
 				<span>Submit</span>
 			</button>
 		</form>
-		<button class="btn" type="submit">
+		<button class="btn" @click="$emit('fileUploadBtnClicked')">
 			<span>Cancel</span>
 		</button>
 	</div>

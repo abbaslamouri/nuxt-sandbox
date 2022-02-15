@@ -7,6 +7,9 @@ import User from '~/server/models/user'
 import Media from '~/server/models/media'
 import errorHandler from '~/server/utils/errorHandler'
 import ApiFeatures from '~/server/utils/ApiFeatures'
+import fs from 'fs'
+import path from 'path'
+import slugify from 'slugify'
 
 // import AppError from '~/server/utils/AppError'
 
@@ -78,27 +81,48 @@ export default async (req, res) => {
 	// @route     POST /api/v1/media/image
 	// @access    Public
 	if (req.method === 'POST' && urlPath[1] === 'image') {
-		try {
-			const form = formidable({
-				multiples: true,
-				maxFileSize: 50 * 1024 * 1024, // 5MB
-				uploadDir: 'public/uploads',
-			})
-			// console.log('FORM', form)
-			// Parsing
-			form.parse(req, async (err, fields, files) => {
-				console.log('Fields', fields)
-				console.log('Files', files)
-				if (err) {
-					console.log('Error parsing the files')
-					return res.status(400).json({
-						status: 'Fail',
-						message: 'There was an error parsing the files',
-						error: err,
-					})
-				}
-			})
+		const form = formidable({
+			multiples: true,
+			maxFileSize: 50 * 1024 * 1024, // 5MB
+			uploadDir: 'public/uploads',
+		})
 
+		// const form = new formidable.IncomingForm()
+		// console.log('FORM', form)
+		// Parsing
+		form.parse(req, async (err, fields, files) => {
+			console.log('Fields', fields)
+			console.log('Files', files.upload.filepath)
+			console.log('PATH', path.resolve(`public/upload/${files.upload.newFilename}`))
+			const filename = slugify(files.upload.originalFilename, { lower: true })
+			console.log('FILENMA', filename)
+			// fs.rename(path.resolve(files.upload.filepath), path.resolve(`public/upload/${filename}`), function (err) {
+			// 	if (err) throw err
+			// 	console.log('File Renamed.')
+			// })
+
+			// return files
+			if (err) {
+				console.log('Error parsing the files')
+				return res.status(400).json({
+					status: 'Fail',
+					message: 'There was an error parsing the files',
+					error: err,
+				})
+			}
+		})
+		// filepath: 'C:\\Users\\abbas\\Desktop\\Sandbox\\nuxt\\nuxt-sandbox\\public\\uploads\\3b579cbced294ebbf5227f800',
+		// newFilename: '3b579cbced294ebbf5227f800',
+		// originalFilename: 'table-lamp-postcard-103021-725x500.jpg',
+		// mimetype: 'image/jpeg',
+		// hashAlgorithm: false,
+		// size: 86369,
+		// form.on('file', (name, file) => {
+		// 	console.log('ON', file, name)
+		// })
+
+		// console.log('IMMMMMMMMMAGES')
+		try {
 			// const body = await useBody(req)
 			// const doc = await Media.create(body)
 			// if (!doc) {
@@ -107,7 +131,7 @@ export default async (req, res) => {
 			// 	newError.statusCode = 404
 			// 	throw newError
 			// }
-			return form
+			return 'files'
 		} catch (error) {
 			console.log(error)
 			const err = errorHandler(error)

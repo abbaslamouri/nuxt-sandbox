@@ -208,6 +208,7 @@
 				<transition name="dropZone">
 					<MediaDropZone
 						v-show="showDropZone"
+						:selectedFolder="selectedFolder"
 						@fileUploadBtnClicked="handleFileUploadBtnClicked"
 						@uploadItemsSelected="handleUplodItemsSelected"
 					/>
