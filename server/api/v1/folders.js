@@ -31,8 +31,8 @@ export default async (req, res) => {
   const urlPath = req.url.split('/')
   const params = await useQuery(req)
 
-  console.log('UUUUUU', urlPath[1])
-  console.log('PPPPP', params)
+  // console.log('UUUUUU', urlPath[1])
+  // console.log('PPPPP', params)
   console.log(req.method)
 
   // @desc      signup

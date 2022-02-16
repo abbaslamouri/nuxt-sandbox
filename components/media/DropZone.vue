@@ -1,68 +1,68 @@
 <script setup>
-	defineProps({
-		selectedFolder: {
-			type: Object,
-		},
-	})
-	const emit = defineEmits(['uploadItemsSelected', 'fileUploadBtnClicked'])
+defineProps({
+  selectedFolder: {
+    type: Object,
+  },
+})
+const emit = defineEmits(['uploadItemsSelected', 'fileUploadBtnClicked'])
 
-	const fileRef = ref(null)
-	const dragged = ref(false)
-	const itemsToUpload = ref([])
+const fileRef = ref(null)
+const dragged = ref(false)
+const itemsToUpload = ref([])
 
-	const handleItemsDropped = (event) => {
-		dragged.value = false
-		itemsToUpload.value = Array.from(event.dataTransfer.files).map((item) => item)
-		emit('uploadItemsSelected', itemsToUpload.value)
-	}
+const handleItemsDropped = (event) => {
+  dragged.value = false
+  itemsToUpload.value = Array.from(event.dataTransfer.files).map((item) => item)
+  emit('uploadItemsSelected', itemsToUpload.value)
+}
 
-	const handleItemsSelected = (event) => {
-		console.log(event.target.files)
-		itemsToUpload.value = Array.from(event.target.files).map((item) => item)
-		emit('uploadItemsSelected', itemsToUpload.value)
-	}
+const handleItemsSelected = (event) => {
+  console.log(event.target.files)
+  itemsToUpload.value = Array.from(event.target.files).map((item) => item)
+  emit('uploadItemsSelected', itemsToUpload.value)
+}
 </script>
 <template>
-	<div
-		class="dropzone"
-		:class="{ 'dragged-over': dragged }"
-		@dragover.prevent="dragged = true"
-		@dragleave.prevent="dragged = false"
-		@drop.prevent="handleItemsDropped"
-	>
-		<IconsBackupFill />
-		<p>Drop files here</p>
-		<a class="heading" href="#" @click="fileRef.click()">Or click here to choose your files</a>
-		<form enctype="multipart/form-data" action="/api/v1/media/image" method="POST">
-			<input id="upload" name="upload" type="file" multiple />
-			<input type="hidden" name="folder-id" :value="selectedFolder._id" />
-			<button class="btn" type="submit">
-				<span>Submit</span>
-			</button>
-		</form>
-		<button class="btn" @click="$emit('fileUploadBtnClicked')">
-			<span>Cancel</span>
-		</button>
-	</div>
+  <div
+    class="dropzone"
+    :class="{ 'dragged-over': dragged }"
+    @dragover.prevent="dragged = true"
+    @dragleave.prevent="dragged = false"
+    @drop.prevent="handleItemsDropped"
+  >
+    <IconsBackupFill />
+    <p>Drop files here</p>
+    <a class="heading" href="#" @click="fileRef.click()">Or click here to choose your files</a>
+    <form enctype="multipart/form-data" action="/api/v1/media/image" method="POST">
+      <input id="uploadFiles" name="uploadFiles" type="file" multiple />
+      <input type="hidden" name="folder-id" :value="selectedFolder._id" />
+      <button class="btn" type="submit">
+        <span>Submit</span>
+      </button>
+    </form>
+    <button class="btn" @click="$emit('fileUploadBtnClicked')">
+      <span>Cancel</span>
+    </button>
+  </div>
 </template>
 
 <style lang="scss">
-	@import '@/assets/scss/variables';
+@import '@/assets/scss/variables';
 
-	.dropzone {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		gap: 1rem;
-		height: 20rem;
-		border: 1px solid $slate-300;
-		border-radius: 5px;
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  height: 20rem;
+  border: 1px solid $slate-300;
+  border-radius: 5px;
 
-		.heading {
-			color: $sky-900;
-			font-weight: 600;
-			font-size: 1.8rem;
-		}
-	}
+  .heading {
+    color: $sky-900;
+    font-weight: 600;
+    font-size: 1.8rem;
+  }
+}
 </style>
