@@ -5,7 +5,7 @@ const props = defineProps({
   media: {
     type: Array,
   },
-   selectedMedia: {
+  selectedMedia: {
     type: Array,
   },
   selectedFolder: {
@@ -23,8 +23,6 @@ const fileRefs = ref([])
 // const uploadItems = computed(() => props.itemsToUpload)
 // const error = computed(() => errorMsg.value);
 // const files = computed(() => mediaState.items);
-
-
 
 // const selectMultiple = (file) => {
 //   if (selectedFiles.has(file)) {
@@ -74,6 +72,7 @@ watch(errorMsg, (currentVal, oldVal) => {
     </transition> -->
     <div class="main">
       <div v-for="(file, index) in media" class="item shadow-md">
+        {{ file.name }}
         <MediaFileCard
           :file="file"
           :key="file._id"

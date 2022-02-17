@@ -6,25 +6,33 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['update:modelValue', 'handleSubmit'])
+const emit = defineEmits(['update:modelValue', 'searchKeywordSelected'])
 
 const inputRef = ref('')
 
 const handleInput = () => {
-  emit('handleSubmit', inputRef.value.value)
+  emit('searchKeywordSelected', inputRef.value.value)
 }
 
 const resetItems = () => {
-  if (!inputRef.value.value) emit('handleSubmit', inputRef.value.value)
+  if (!inputRef.value.value) emit('searchKeywordSelected', inputRef.value.value)
 }
 </script>
 
 <template>
   <form class="search base-input shadow-md" @submit.prevent="handleInput">
+    {{ modelValue }}
     <button type="submit" class="btn">
       <IconsSearchFill />
     </button>
-    <input type="text" placeholder="Search" aria-label="Search" @input="resetItems" ref="inputRef" />
+    <input
+      type="text"
+      placeholder="Search"
+      aria-label="Search"
+      :value="modelValue"
+      @input="resetItems"
+      ref="inputRef"
+    />
   </form>
 </template>
 
