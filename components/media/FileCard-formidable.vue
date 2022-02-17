@@ -1,7 +1,10 @@
 <script setup>
-import slugify from 'slugify'
+// import slugify from 'slugify'
 import iconType from '~/composables/useUtils'
+import { useMessage } from '~/store/useMessage'
 const config = useRuntimeConfig()
+
+// import { useError } from '~/pinia/useError'
 
 const props = defineProps({
   file: {
@@ -14,10 +17,35 @@ const props = defineProps({
 })
 const emit = defineEmits(['itemUploadedError'])
 
+// const folderState = inject('folderState')
+// const mediaState = inject('mediaState')
+// const appError = useError()
+
+const appMessage = useMessage()
+
 const uploadProgress = ref(0)
+const uploadState = ref('')
 
 const upload = async () => {
+  console.log('HHHere', props.file)
+  console.log(props.file.file)
+  console.log(props.selectedFolder._id)
+
+  // let response = null
   try {
+    // const fd = new FormData()
+    // fd.append('file', props.file.file)
+    // // fd.append('folder', props.selectedFolder._id)
+    // console.log('FD', fd.getAll('file'))
+    // // if (props.file.file.type.includes('image'))
+    // response = await $fetch('/api/v1/media/image', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': `multipart/form-data; boundary=---arbit`,
+    //   },
+    //   body: fd,
+    // })
+
     const response = await $fetch('/api/v1/media/image', {
       method: 'POST',
       body: {
@@ -31,8 +59,25 @@ const upload = async () => {
         url: `${config.BASE_URL}/public/uploads/${props.file.file.name}`,
       },
     })
+
+    // response = await http.post(`v1/media/image`, formData)
+
+    console.log('GGGGG', response)
+
+    // await http.post(`v1/media/image`, formData, config)
+    //   else response = await http.post(`v1/media`, formData, config)
+    //   uploadState.value = 'complete'
+    //   const index = mediaState.items.findIndex((m) => m.file && m.file.name == props.item.file.name)
+    //   if (index !== -1) mediaState.items.splice(index, 1, response.data)
+    // } catch (err) {
+    //   console.log('MyERROR', err)
+    //   const index = mediaState.items.findIndex((m) => m.file && m.file.name == props.item.file.name)
+    //   if (index !== -1) mediaState.items.splice(index, 1)
+    //   emit('itemUploadedError', `<p>${err.response.data.message || err.response.data.statusMessage}</p>`)
+    // }
   } catch (error) {
-    emit('itemUploadedError', error.data)
+    console.log(error)
+    appMessage.setSnackbar(true, error.data, 'Error')
   }
 }
 

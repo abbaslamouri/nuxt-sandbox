@@ -1,26 +1,22 @@
 <script setup>
-const mediaState = inject('mediaState')
-const mediaActions = inject('mediaActions')
-const folderState = inject('folderState')
+const props = defineProps({
+  folders: {
+    type: Array,
+  },
+  selectedMedia: {
+    type: Array,
+  },
+  mediaSortField: {
+    type: String,
+  },
+})
+defineEmits(['moveMediaToFolder'])
+
+// const mediaState = inject('mediaState')
+// const mediaActions = inject('mediaActions')
+// const folderState = inject('folderState')
 
 const newFolderId = ref('')
-
-const handleMoveMediaToFolder = async () => {
-  // if (!confirm('Are you sure?')) return;
-  setTimeout(async () => {
-    // console.log('LLLLL', newFolderId);
-    const index = folderState.items.findIndex((f) => f._id === newFolderId.value)
-    // console.log(index);
-    if (index != -1) {
-      await mediaActions.updateItems({ folder: newFolderId.value })
-      folderState.selectedItem = folderState.items[index]
-      mediaState.query.folder = folderState.selectedItem._id
-      mediaActions.fetchAll()
-      newFolderId.value = null
-      mediaState.selectedItems = []
-    }
-  }, 200)
-}
 
 // watch(newFolderId, (currentVal, oldVal) => {
 //   console.log(currentVal);
@@ -30,24 +26,27 @@ const handleMoveMediaToFolder = async () => {
 </script>
 
 <template>
-  <div class="move-to-folder" v-if="mediaState.selectedItems.length">
-    <!-- Move to Folder
-    <select v-model="newFolderId" @change="handleMoveMediaToFolder">
-      <option value="">Select Folder</option>
-      <option v-for="option in folderState.items" :key="option._id" :value="option._id">{{ option.name }}</option>
-    </select> -->
-    <!-- <span>Move to Folder</span> -->
+  <div class="move-to-folder" v-if="selectedMedia.length">
+    <div class="base-select">
+      <select v-model="newFolderId" @change="$emit('moveMediaToFolder', newFolderId)">
+        <option value="">Select Folder</option>
+        <option v-for="option in folders" :key="option._id" :value="option._id">{{ option.name }}</option>
+      </select>
+      <label>Move To Folder</label>
+    </div>
+
+    <!-- <span>Move to Folder</span>
     <FormsBaseSelect
       v-model="newFolderId"
       nullOption="Select Folder"
-      @change="handleMoveMediaToFolder"
+      @change="$emit('moveMediaToFolder', newFolderId)"
       :options="
-        folderState.items.map((f) => {
+        folders.map((f) => {
           return { key: f._id, name: f.name }
         })
       "
       label="Move to folder"
-    />
+    /> -->
     <!-- <select v-model="newFolderId" @change="handleMoveMediaToFolder">
       <option value="">Select Folder</option>
       <option v-for="folder in folderState.items" :key="folder._id" :value="folder._id">
@@ -63,7 +62,7 @@ const handleMoveMediaToFolder = async () => {
   align-items: center;
   gap: 1rem;
   font-size: 1.2rem;
-  min-width: 18rem;
+  width: 18rem;
 }
 // .media-uploader {
 //   padding: 1rem;

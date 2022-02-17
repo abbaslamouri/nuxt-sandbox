@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+// import formidable from 'formidable'
 import Email from '~/server/utils/Email'
 import { useBody, useQuery, setCookie } from 'h3'
 import config from '#config'
@@ -78,37 +79,86 @@ export default async (req, res) => {
 	// @route     POST /api/v1/media/image
 	// @access    Public
 	if (req.method === 'POST' && urlPath[1] === 'image') {
+		// const form = formidable({
+		//   multiples: true,
+		//   maxFileSize: 500 * 1024 * 1024, // 5MB
+		//   maxTotalFileSize: 10,
+		//   keepExtensions: true,
+		//   uploadDir: 'public/uploads',
+		//   filename: 'hello',
+		// })
+
+		// const form = new formidable.IncomingForm()
+		// form.parse(req)
+		// form.once('error', console.error)
+		// form.on('fileBegin', (name, file) => {
+		//   console.log('name', name)
+		//   const filename = slugify(file.originalFilename, { lower: true })
+		//   file.filepath = path.resolve(`public/uploads/${filename}`)
+		//   console.log('file', file)
+		// })
+
+		// form.on('file', (name, file) => {
+		//   console.log('name', name)
+		//   console.log('file', file)
+		// })
+
+		// form.on('field', (name, field) => {
+		//   console.log('field', name)
+		//   console.log('field', field)
+		// })
+		// console.log('FORM', form)
+		// Parsing
+		// form.parse(req, async (err, fields, files) => {
+		// console.log('Fields', fields)
+		// console.log('Files', files.uploadFiles)
+		// if (!files.uploadFiles.length) {
+		// const filename = slugify(files.uploadFiles.originalFilename, { lower: true })
+		// fs.rename(path.resolve(files.uploadFiles.filepath), path.resolve(`public/uploads/${filename}`), function (err) {
+		//   if (err) throw err
+		//   console.log('File Renamed.')
+		// })
+		// } else {
+		//   for (const prop in files.uploadFiles) {
+		//     console.log('prop', prop, files.uploadFiles[prop])
+		//     const filename = slugify(files.uploadFiles[prop].originalFilename, { lower: true })
+		//     fs.rename(
+		//       path.resolve(files.uploadFiles[prop].filepath),
+		//       path.resolve(`public/uploads/${filename}`),
+		//       function (err) {
+		//         if (err) throw err
+		//         console.log('File Renamed.')
+		//       }
+		//     )
+		//   }
+		// }
+
+		// return files
+		//   // if (err) {
+		//   //   console.log('Error parsing the files')
+		//   //   return res.status(400).json({
+		//   //     status: 'Fail',
+		//   //     message: 'There was an error parsing the files',
+		//   //     error: err,
+		//   //   })
+		//   // }
+		// })
+		// filepath: 'C:\\Users\\abbas\\Desktop\\Sandbox\\nuxt\\nuxt-sandbox\\public\\uploads\\3b579cbced294ebbf5227f800',
+		// newFilename: '3b579cbced294ebbf5227f800',
+		// originalFilename: 'table-lamp-postcard-103021-725x500.jpg',
+		// mimetype: 'image/jpeg',
+		// hashAlgorithm: false,
+		// size: 86369,
+		// form.on('file', (name, file) => {
+		// 	console.log('ON', file, name)
+		// })
+
+		// console.log('IMMMMMMMMMAGES')
 		try {
 			const body = await useBody(req)
 			const doc = await Media.create(body)
 			if (!doc) {
 				const newError = new Error(`We are not able to create a new document`)
-				newError.customError = true
-				newError.statusCode = 404
-				throw newError
-			}
-			return doc
-		} catch (error) {
-			console.log(error)
-			const err = errorHandler(error)
-			res.statusCode = err.statusCode
-			return err.message
-		}
-	}
-
-	// @desc      media
-	// @route     POST /api/v1/media/image
-	// @access    Public
-	if (req.method === 'PATCH') {
-		try {
-			const body = await useBody(req)
-			console.log('OOOOOO', params, body)
-			const doc = await Media.findByIdAndUpdate(params.id, body, {
-				new: true,
-				runValidators: true,
-			})
-			if (!doc) {
-				const newError = new Error(`We can't find a document with ID = ${params.id}`)
 				newError.customError = true
 				newError.statusCode = 404
 				throw newError

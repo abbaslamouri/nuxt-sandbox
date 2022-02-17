@@ -42,7 +42,7 @@ const resetItems = () => {
   height: 4rem;
   background-color: white;
   color: #fff;
-  min-width: 25rem;
+  // min-width: 25rem;
 
   input {
     grid-column: 1 / 2;
