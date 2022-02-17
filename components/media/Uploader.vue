@@ -168,6 +168,34 @@ const toggleMediaSort = async (event) => {
   mediaSortOrder.value = event.order
   media.value = await $fetch('/api/v1/media', { params: mediaParams.value })
 }
+
+const addToSelectedMedia = (event) => {
+  const index = media.value.findIndex((m) => m._id == event._id)
+  if (index !== -1 && !selectedMedia.value.find((m) => m._id == event._id)) selectedMedia.value.push(event)
+}
+
+const removeFromSelectedMedia = (event) => {
+  const index = selectedMedia.value.findIndex((m) => m._id == event._id)
+  if (index !== -1) selectedMedia.value.splice(index, 1)
+}
+
+const handleMoveMediaToFolder = async (event) => {
+  console.log('MOVE', event)
+  // if (!confirm('Are you sure?')) return;
+  setTimeout(async () => {
+    // console.log('LLLLL', newFolderId);
+    const index = props.folders.findIndex((f) => f._id === newFolderId.value)
+    // console.log(index);
+    if (index != -1) {
+      // await mediaActions.updateItems({ folder: newFolderId.value })
+      // folderState.selectedItem = folderState.items[index]
+      // mediaState.query.folder = folderState.selectedItem._id
+      // mediaActions.fetchAll()
+      // newFolderId.value = null
+      // mediaState.selectedItems = []
+    }
+  }, 200)
+}
 </script>
 
 <template>
@@ -185,7 +213,6 @@ const toggleMediaSort = async (event) => {
           @folderDeleted="handleFolderDeleted"
           @toggleFolderSortOrder="toggleFolderSortOrder"
         />
-
         <MediaFolderList
           v-if="folders.length"
           :folders="folders"
@@ -198,11 +225,13 @@ const toggleMediaSort = async (event) => {
       <h3 class="title">Files</h3>
       <div class="content">
         <MediaFileActions
+          :folders="folders"
           :selectedMedia="selectedMedia"
           :mediaSortField="mediaSortField"
           :mediaSortOrder="mediaSortOrder"
           @toggleMediaSort="toggleMediaSort"
           @fileUploadBtnClicked="handleFileUploadBtnClicked"
+          @moveMediaToFolder="handleMoveMediaToFolder"
         />
 
         <transition name="dropZone">
@@ -213,7 +242,13 @@ const toggleMediaSort = async (event) => {
             @uploadItemsSelected="handleUplodItemsSelected"
           />
         </transition>
-        <MediaFileList :media="media" :selectedFolder="selectedFolder" />
+        <MediaFileList
+          :media="media"
+          :selectedMedia="selectedMedia"
+          :selectedFolder="selectedFolder"
+          @addToSelectedMedia="addToSelectedMedia"
+          @removeFromSelectedMedia="removeFromSelectedMedia"
+        />
         <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" />
       </div>
     </div>

@@ -1,9 +1,4 @@
 <script setup>
-defineProps({
-  selectedFolder: {
-    type: Object,
-  },
-})
 const emit = defineEmits(['uploadItemsSelected', 'fileUploadBtnClicked'])
 
 const fileRef = ref(null)
@@ -33,12 +28,16 @@ const handleItemsSelected = (event) => {
     <IconsBackupFill />
     <p>Drop files here</p>
     <a class="heading" href="#" @click="fileRef.click()">Or click here to choose your files</a>
-    <form enctype="multipart/form-data" action="/api/v1/media/image" method="POST">
-      <input id="uploadFiles" name="uploadFiles" type="file" multiple />
-      <input type="hidden" name="folder-id" :value="selectedFolder._id" />
-      <button class="btn" type="submit">
-        <span>Submit</span>
-      </button>
+    <form enctype="multipart/form-data">
+      <input
+        id="upload"
+        type="file"
+        accept="image/*, application/pdf"
+        :multiple="true"
+        ref="fileRef"
+        @change="handleItemsSelected"
+        style="display: none"
+      />
     </form>
     <button class="btn" @click="$emit('fileUploadBtnClicked')">
       <span>Cancel</span>
