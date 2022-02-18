@@ -1,6 +1,6 @@
 <script setup>
 useMeta({
-  title: 'Home | YRL',
+  title: 'Media | YRL',
 })
 definePageMeta({
   layout: 'admin',

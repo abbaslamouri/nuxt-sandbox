@@ -1,38 +1,29 @@
 <script setup>
-defineProps({
-  modelValue: {
-    type: [String, Number],
-    default: '',
-  },
-})
+const emit = defineEmits(['searchKeywordSelected', 'clearSearch'])
 
-const emit = defineEmits(['update:modelValue', 'searchKeywordSelected', 'clearSearch'])
+const keyword = ref(null)
 
-const inputRef = ref('')
-
-const handleInput = () => {
-  emit('searchKeywordSelected', inputRef.value.value)
+const emitSearchField = () => {
+  emit('searchKeywordSelected', keyword.value)
 }
 
 const resetItems = () => {
-  if (!inputRef.value.value) emit('searchKeywordSelected', inputRef.value.value)
+  if (!keyword.value) emitSearchField()
+}
+
+const clearSearchField = () => {
+  keyword.value = null
+  emitSearchField()
 }
 </script>
 
 <template>
-  <form class="search base-input shadow-md" @submit.prevent="handleInput">
+  <form class="search base-input shadow-md" @submit.prevent="emitSearchField">
     <button type="submit" class="btn">
       <IconsSearchFill />
     </button>
-    <input
-      type="text"
-      placeholder="Search"
-      aria-label="Search"
-      :value="modelValue"
-      @input="resetItems"
-      ref="inputRef"
-    />
-    <button class="btn cancel" @click="$emit('clearSearch')">
+    <input type="text" placeholder="Search" aria-label="Search" v-model="keyword" @input="resetItems" />
+    <button class="btn cancel" @click="clearSearchField">
       <IconsClose />
     </button>
   </form>

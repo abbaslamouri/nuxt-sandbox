@@ -39,7 +39,6 @@ class ApiFeatures {
     } else {
       this.query = this.query.sort('dateCreated')
     }
-
     return this
   }
 
@@ -60,9 +59,8 @@ class ApiFeatures {
     const skip = (page - 1) * limit
     // console.log(page, limit, skip)
     this.query = this.query.skip(skip).limit(limit)
-
     return this
   }
 }
 
-module.exports = ApiFeatures
+export default ApiFeatures

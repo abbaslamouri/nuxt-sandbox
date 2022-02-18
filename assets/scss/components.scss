@@ -99,8 +99,14 @@
   }
 
   &-image-select {
+    display: flex;
+    gap: 1rem;
     border-radius: 5px;
     background-color: $slate-200;
+
+    svg {
+      fill: $slate-800;
+    }
   }
 
   &-heading {
@@ -115,7 +121,6 @@
   }
 
   svg {
-    fill: $slate-50;
     width: 1.5rem;
     height: 1.5rem;
   }

@@ -1,6 +1,18 @@
 <script setup>
 import { useMessage } from '~/store/useMessage'
 const appMessage = useMessage()
+
+// watch(appMessage.errorMsg, (current, old) => {
+//   console.log(current)
+//   console.log(old)
+//   if (current) appMessage.setSnackbar(true, errorMsg, 'Error', 5)
+// })
+
+// watch(appMessage.successMsg, (current, old) => {
+//   console.log(current)
+//   console.log(old)
+//   if (current) appMessage.setSnackbar(true, successMsg, 'Success', 5)
+// })
 </script>
 
 <template>
@@ -8,12 +20,19 @@ const appMessage = useMessage()
     <NuxtLayout>
       <NuxtPage />
       <SnackBar
-        :show="appMessage.snackbar.show"
-        :message="appMessage.snackbar.message"
-        :snackbarType="appMessage.snackbar.type"
-        :duration="appMessage.snackbar.duration"
-        :position="appMessage.snackbar.position"
-        @hideSnackbar="appMessage.snackbar.show = false"
+        :show="!!appMessage.errorMsg"
+        :message="appMessage.errorMsg"
+        snackbarType="Error"
+        duration="5"
+        @hideSnackbar="appMessage.errorMsg = null"
+      />
+
+      <SnackBar
+        :show="!!appMessage.successMsg"
+        :message="appMessage.successMsg"
+        snackbarType="Success"
+        duration="5"
+        @hideSnackbar="appMessage.successMsg = null"
       />
     </NuxtLayout>
   </div>

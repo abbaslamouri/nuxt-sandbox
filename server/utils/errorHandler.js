@@ -10,6 +10,11 @@ export default (error) => {
     for (const prop in error.errors) {
       const err = error.errors[prop]
 
+      if (err.name === 'CastError') {
+        message += `${err.message}.\n`
+        statusCode = 400
+      }
+
       if (err.name === 'ValidatorError') {
         message += `${err.message}.\n`
         statusCode = 400

@@ -43,7 +43,7 @@ const pages = computed(() =>
 )
 
 const fetchMedia = async () => {
-  appMessage.snackbar.show = false
+  appMessage.errorMsg = null
   try {
     let params = {}
     if (Object.values(selectedFolder.value).length) {
@@ -55,16 +55,16 @@ const fetchMedia = async () => {
     media.value = response.docs
     mediaCount.value = response.count
   } catch (error) {
-    appMessage.setSnackbar(true, error.data, 'Error')
+    appMessage.errorMsg = error.data
   }
 }
 
 // Fetch folders
 try {
-  appMessage.snackbar.show = false
+  appMessage.errorMsg = null
   folders.value = await $fetch('/api/v1/folders', { params: folderParams.value })
 } catch (error) {
-  appMessage.setSnackbar(true, error.data, 'Error')
+  appMessage.errorMsg = error.data
 }
 
 //Fetch media
@@ -72,7 +72,7 @@ await fetchMedia()
 
 // Handles upload button click
 const handleFileUploadBtnClicked = () => {
-  if (!selectedFolder.value._id) appMessage.setSnackbar(true, 'Please selecet a folder', 'Error', 5)
+  if (!selectedFolder.value._id) appMessage.errorMsg = 'Please selecet a folder'
   else showDropZone.value = !showDropZone.value
 }
 
@@ -158,14 +158,15 @@ const handleDeleteMedia = async () => {
       }
     })
   )
-  if (message) appMessage.setSnackbar(true, message, 'Success', 5)
-  if (error) appMessage.setSnackbar(true, error, 'Error', 5)
+  if (message) appMessage.successMsg = message
+  if (error) appMessage.errorMsg = error
   await fetchMedia()
   selectedMedia.value = []
 }
 
 // Move media to a different folder
 const handleMoveMediaToFolder = async (event) => {
+  appMessage.errorMsg=null
   const index = folders.value.findIndex((f) => f._id == event)
   if (index != -1) {
     await Promise.all(
@@ -179,7 +180,7 @@ const handleMoveMediaToFolder = async (event) => {
           console.log(response)
         } catch (err) {
           console.error('MyERROR', err)
-          appMessage.setSnackbar(true, err.data, 'Error', 5)
+          appMessage.errorMsg= err.data
         }
       })
     )
@@ -255,16 +256,12 @@ const handleSearch = async (event) => {
     <div class="media-select-actions">
       <button
         class="btn btn-primary"
-        @click="$emit('mediaSelected', selectedItems)"
+        @click="$emit('mediaSelected', selectedMedia)"
         v-if="route.name !== 'admin-media'"
       >
-        Selct
+        Select
       </button>
-      <button
-        v-if="route.name !== 'admin-media'"
-        class="btn btn-secondary cancel"
-        @click="$emit('mediaSelectCancel', selectedItems)"
-      >
+      <button v-if="route.name !== 'admin-media'" class="btn btn-secondary cancel" @click="$emit('mediaSelectCancel')">
         Cancel
       </button>
     </div>

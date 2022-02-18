@@ -4,13 +4,12 @@
 		{ name: 'admin-media', title: 'Media', icon: 'IconsFolderFill', subMenu: [], open: false },
 		{
 			name: 'admin-ecommerce-products',
-			title: 'Products',
+			title: 'Ecommerce',
 			icon: 'IconsCartFill',
 			subMenu: [
 				{ name: 'admin-ecommerce-products', title: 'Products', icon: 'IconsCartFill' },
-				{ name: 'admin-ecommerce-products-categories', title: 'Categories', icon: 'IconsClipboard' },
-				{ name: 'admin-ecommerce-products-attributes', title: 'Attributes', icon: 'IconsIdentification' },
-				{ name: 'admin-ecommerce-products-atributes', title: 'Coupons', icon: 'IconsCartFill' },
+				{ name: 'admin-ecommerce-categories', title: 'Categories', icon: 'IconsClipboard' },
+				{ name: 'admin-ecommerce-attributes', title: 'Attributes', icon: 'IconsIdentification' },
 			],
 			open: false,
 		},

@@ -61,11 +61,7 @@ const clearKeyword = async () => {
     </button>
     <div class="search-sort">
       <div class="search">
-        <Search
-          v-model="keyword"
-          @searchKeywordSelected="$emit('searchKeywordSelected', $event)"
-          @clearSearch="clearKeyword"
-        />
+        <Search @searchKeywordSelected="$emit('searchKeywordSelected', $event)" />
       </div>
       <div class="sort">
         <MediaSort
