@@ -23,7 +23,8 @@ const showAlert = ref(false)
 const newFolder = ref({})
 
 const editFolder = () => {
-  newFolder.value = props.selectedFolder
+  newFolder.value.name = props.selectedFolder.name
+  newFolder.value._id = props.selectedFolder._id
   showForm.value = true
 }
 
@@ -71,7 +72,7 @@ const deleteFolder = async () => {
     const response = await $fetch('/api/v1/folders/', { method: 'DELETE', params: { id: props.selectedFolder._id } })
     console.log(response)
     emit('folderDeleted')
-    appMessage.setSnackbar(true, `Folder ${props.selectedFolder.name} deleted succesfully`, 'Success')
+    appMessage.setSnackbar(true, `Folder ${props.selectedFolder.name} deleted succesfully`, 'Success', 5)
   } catch (error) {
     appMessage.setSnackbar(true, error.data, 'Error')
   }
@@ -113,7 +114,7 @@ const deleteFolder = async () => {
         </button>
       </div>
     </div>
-    <Alert v-if="showAlert" @ok="deleteFolder">
+    <Alert v-if="showAlert" @ok="deleteFolder" @cancel="showAlert = false">
       <h3>Are you sure you want to delete this folder?</h3>
       <p>this folder will be deleted if it does not contain any media</p>
     </Alert>

@@ -6,6 +6,9 @@ defineProps({
   selectedMedia: {
     type: Array,
   },
+  selectedFolder: {
+    type: Object,
+  },
   mediaSortField: {
     type: String,
   },
@@ -77,7 +80,13 @@ const clearKeyword = async () => {
         <div class="base-select" v-if="selectedMedia.length">
           <select v-model="moveToFolderId" @change="showMediaMoveAlert = true">
             <option value="">Select Folder</option>
-            <option v-for="option in folders" :key="option._id" :value="option._id">{{ option.name }}</option>
+            <option
+              v-for="option in folders.filter((f) => f._id != selectedFolder._id)"
+              :key="option._id"
+              :value="option._id"
+            >
+              {{ option.name }}
+            </option>
           </select>
           <label>Move To Folder</label>
         </div>

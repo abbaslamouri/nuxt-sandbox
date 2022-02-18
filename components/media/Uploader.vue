@@ -9,7 +9,7 @@ const mediaCount = ref(null)
 const folders = ref([])
 const selectedFolder = ref({})
 const page = ref(1)
-const perPage = ref(3)
+const perPage = ref(10)
 const folderSortField = ref('name')
 const folderSortOrder = ref('')
 const mediaSortField = ref('name')
@@ -91,29 +91,12 @@ const handleUplodItemsSelected = async (ulploadItems) => {
 const setPage = async (currentPage) => {
   page.value = currentPage
   await fetchMedia()
-  // if (Object.values(selectedFolder.value).length) {
-  //   params = { ...mediaParams.value, folder: selectedFolder.value._id }
-  // } else {
-  //   params = { ...mediaParams.value }
-  // }
-  // const response = await $fetch('/api/v1/media', { params })
-  // media.value = response.docs
 }
 
 const handleSelectFolder = async (event) => {
   selectedFolder.value = event
   page.value = 1
   await fetchMedia()
-  // // let params = {}
-  // // if (Object.values(selectedFolder.value).length) {
-  // //   params = { ...mediaParams.value, folder: selectedFolder.value._id }
-  // // } else {
-  // //   params = { ...mediaParams.value }
-  // // }
-  // // console.log('params', params)
-  // const response = await $fetch('/api/v1/media', { params })
-  // media.value = response.docs
-  // mediaCount.value = response.count
 }
 
 //save folder
@@ -177,13 +160,11 @@ const handleDeleteMedia = async () => {
   )
   if (message) appMessage.setSnackbar(true, message, 'Success', 5)
   if (error) appMessage.setSnackbar(true, error, 'Error', 5)
-  // media.value = await $fetch('/api/v1/media', {
-  //   params: { ...mediaParams.value, folder: selectedFolder.value._id },
-  // }).docs
   await fetchMedia()
   selectedMedia.value = []
 }
 
+// Move media to a different folder
 const handleMoveMediaToFolder = async (event) => {
   const index = folders.value.findIndex((f) => f._id == event)
   if (index != -1) {
@@ -202,32 +183,21 @@ const handleMoveMediaToFolder = async (event) => {
         }
       })
     )
-    // mediaParams.value.folder = event
     selectedFolder.value = folders.value.find((f) => f._id == event)
-    media.value = await $fetch('/api/v1/media', {
-      params: { ...mediaParams.value, folder: selectedFolder.value._id },
-    })
+    await fetchMedia()
     selectedMedia.value = []
   }
 }
 
 const handleSearch = async (event) => {
-  console.log('E', event)
   page.value = 1
   keyword.value = event
-  // const response = await $fetch('/api/v1/media', {
-  //   params: mediaParams.value,
-  // })
-  // console.log('MP', mediaParams.value)
-  // media.value = response.docs
-  // mediaCount.value = response.count
   await fetchMedia()
 }
 </script>
 
 <template>
   <div class="media-uploader">
-    {{ pages }}
     <div class="folders shadow-md">
       <h3 class="title">Folders</h3>
       <div class="content">
@@ -254,6 +224,7 @@ const handleSearch = async (event) => {
         <MediaFileActions
           :folders="folders"
           :selectedMedia="selectedMedia"
+          :selectedFolder="selectedFolder"
           :mediaSortField="mediaSortField"
           :mediaSortOrder="mediaSortOrder"
           @toggleMediaSort="toggleMediaSort"

@@ -56,7 +56,7 @@ defineEmits(['cancel', 'ok'])
       overflow: auto;
       text-align: center;
       line-height: 2.5rem;
-      letter-spacing: 0.15rem;
+      letter-spacing: 0.1rem;
       font-size: 1.5rem;
 
       footer {
