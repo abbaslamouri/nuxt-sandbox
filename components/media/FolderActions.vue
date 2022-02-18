@@ -27,6 +27,11 @@ const editFolder = () => {
   showForm.value = true
 }
 
+const cancelEditFolder = () => {
+  newFolder.value = {}
+  showForm.value = false
+}
+
 const saveNewFolder = async () => {
   appMessage.snackbar.show = false
   try {
@@ -86,7 +91,7 @@ const deleteFolder = async () => {
           <FormsBaseInput type="text" label="Folder" v-model="newFolder.name" />
           <div class="actions">
             <button class="submit btn btn-primary" type="submit">OK</button>
-            <button class="btn btn-secondary" @click.prevent="showForm = false">Cancel</button>
+            <button class="btn btn-secondary" @click.prevent="cancelEditFolder">Cancel</button>
           </div>
         </form>
       </transition>

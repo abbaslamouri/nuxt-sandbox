@@ -41,6 +41,13 @@ const handleCancelMoveMedia = async () => {
   showMediaMoveAlert.value = false
   moveToFolderId.value = ''
 }
+
+const clearKeyword = async () => {
+  emit('searchKeywordSelected', '')
+  keyword.value = ''
+  // showMediaMoveAlert.value = false
+  // moveToFolderId.value = ''
+}
 </script>
 
 <template>
@@ -51,7 +58,11 @@ const handleCancelMoveMedia = async () => {
     </button>
     <div class="search-sort">
       <div class="search">
-        <Search v-model="keyword" @searchKeywordSelected="$emit('searchKeywordSelected', $event)" />
+        <Search
+          v-model="keyword"
+          @searchKeywordSelected="$emit('searchKeywordSelected', $event)"
+          @clearSearch="clearKeyword"
+        />
       </div>
       <div class="sort">
         <MediaSort

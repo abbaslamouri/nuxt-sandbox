@@ -6,7 +6,7 @@ defineProps({
   },
 })
 
-const emit = defineEmits(['update:modelValue', 'searchKeywordSelected'])
+const emit = defineEmits(['update:modelValue', 'searchKeywordSelected', 'clearSearch'])
 
 const inputRef = ref('')
 
@@ -21,7 +21,6 @@ const resetItems = () => {
 
 <template>
   <form class="search base-input shadow-md" @submit.prevent="handleInput">
-    {{ modelValue }}
     <button type="submit" class="btn">
       <IconsSearchFill />
     </button>
@@ -33,6 +32,9 @@ const resetItems = () => {
       @input="resetItems"
       ref="inputRef"
     />
+    <button class="btn cancel" @click="$emit('clearSearch')">
+      <IconsClose />
+    </button>
   </form>
 </template>
 
@@ -72,6 +74,10 @@ const resetItems = () => {
     padding: 0 1rem;
     width: 4rem;
     height: 4rem;
+
+    &.cancel {
+      justify-self: flex-end;
+    }
 
     svg {
       fill: $slate-500;

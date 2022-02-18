@@ -33,42 +33,8 @@ const mediaParams = computed(() => {
     limit: perPage.value,
     sort: `${mediaSortOrder.value}${mediaSortField.value}`,
     keyword: keyword.value,
-    // folder: selectedFolder.value ? selectedFolder.value._id : null,
   }
 })
-
-const fetchMedia = async () => {
-  let params = {}
-  if (Object.values(selectedFolder.value).length) {
-    params = { ...mediaParams.value, folder: selectedFolder.value._id }
-  } else {
-    params = { ...mediaParams.value }
-  }
-  return await $fetch('/api/v1/media', { params })
-}
-
-try {
-  appMessage.snackbar.show = false
-  // folders.value = await $fetch('/api/v1/folders', { params: folderParams.value })
-  // const response = await fetchMedia()
-  // media.value = response.docs
-  // mediaCount.value = response.count
-
-  const [mediaData, folderData] = await Promise.all([
-    // $fetch('/api/v1/media', { params: mediaParams.value }),
-    fetchMedia(),
-    $fetch('/api/v1/folders', { params: folderParams.value }),
-  ])
-
-  // console.log('MediaCount', mediaCount.value)
-  // console.log('Media', mediaData)
-  // console.log('Folders', folders.value)
-  media.value = mediaData.docs
-  mediaCount.value = mediaData.count
-  folders.value = folderData
-} catch (error) {
-  appMessage.setSnackbar(true, error.data, 'Error')
-}
 
 const pages = computed(() =>
   mediaCount.value % perPage.value
@@ -76,14 +42,43 @@ const pages = computed(() =>
     : parseInt(mediaCount.value / perPage.value)
 )
 
+const fetchMedia = async () => {
+  appMessage.snackbar.show = false
+  try {
+    let params = {}
+    if (Object.values(selectedFolder.value).length) {
+      params = { ...mediaParams.value, folder: selectedFolder.value._id }
+    } else {
+      params = { ...mediaParams.value }
+    }
+    const response = await $fetch('/api/v1/media', { params })
+    media.value = response.docs
+    mediaCount.value = response.count
+  } catch (error) {
+    appMessage.setSnackbar(true, error.data, 'Error')
+  }
+}
+
+// Fetch folders
+try {
+  appMessage.snackbar.show = false
+  folders.value = await $fetch('/api/v1/folders', { params: folderParams.value })
+} catch (error) {
+  appMessage.setSnackbar(true, error.data, 'Error')
+}
+
+//Fetch media
+await fetchMedia()
+
+// Handles upload button click
 const handleFileUploadBtnClicked = () => {
   if (!selectedFolder.value._id) appMessage.setSnackbar(true, 'Please selecet a folder', 'Error', 5)
   else showDropZone.value = !showDropZone.value
 }
 
+// Handles meia upload
 const handleUplodItemsSelected = async (ulploadItems) => {
   showDropZone.value = false
-
   for (const prop in ulploadItems) {
     media.value.unshift({
       uploadState: 'uploading',
@@ -95,69 +90,73 @@ const handleUplodItemsSelected = async (ulploadItems) => {
 
 const setPage = async (currentPage) => {
   page.value = currentPage
-  let params = {}
-  if (Object.values(selectedFolder.value).length) {
-    params = { ...mediaParams.value, folder: selectedFolder.value._id }
-  } else {
-    params = { ...mediaParams.value }
-  }
-  const response = await $fetch('/api/v1/media', { params })
-  media.value = response.docs
+  await fetchMedia()
+  // if (Object.values(selectedFolder.value).length) {
+  //   params = { ...mediaParams.value, folder: selectedFolder.value._id }
+  // } else {
+  //   params = { ...mediaParams.value }
+  // }
+  // const response = await $fetch('/api/v1/media', { params })
+  // media.value = response.docs
 }
 
 const handleSelectFolder = async (event) => {
   selectedFolder.value = event
-  let params = {}
-  if (Object.values(selectedFolder.value).length) {
-    params = { ...mediaParams.value, folder: selectedFolder.value._id }
-  } else {
-    params = { ...mediaParams.value }
-  }
-  console.log('params', params)
-  const response = await $fetch('/api/v1/media', { params })
-  media.value = response.docs
-  mediaCount.value = response.count
+  page.value = 1
+  await fetchMedia()
+  // // let params = {}
+  // // if (Object.values(selectedFolder.value).length) {
+  // //   params = { ...mediaParams.value, folder: selectedFolder.value._id }
+  // // } else {
+  // //   params = { ...mediaParams.value }
+  // // }
+  // // console.log('params', params)
+  // const response = await $fetch('/api/v1/media', { params })
+  // media.value = response.docs
+  // mediaCount.value = response.count
 }
 
+//save folder
 const handleFolderSaved = async (event) => {
   const index = folders.value.findIndex((f) => f._id == event._id)
   if (index !== -1) folders.value.splice(index, 1, event)
   else folders.value.push(event)
 }
 
+// Delete folder
 const handleFolderDeleted = async () => {
   const index = folders.value.findIndex((f) => f._id == selectedFolder.value._id)
   if (index !== -1) folders.value.splice(index, 1)
   selectedFolder.value = {}
-  delete mediaParams.value.folder
-  const response = await $fetch('/api/v1/media', { params: mediaParams.value })
-  media.value = response.docs
+  await fetchMedia()
 }
 
+// Toggle folder sort
 const toggleFolderSortOrder = async () => {
   folderSortOrder.value = folderSortOrder.value == '-' ? `` : `-`
-  console.log(folderSortOrder.value)
-  console.log(folderParams.value)
   folders.value = await $fetch('/api/v1/folders', { params: folderParams.value })
 }
+
+// Toggle media sort
 const toggleMediaSort = async (event) => {
-  console.log('E', event)
   mediaSortField.value = event.field
   mediaSortOrder.value = event.order
-  const response = await $fetch('/api/v1/media', { params: mediaParams.value })
-  media.value = response.docs
+  await fetchMedia()
 }
 
+// Add file to selected media
 const addToSelectedMedia = (event) => {
   const index = media.value.findIndex((m) => m._id == event._id)
   if (index !== -1 && !selectedMedia.value.find((m) => m._id == event._id)) selectedMedia.value.push(event)
 }
 
+// Remove file from selected media
 const removeFromSelectedMedia = (event) => {
   const index = selectedMedia.value.findIndex((m) => m._id == event._id)
   if (index !== -1) selectedMedia.value.splice(index, 1)
 }
 
+// Delete media
 const handleDeleteMedia = async () => {
   let message = ''
   let error = ''
@@ -178,9 +177,10 @@ const handleDeleteMedia = async () => {
   )
   if (message) appMessage.setSnackbar(true, message, 'Success', 5)
   if (error) appMessage.setSnackbar(true, error, 'Error', 5)
-  media.value = await $fetch('/api/v1/media', {
-    params: { ...mediaParams.value, folder: selectedFolder.value._id },
-  }).docs
+  // media.value = await $fetch('/api/v1/media', {
+  //   params: { ...mediaParams.value, folder: selectedFolder.value._id },
+  // }).docs
+  await fetchMedia()
   selectedMedia.value = []
 }
 
@@ -215,12 +215,13 @@ const handleSearch = async (event) => {
   console.log('E', event)
   page.value = 1
   keyword.value = event
-  const response = await $fetch('/api/v1/media', {
-    params: mediaParams.value,
-  })
-  console.log('MP', mediaParams.value)
-  media.value = response.docs
-  mediaCount.value = response.count
+  // const response = await $fetch('/api/v1/media', {
+  //   params: mediaParams.value,
+  // })
+  // console.log('MP', mediaParams.value)
+  // media.value = response.docs
+  // mediaCount.value = response.count
+  await fetchMedia()
 }
 </script>
 

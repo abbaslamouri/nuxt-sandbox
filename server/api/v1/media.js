@@ -5,18 +5,16 @@ import ApiFeatures from '~/server/utils/ApiFeatures'
 
 export default async (req, res) => {
   res.statusCode = 200
-  const params = await useQuery(req)
+  const params = useQuery(req)
 
   if (req.method === 'GET') {
-    let docs = []
     let features
-    console.log('VOUNT', params.count)
     try {
       features = new ApiFeatures(Media.find(), params).filter().fields().search().sort()
       const allDocs = await features.query
       const count = allDocs.length
       features = new ApiFeatures(Media.find(), params).filter().fields().search().sort().paginate()
-      docs = await features.query.populate('folder', { name: 1, path: 1, slug: 1 })
+      const docs = await features.query.populate('folder', { name: 1, path: 1, slug: 1 })
       return { docs, count }
     } catch (error) {
       const err = errorHandler(error)
