@@ -1,54 +1,126 @@
 <script setup>
 import slugify from 'slugify'
-// import { useError } from '~/pinia/useError'
-const { state: attState, actions: attActions } = useFactory('attributes')
-const { state: attTermsState, actions: attTermsActions } = useFactory('attributeterms')
-provide('attState', attState)
-provide('attActions', attActions)
-provide('attTermsState', attTermsState)
-provide('attTermsActions', attTermsActions)
+import { useMessage } from '~/store/useMessage'
 
-// const appError = useError()
+useMeta({
+  title: 'Attributes | YRL',
+})
+definePageMeta({
+  layout: 'admin',
+})
 
 const currentAttrs = ref([])
 const attributeRefs = ref([])
 
-onMounted(() => {
-  // console.log(attributeRefs.value.$el);
-  // for (const prop in attributeRefs.value) console.log(attributeRefs.value[prop].$el.querySelector('.form-group input'));
+const appMessage = useMessage()
+const attributes = ref([])
+const count = ref(null) // item count taking into account params
+const totalCount = ref(null) // Total item count in the database
+const keyword = ref(null)
+const page = ref(1)
+const perPage = ref(6)
+const sortField = ref('createdAt')
+const sortOrder = ref('')
+const terms = ref([])
+
+const pages = computed(() =>
+  count.value % perPage.value ? parseInt(count.value / perPage.value) + 1 : parseInt(count.value / perPage.value)
+)
+
+// Set query params
+const attributeParams = computed(() => {
+  return {
+    fields: 'name, slug',
+    page: page.value,
+    limit: perPage.value,
+    sort: `${sortOrder.value}${sortField.value}`,
+    keyword: keyword.value,
+  }
 })
 
+// Set query params
+const attributeTermsParams = computed(() => {
+  return {
+    fields: 'name, slug, parent',
+  }
+})
+
+const fetchAllAttributes = async () => {
+  appMessage.errorMsg = null
+  try {
+    const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
+    attributes.value = response.docs
+    count.value = response.count
+    totalCount.value = response.totalCount
+    console.log(response)
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+const fetchAllTerms = async () => {
+  appMessage.errorMsg = null
+  try {
+    const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
+    terms.value = response.docs
+    console.log(response)
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+// Fetch all
+// await fetchAll()
+
 // Populate attribute and atribute terms states
-await Promise.all([attActions.fetchAll(), attTermsActions.fetchAll()])
+await Promise.all([fetchAllAttributes(), fetchAllTerms()])
 // currentAttrs.value = [...attState.items];
 
-for (const prop in attState.items) {
-  currentAttrs.value[prop] = { ...attState.items[prop] }
+// const response = await $fetch('/api/v1/attributeterms', { params: params.value })
+// terms.value = response.docs
+
+console.log('ATTRIBUTES', attributes.value)
+console.log('TERMS', terms.value)
+
+// for (const prop in attState.items) {
+//   currentAttrs.value[prop] = { ...attState.items[prop] }
+// }
+
+const handleTermSaved = async () => {
+  await fetchAllTerms()
 }
 
-const saveAttributes = async () => {
-  for (const prop in attState.items) {
-    if (!attState.items[prop].name) {
-      // appError.setSnackbar(true, 'Attribute name is required', 'Error')
-      return
-    }
-  }
-  await Promise.all(
-    attState.items.map(async (item) => {
-      item.slug = slugify(item.name, { lower: true })
-      attState.selectedItem = { ...item }
-      if (!item._id) {
-        attState.items = attState.items.filter((a) => a.slug != item.slug)
-        // const index = attState.items.findIndex((el) => el.slug == response.data.slug);
-        // if (index != -1) attState.items.splice(index, 1);
-        await attActions.saveItem()
-      } else {
-        if (!currentAttrs.value.find((a) => a.slug == item.slug)) await attActions.saveItem()
-      }
-    })
-  )
-  // if (!attState.errorMsg) appError.setSnackbar(true, 'Attributes saved succesfully', 'Success')
+const handleAttributeDeleted = async () => {
+  await fetchAllAttributes()
 }
+
+// const saveAttributes = async () => {
+//   await Promise.all(
+//     attributes.value.map(async (item) => {
+//       if (item.name) {
+//         console.log('SSSSSSSXXXXX', item)
+
+//         item.slug = slugify(item.name, { lower: true })
+//         if (!item._id) {
+//           console.log('SSSSSSSXXXXX', item)
+
+//           $fetch('/api/v1/attributes', {
+//             method: 'POST',
+//             body: item,
+//           })
+//         } else {
+//           console.log('SSSSSSSXXXXXYYYYYY', item)
+
+//           $fetch('/api/v1/attributes', {
+//             method: 'PATCH',
+//             body: item,
+//             params: { id: item._id },
+//           })
+//         }
+//       }
+//     })
+//   )
+// }
 
 // const removeTermInputsHiddenClass = () => {
 //   for (const prop in attributeRefs.value) {
@@ -71,11 +143,11 @@ export default {
     <header>
       <h2>Attributes</h2>
       <!-- <NuxtLink class="link" :to="{ name: 'admin-products-attributes-slug', params: { slug: ' ' } }"> -->
-      <button class="btn btn-primary" @click="attState.items.push({})">Add New</button>
+      <button class="btn btn-primary" @click="attributes.push({ name: '', terms: [] })">Add New</button>
       <!-- </NuxtLink> -->
     </header>
     <main>
-      <form @keypress.enter.prevent>
+      <div>
         <div class="table">
           <div class="table__header">
             <div class="row">
@@ -85,26 +157,25 @@ export default {
             </div>
           </div>
           <div class="table__body">
-            <ProductsAdminAttribute
+            <EcommerceAdminAttributeCard
+              v-for="(attribute, i) in attributes"
               :attribute="attribute"
               :i="i"
-              class="row"
-              v-for="(attribute, i) in attState.items"
               :key="attribute._id"
               :ref="
                 (el) => {
                   if (el) attributeRefs[i] = el
                 }
               "
+              :attributeTerms="terms.filter((t) => t.parent._id == attribute._id)"
+              @termSaved="handleTermSaved"
+              @attributeDeleted="handleAttributeDeleted"
             />
           </div>
         </div>
-        <button class="btn btn-primary" @click="saveAttributes">Save Changes</button>
-      </form>
+        <button class="btn btn-primary" @click.prevent="saveAttributes">Save Changes</button>
+      </div>
     </main>
-    <!-- <footer> -->
-    <!-- <button class="btn btn-secondary">Cancel</button> -->
-    <!-- </footer> -->
   </div>
 </template>
 

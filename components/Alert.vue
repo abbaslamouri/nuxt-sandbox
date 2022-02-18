@@ -23,8 +23,8 @@ defineEmits(['cancel', 'ok'])
           <slot></slot>
         </main>
         <footer>
-          <button class="btn btn-secondary" @click="$emit('cancel')">Cancel</button>
-          <button class="btn btn-primary" @click="$emit('ok')">OK</button>
+          <button class="btn btn-secondary" @click.prevent="$emit('cancel')">Cancel</button>
+          <button class="btn btn-primary" @click.prevent="$emit('ok')">OK</button>
         </footer>
       </div>
     </div>

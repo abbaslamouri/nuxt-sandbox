@@ -76,7 +76,7 @@ export default {
       <span>
         {{ label }}
       </span>
-      <span v-if="$attrs.required !== undefined">(required)</span>
+      <span v-if="$attrs.required !== undefined"> (required)</span>
     </label>
 
     <div class="password-strength" v-if="type === 'password'">

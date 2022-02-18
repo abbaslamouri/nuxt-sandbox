@@ -1,5 +1,5 @@
 import { useBody, useQuery } from 'h3'
-import Model from '~/server/models/category'
+import Model from '~/server/models/attribute'
 import errorHandler from '~/server/utils/errorHandler'
 import ApiFeatures from '~/server/utils/ApiFeatures'
 
@@ -15,8 +15,8 @@ export default async (req, res) => {
       const featured = await features.query
       features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
       const docs = await features.query
-        .populate('parent', { name: 1, slug: 1 })
-        .populate('gallery', { path: 1, mimetype: 1 })
+      //   .populate('parent', { name: 1, slug: 1 })
+      //   .populate('gallery', { path: 1, mimetype: 1 })
       return { docs, count: featured.length, totalCount: allDocs.length }
     } catch (error) {
       const err = errorHandler(error)
@@ -26,6 +26,7 @@ export default async (req, res) => {
   }
 
   if (req.method === 'POST') {
+    console.log('HELLO')
     try {
       const body = await useBody(req)
       const doc = await Model.create(body)
@@ -45,8 +46,11 @@ export default async (req, res) => {
   }
 
   if (req.method === 'PATCH') {
+
     try {
       const body = await useBody(req)
+      console.log('HELLOXXX', body)
+
       const doc = await Model.findByIdAndUpdate(params.id, body, {
         new: true,
         runValidators: true,

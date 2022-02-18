@@ -56,7 +56,7 @@ const handleDelete = async (event) => {
   try {
     await $fetch(`/api/v1/categories`, {
       method: 'DELETE',
-      body: { id: event },
+      params: { id: event },
     })
     const index = categories.value.findIndex((c) => c._id == event)
     if (index !== -1) {

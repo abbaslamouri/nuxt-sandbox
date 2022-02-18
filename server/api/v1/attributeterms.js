@@ -1,5 +1,5 @@
 import { useBody, useQuery } from 'h3'
-import Model from '~/server/models/category'
+import Model from '~/server/models/attributeterm'
 import errorHandler from '~/server/utils/errorHandler'
 import ApiFeatures from '~/server/utils/ApiFeatures'
 
@@ -14,9 +14,7 @@ export default async (req, res) => {
       features = new ApiFeatures(Model.find(), params).filter().fields().search().sort()
       const featured = await features.query
       features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
-      const docs = await features.query
-        .populate('parent', { name: 1, slug: 1 })
-        .populate('gallery', { path: 1, mimetype: 1 })
+      const docs = await features.query.populate('parent', { name: 1, slug: 1 })
       return { docs, count: featured.length, totalCount: allDocs.length }
     } catch (error) {
       const err = errorHandler(error)

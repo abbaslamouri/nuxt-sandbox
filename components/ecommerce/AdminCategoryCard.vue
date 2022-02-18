@@ -30,9 +30,9 @@ const proceed = () => {
       <h3 class="title">{{ category.name }}</h3>
     </div>
 
-    <div class="slug td">{{ category.slug }}</div>
-    <div class="slug td" v-if="category.parent">{{ category.parent.name }}</div>
-    <div class="slug td" v-else></div>
+    <div class="td">{{ category.slug }}</div>
+    <div class="td" v-if="category.parent">{{ category.parent.name }}</div>
+    <div class="td" v-else></div>
     <div class="actions td">
       <button class="btn" @click.prevent="showActions = !showActions"><IconsMoreHoriz /></button>
       <div class="menu shadow-md" v-show="showActions">
