@@ -9,8 +9,7 @@ definePageMeta({
   layout: 'admin',
 })
 
-const currentAttrs = ref([])
-const attributeRefs = ref([])
+// const attributeRefs = ref([])
 
 const appMessage = useMessage()
 const attributes = ref([])
@@ -69,85 +68,32 @@ const fetchAllTerms = async () => {
   }
 }
 
-// Fetch all
-// await fetchAll()
-
-// Populate attribute and atribute terms states
+// Fetch all attributes and terms
 await Promise.all([fetchAllAttributes(), fetchAllTerms()])
-// currentAttrs.value = [...attState.items];
 
-// const response = await $fetch('/api/v1/attributeterms', { params: params.value })
-// terms.value = response.docs
-
-console.log('ATTRIBUTES', attributes.value)
-console.log('TERMS', terms.value)
-
-// for (const prop in attState.items) {
-//   currentAttrs.value[prop] = { ...attState.items[prop] }
-// }
-
-const handleTermSaved = async () => {
+const handleTermUpdated = async () => {
   await fetchAllTerms()
 }
 
-const handleAttributeDeleted = async () => {
+const handleAttributeUpdated = async () => {
   await fetchAllAttributes()
 }
 
-// const saveAttributes = async () => {
-//   await Promise.all(
-//     attributes.value.map(async (item) => {
-//       if (item.name) {
-//         console.log('SSSSSSSXXXXX', item)
-
-//         item.slug = slugify(item.name, { lower: true })
-//         if (!item._id) {
-//           console.log('SSSSSSSXXXXX', item)
-
-//           $fetch('/api/v1/attributes', {
-//             method: 'POST',
-//             body: item,
-//           })
-//         } else {
-//           console.log('SSSSSSSXXXXXYYYYYY', item)
-
-//           $fetch('/api/v1/attributes', {
-//             method: 'PATCH',
-//             body: item,
-//             params: { id: item._id },
-//           })
-//         }
-//       }
-//     })
-//   )
-// }
-
-// const removeTermInputsHiddenClass = () => {
-//   for (const prop in attributeRefs.value) {
-//     attributeRefs.value[prop].$el.querySelector('.form-group input').classList.add('hidden');
-//   }
-// };
-</script>
-
-<script>
-export default {
-  layout: 'admin',
+// Set current page
+const setPage = async (currentPage) => {
+  page.value = currentPage
+  await fetchAllAttributes()
 }
 </script>
 
 <template>
   <div class="admin-attributes">
-    <!-- <pre style="font-size: 1rem">{{ attState.items }}</pre> -->
-    <!-- <pre style="font-size: 1rem">{{ attTermsState.items }}</pre> -->
-    <!-- {{ attributeRefs }} -->
     <header>
       <h2>Attributes</h2>
-      <!-- <NuxtLink class="link" :to="{ name: 'admin-products-attributes-slug', params: { slug: ' ' } }"> -->
       <button class="btn btn-primary" @click="attributes.push({ name: '', terms: [] })">Add New</button>
-      <!-- </NuxtLink> -->
     </header>
     <main>
-      <div>
+      <form @keypress.enter.prevent>
         <div class="table">
           <div class="table__header">
             <div class="row">
@@ -158,24 +104,21 @@ export default {
           </div>
           <div class="table__body">
             <EcommerceAdminAttributeCard
-              v-for="(attribute, i) in attributes"
+              v-for="attribute in attributes"
               :attribute="attribute"
-              :i="i"
               :key="attribute._id"
-              :ref="
-                (el) => {
-                  if (el) attributeRefs[i] = el
-                }
-              "
               :attributeTerms="terms.filter((t) => t.parent._id == attribute._id)"
-              @termSaved="handleTermSaved"
-              @attributeDeleted="handleAttributeDeleted"
+              @termUpdated="handleTermUpdated"
+              @attributeUpdated="handleAttributeUpdated"
             />
           </div>
         </div>
-        <button class="btn btn-primary" @click.prevent="saveAttributes">Save Changes</button>
-      </div>
+      </form>
     </main>
+    <footer>
+      <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" />
+      <!-- <button class="btn btn-primary" @click.prevent="saveAttributes">Save Changes</button> -->
+    </footer>
   </div>
 </template>
 
@@ -183,12 +126,12 @@ export default {
 @import '@/assets/scss/variables';
 
 .admin-attributes {
-  // border: 1px solid red;
-  height: 95%;
+  min-height: 92vh;
   display: flex;
   flex-direction: column;
   gap: 2rem;
   padding: 4rem 2rem;
+
   header {
     display: flex;
     align-items: center;
@@ -197,6 +140,8 @@ export default {
   }
 
   main {
+    flex: 1;
+
     form {
       display: flex;
       flex-direction: column;
@@ -207,19 +152,6 @@ export default {
         margin-top: 1rem;
       }
     }
-    // flex: 1;
-    // border: 1px solid red;
   }
-  // footer {
-  //   display: flex;
-  //   justify-content: flex-end;
-  //   gap: 2rem;
-  //   padding: 1rem 3rem;
-
-  //   .btn {
-  //     padding: 2rem 3rem;
-  //     border-radius: 5px;
-  //   }
-  // }
 }
 </style>

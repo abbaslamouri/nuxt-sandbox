@@ -10,50 +10,42 @@ const props = defineProps({
   attributeTerms: {
     type: Array,
   },
-  i: {
-    type: Number,
-  },
 })
 
-const emit = defineEmits(['termSaved', 'attributeDeleted'])
+const emit = defineEmits(['termUpdated', 'attributeUpdated'])
 
 // const showNewTermForm = ref(false); // Tp toggle new term form
 const appMessage = useMessage()
 const showActions = ref(false)
 const newTerm = ref('')
-const attInputFocus = ref(false)
 const termInputRef = ref(null)
 const showAlert = ref(false)
 const newAttribute = reactive({
   ...props.attribute,
 })
 
-// const attributeTerms = computed(() => props.terms.filter((t) => t.parent == attribute._id))
-
-// const handletermInputRefBtnClick = async (index) => {
-//   console.log('REF', termInputRef.value);
-//   showNewTermForm.value = true;
-//   setTimeout(() => {
-//     termInputRef.value.focus();
-//   }, 10);
-// };
 const saveAttribute = async () => {
   try {
     if (newAttribute.name) {
       newAttribute.slug = slugify(newAttribute.name, { lower: true })
       if (!newAttribute._id) {
-        $fetch('/api/v1/attributes', {
+        console.log('POST', newAttribute)
+        const response = await $fetch('/api/v1/attributes', {
           method: 'POST',
           body: newAttribute,
         })
+        console.log('RES', response)
       } else {
-        $fetch('/api/v1/attributes', {
+        const response = await $fetch('/api/v1/attributes', {
           method: 'PATCH',
           body: newAttribute,
           params: { id: newAttribute._id },
         })
+        console.log('RES', response)
       }
     }
+    emit('attributeUpdated')
+
     appMessage.successMsg = `Attribute ${newAttribute.name} saved succesfully`
   } catch (error) {
     appMessage.errorMsg = error.data
@@ -71,17 +63,14 @@ const deleteAttribute = async () => {
       })
     })
   )
+
+  //Delete attributes
   await $fetch('/api/v1/attributes', {
     method: 'DELETE',
     params: { id: props.attribute._id },
   })
-  emit('attributeDeleted')
-
-  // if (!confirm('Are you sure? This attribute and all associated terms will be deleted')) return
-  // attState.selectedItem = props.attribute
-  // await attActions.deleteItem()
-  // attTermsState.selectedItems = attTermsState.items.filter((el) => el.parent == props.attribute._id)
-  // await attTermsActions.deleteItems()
+  emit('attributeUpdated')
+  appMessage.successMsg = `Attribute ${props.attribute.name} deleted succesfully`
   showActions.value = false
   showAlert.value = false
 }
@@ -99,7 +88,7 @@ const addAttributeTerm = async () => {
     }
     appMessage.successMsg = `Attribute Term ${newTerm.value} was added succesfully`
     newTerm.value = ''
-    emit('termSaved')
+    emit('termUpdated')
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -115,7 +104,7 @@ const deleteTerm = async (termId) => {
     })
     const term = props.attributeTerms.find((t) => t._id == termId)
     appMessage.successMsg = `Attribute Term ${term.name} was deleted succesfully`
-    emit('termSaved')
+    emit('termUpdated')
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -124,7 +113,6 @@ const deleteTerm = async (termId) => {
 
 <template>
   <div class="admin-attribute row">
-    <!-- {{ newAttribute }}==={{ attributeTerms }} -->
     <div class="name td">
       <div class="base-input">
         <input
@@ -136,7 +124,6 @@ const deleteTerm = async (termId) => {
           @keyup.enter="saveAttribute"
         />
       </div>
-      <!-- <FormsBaseInput required label="Attribute Name" placeholder="Attribute Name" v-model="newAttribute.name" /> -->
     </div>
     <div class="terms td shadow-md" @click="termInputFocus">
       <div class="list" v-for="(term, j) in attributeTerms" :key="term">
@@ -148,8 +135,7 @@ const deleteTerm = async (termId) => {
           ref="termInputRef"
           type="text"
           v-model="newTerm"
-          placeholder="Attribute Terms (Example: Green,
-        Blue, Green ...)"
+          placeholder="Attribute Terms"
           :disabled="newAttribute.name == ''"
           @keyup.enter="addAttributeTerm"
           @focus="termInputRef.closest('.terms').classList.add('selected')"
@@ -179,10 +165,6 @@ const deleteTerm = async (termId) => {
 
 .admin-attribute {
   font-size: 1.2rem;
-
-  .name {
-    width: 30rem;
-  }
 
   .terms {
     display: flex;
@@ -222,7 +204,6 @@ const deleteTerm = async (termId) => {
         }
 
         &:disabled {
-          // background-color: #ddd;
           opacity: 0.5;
           cursor: not-allowed;
         }
