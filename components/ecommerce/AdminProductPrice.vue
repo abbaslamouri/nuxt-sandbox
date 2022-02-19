@@ -6,7 +6,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['productPriceEmitted'])
 const productPrice = reactive({
-  name: props.product.price,
+  price: props.product.price,
 })
 
 watch(

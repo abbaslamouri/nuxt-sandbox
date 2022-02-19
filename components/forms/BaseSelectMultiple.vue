@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
   modelValue: {
     type: Array,
     default: [],
@@ -24,6 +24,8 @@ const uuid = useUniqueId().getId()
 const items = ref([])
 const inputRefs = ref([])
 const showListBox = ref(false)
+
+items.value = [...props.modelValue]
 
 const addItem = (event) => {
   const index = items.value.findIndex((item) => item == event.target.value)
@@ -56,6 +58,7 @@ export default {
 
 <template>
   <div class="listbox-area">
+    <!-- {{ modelValue }}==={{ items }} -->
     <button class="select" @click="showListBox = !showListBox">
       <div class="label" v-if="!items.length" role="label">Select Categories</div>
       <div class="selected-options" v-else>

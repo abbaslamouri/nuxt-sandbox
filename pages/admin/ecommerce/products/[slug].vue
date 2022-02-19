@@ -25,7 +25,7 @@ const galleryIntro = ref('This image gallery contains all images associated with
 // Set query params
 const productParams = computed(() => {
   return {
-    fields: 'name, slug, permalink, decsription, parent, gallery',
+    fields: 'name, slug, price, permalink, categories, decsription, attributes, gallery',
   }
 })
 
@@ -206,7 +206,7 @@ const processSelectedMedia = async (media) => {
 }
 
 const saveProduct = async () => {
-  console.log(product.value)
+  console.log('SAVE', product.value)
   appMessage.errorMsg = null
   let response = null
   try {
@@ -224,6 +224,14 @@ const saveProduct = async () => {
       })
     }
     console.log('product', response)
+    router.push(`/admin/ecommerce/products/${response.slug}`)
+    router.push({ name: `admin-ecommerce-products-slug`, params: { slug: response.slug } })
+    // productParams.value.slug = response.slug
+    // response = await $fetch('/api/v1/products', { params: productParams.value })
+    // console.log('ZZZZZZZZZZZZZZZ', response)
+    // product.value = response.docs[0]
+
+    // product.value = response
     appMessage.successMsg = 'Product saved succesfully'
     // product.value = response
   } catch (error) {
@@ -349,7 +357,7 @@ const updateProductCategories = (event) => {
           galleryType="product"
           @mediaSelectorClicked="showMediaSelector = true"
         />
-        <EcommerceAdminProductVariants :product="product" :variants="variants" @saveVariants="saveProduct" />
+        <!-- <EcommerceAdminProductVariants :product="product" :variants="variants" @saveVariants="saveProduct" /> -->
         <!-- <section class="variants shadow-md" id="variants">
           <header class="admin-section-header">
             <p class="title">Variants</p>

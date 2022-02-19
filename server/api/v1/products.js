@@ -52,7 +52,7 @@ export default async (req, res) => {
       const featured = await features.query
       features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
       const docs = await features.query
-        .populate('gallery', { path: 1, mimetype: 1 })
+        .populate('gallery', { name: 1, path: 1, mimetype: 1 })
         .populate('categories', { name: 1, slug: 1 })
         .populate('attributes', { name: 1, slug: 1 })
       return { docs, count: featured.length, totalCount: allDocs.length }

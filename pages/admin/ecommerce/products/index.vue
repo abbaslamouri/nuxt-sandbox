@@ -15,7 +15,7 @@ const count = ref(null) // item count taking into account params
 const totalCount = ref(null) // Total item count in the database
 const keyword = ref(null)
 const page = ref(1)
-const perPage = ref(2)
+const perPage = ref(6)
 const sortField = ref('createdAt')
 const sortOrder = ref('-')
 console.log(route)
@@ -63,6 +63,17 @@ const setPage = async (currentPage) => {
   page.value = currentPage
   await fetchAll()
 }
+
+const deleteProduct = async (event) => {
+  appMessage.errorMsg = null
+  try {
+    await $fetch('/api/v1/products', { method: 'DELETE', params: { id: event } })
+    appMessage.successMsg = 'Product deleted'
+    await fetchAll()
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
 </script>
 
 <script>
@@ -97,7 +108,12 @@ export default {
               </div>
             </div>
             <div class="table__body">
-              <EcommerceAdminProductCard :product="product" v-for="product in products" :key="product._id" />
+              <EcommerceAdminProductCard
+                :product="product"
+                v-for="product in products"
+                :key="product._id"
+                @itemToDeleteEmitted="deleteProduct"
+              />
             </div>
           </div>
         </div>

@@ -5,6 +5,7 @@ const props = defineProps({
     required: true,
   },
 })
+defineEmits(['itemToDeleteEmitted'])
 // const deleteById = inject('deleteById')
 const router = useRouter()
 const showActions = ref(false)
@@ -25,7 +26,7 @@ const deleteProduct = async () => {
     <div class="thumb-title td">
       <!-- {{ itemToDeleteId }} -->
       <div class="thumb">
-        <img v-if="product.thumbImage && product.thumbImage.path" :src="`${product.thumbImage.path}`" />
+        <img v-if="product.gallery && product.gallery[1] && product.gallery[1].path" :src="`${product.gallery[1].path}`" />
         <img v-else class="thumb" :src="`/placeholder.png`" />
       </div>
       <h3 class="title">{{ product.name }}</h3>
@@ -44,7 +45,7 @@ const deleteProduct = async () => {
         </a>
       </div>
     </div>
-    <Alert @cancel="showAlert = false" @ok="deleteProduct" v-show="showAlert">
+    <Alert @cancel="showAlert = false" @ok="$emit('itemToDeleteEmitted', product._id)" v-show="showAlert">
       <div class="modal-content">
         <h3>Are you sure you want to delete this item?</h3>
         <p>Your data will be lost forever</p>

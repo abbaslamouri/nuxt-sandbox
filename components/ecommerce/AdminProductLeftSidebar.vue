@@ -22,7 +22,7 @@ const nav = ref([
     <li v-for="navItem in nav" :key="navItem">
       <a :href="`#${navItem.key}`">{{ navItem.title }}</a>
     </li>
-    <pre style="font-size: 1rem">{{ product }}</pre>
+    <!-- <pre style="font-size: 1rem">{{ product }}</pre> -->
   </ul>
 </template>
 

@@ -12,29 +12,29 @@ const http = axios.create({
 export const useStore = defineStore('store', {
   state: () => {
     return {
-      products: [],
-      count: null,
-      product: {},
+      // products: [],
+      // count: null,
+      // product: {},
       errorMsg: '',
     }
   },
 
   actions: {
-    async fetchAll(params) {
-      // const appError = useError()
-      this.errorMsg = ''
-      const { data, error } = await useFetch(`/v1/products/`, {
-        baseURL,
-        method: 'get',
-        params,
-      })
-      if (error.value) {
-        this.errorMsg = 'Error while fetching docs'
-        // appError.setSnackbar(true, this.errorMsg)
-      } else {
-        this.products = data.value
-      }
-    },
+    // async fetchAll(params) {
+    //   // const appError = useError()
+    //   this.errorMsg = ''
+    //   const { data, error } = await useFetch(`/v1/products/`, {
+    //     baseURL,
+    //     method: 'get',
+    //     params,
+    //   })
+    //   if (error.value) {
+    //     this.errorMsg = 'Error while fetching docs'
+    //     // appError.setSnackbar(true, this.errorMsg)
+    //   } else {
+    //     this.products = data.value
+    //   }
+    // },
 
     async fetchCount(params) {
       // const appError = useError()

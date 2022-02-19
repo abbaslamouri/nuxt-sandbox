@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import Category from '~/server/models/category'
 
 const schema = new mongoose.Schema(
   {
@@ -106,7 +107,7 @@ const schema = new mongoose.Schema(
     categories: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
+        ref: Category,
         // required: [true, 'Product Category is required'],
       },
     ],

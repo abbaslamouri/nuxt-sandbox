@@ -21,6 +21,9 @@ const priceInputRef = ref(null)
 const productCategories = ref([])
 const productStatus = ref(true)
 
+selectedCategories.value = props.product.categories.map((c) => {
+  return c._id
+})
 const setProductCategories = () => {
   // prodState.selectedItem.categories = []
   // // console.log(selectedCategories.value)
