@@ -36,17 +36,17 @@ const schema = new mongoose.Schema(
       type: String,
       maxlength: [2000, 'Name cannot be more than 2000 characters long'],
     },
-    active: {
+    status: {
       type: Boolean,
       default: true,
     },
     gallery: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }],
 
-    featuredImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
-    thumbImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
-    bodyBgImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
-    attributesImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
-    recipeImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    // featuredImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    // thumbImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    // bodyBgImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    // attributesImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    // recipeImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
     type: {
       type: String,
     },
@@ -87,6 +87,10 @@ const schema = new mongoose.Schema(
     },
     lowStockThreshold: {
       type: Number,
+    },
+    shippingOptions: {
+      type: Boolean,
+      default: false,
     },
     shipping: {
       weight: String,

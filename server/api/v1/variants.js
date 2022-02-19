@@ -1,47 +1,88 @@
-// import express from 'express';
-// import errorHandler from '~/server/utils/errorHandler';
-// // import { uploadVariants, deleteVariants, preSave, setRating, fetchBySlug } from '~/server/controllers/variants'
-// import { protect, authorize } from '~/server/controllers/auth';
-// import {
-//   getAllDocs,
-//   getDoc,
-//   deleteManyDocs,
-//   createDoc,
-//   deleteDoc,
-//   updateDoc,
-//   getDocsCount,
-// } from '~/server/controllers/factory';
+import { useBody, useQuery } from 'h3'
+import Model from '~/server/models/variant'
+import errorHandler from '~/server/utils/errorHandler'
+import ApiFeatures from '~/server/utils/ApiFeatures'
 
-// import Variant from '~/server/models/variant';
+export default async (req, res) => {
+  res.statusCode = 200
+  const params = useQuery(req)
 
-// const router = express.Router();
+  if (req.method === 'GET') {
+    let features
+    try {
+      const allDocs = await Model.find()
+      features = new ApiFeatures(Model.find(), params).filter().fields().search().sort()
+      const featured = await features.query
+      features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
+      const docs = await features.query
+        .populate('gallery', { path: 1, mimetype: 1 })
+        .populate('attrTerms', { name: 1, slug: 1 })
+        .populate('product', { name: 1, slug: 1 })
+      return { docs, count: featured.length, totalCount: allDocs.length }
+    } catch (error) {
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
 
-// router.route('/').get(getAllDocs(Variant));
-// router.route('/count').get(getDocsCount(Variant));
-// router.route('/:id').get(getDoc(Variant));
-// // router.route('/slug/:slug').get(fetchBySlug)
+  if (req.method === 'POST') {
+    try {
+      const body = await useBody(req)
+      const doc = await Model.create(body)
+      if (!doc) {
+        const newError = new Error(`We are not able to create a new document`)
+        newError.customError = true
+        newError.statusCode = 404
+        throw newError
+      }
+      return doc
+    } catch (error) {
+      console.log(error)
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
 
-// router.use(protect);
-// router.use(authorize('admin', 'shop-manager'));
+  if (req.method === 'PATCH') {
+    try {
+      const body = await useBody(req)
+      const doc = await Model.findByIdAndUpdate(params.id, body, {
+        new: true,
+        runValidators: true,
+      })
+      if (!doc) {
+        const newError = new Error(`We can't find a document with ID = ${params.id}`)
+        newError.customError = true
+        newError.statusCode = 404
+        throw newError
+      }
+      return doc
+    } catch (error) {
+      console.log(error)
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
 
-// router.route('/').post(createDoc(Variant));
-// router.route('/delete-many').post(deleteManyDocs(Variant));
-
-// router.route('/:id').patch(updateDoc(Variant));
-
-// // router.route('/upload').post(uploadVariants)
-// // router.route('/delete').delete(deleteVariants)
-// router.route('/:id').delete(deleteDoc(Variant));
-// // router.route('/rating/:id').patch(setRating)
-
-// // router.route('/login').post(login)
-// // router.route('/logout').get(logout)
-// // router.route('/forgotpassword').post(forgotPassword)
-// // router.route('/resetpassword/:resetToken').patch(resetPassword)
-// // router.route('/me').get(protect, getMe)
-// // router.route('/updateme').patch(protect, uploadUserAvatar, resizeAvatar, updateMe)
-// // router.route('/updatemypassword').patch(protect, updateMyPassword)
-
-// router.use(errorHandler);
-
-// export default router;
+  if (req.method === 'DELETE') {
+    try {
+      // const body = await useBody(req)
+      const doc = await Model.findByIdAndDelete(params.id)
+      if (!doc) {
+        const newError = new Error(`We can't find a document with ID = ${params.id}`)
+        newError.customError = true
+        newError.statusCode = 404
+        throw newError
+      }
+      return null
+    } catch (error) {
+      console.log(error)
+      const err = errorHandler(error)
+      res.statusCode = err.statusCode
+      return err.message
+    }
+  }
+}

@@ -1,65 +1,156 @@
 <script setup>
 import slugify from 'slugify'
+import { useMessage } from '~/store/useMessage'
+
+useMeta({
+  title: 'Product | YRL',
+})
+definePageMeta({
+  layout: 'admin',
+})
+
 const route = useRoute()
 const router = useRouter()
-
-// Import products, categories, attributes, atterbute terms and variants state and actions
-const { state: prodState, actions: prodActions, fetchBySlug: prodFetchBuSlug } = useFactory('products')
-const { state: catState, actions: catActions } = useFactory('categories')
-const { state: attState, actions: attActions } = useFactory('attributes')
-const { state: attTermsState, actions: attTermsActions } = useFactory('attributeterms')
-const { state: variantState, actions: variantActions } = useFactory('variants')
-
+const appMessage = useMessage()
+const product = ref({})
+const categories = ref([])
+const attributes = ref([])
+const terms = ref([])
 const showAttVarSlideout = ref(false)
 const showMediaSelector = ref(false) // media selector toggler
 const mediaReference = ref({}) // sets which media to update once a selection is made
+const galleryIntro = ref('This image gallery contains all images associated with this product including its variants.')
 
-// Set product filters
-prodState.query.slug = route.params.slug
-prodState.query.populate =
-  'featuredImage gallery  thumbImage bodyBgImage attributesImage recipeImage categories attributes attributes.attribute attributes.terms attributes.defaultTerm'
+// Set query params
+const productParams = computed(() => {
+  return {
+    fields: 'name, slug, permalink, decsription, parent, gallery',
+  }
+})
 
-const params = {
-  populate:
-    'gallery featuredImage thumbImage bodyBgImage attributesImage recipeImage categories attributes attributes.attribute attributes.terms attributes.defaultTerm',
-}
+const variantParams = computed(() => {
+  return {
+    fields: 'product, attrTerms, gallery',
+  }
+})
+const categoryParams = computed(() => {
+  return {
+    fields: 'name, slug, permalink, decsription, parent, gallery',
+  }
+})
 
-// fetch product, categories, attributes and attribute terms
-await Promise.all([
-  prodFetchBuSlug(route.params.slug, params),
-  catActions.fetchAll(),
-  attActions.fetchAll(),
-  attTermsActions.fetchAll(),
-])
-console.log(prodState.selectedItem)
+const attributeParams = computed(() => {
+  return {
+    fields: 'name, slug',
+  }
+})
 
-if (prodState.selectedItem) {
-  // prodState.selectedItem = prodState.items[0]
-  variantState.query.populate = 'attrTerms gallery'
-  variantState.query.product = prodState.selectedItem._id
-  if (variantState.query.product) await variantActions.fetchAll()
-  prodState.selectedItem.variants = variantState.items
-} else {
-  prodState.selectedItem = {
-    name: '',
-    slug: computed(() => slugify(prodState.selectedItem.name, { lower: true })),
-    permalink: computed(() => slugify(prodState.selectedItem.name, { lower: true })),
-    price: null,
-    active: true,
-    attributes: [],
-    categories: [],
-    gallery: [],
-    extraFields: [],
-    taxStatus: 'none',
-    taxClass: 'standard',
-    allowBcakOrder: 'notify',
-    sortOrder: 0,
-    variants: [],
+// Set query params
+const attributeTermsParams = computed(() => {
+  return {
+    fields: 'name, slug, parent',
+  }
+})
+
+const fetchProduct = async (slug) => {
+  appMessage.errorMsg = null
+  let response = null
+  try {
+    if (slug !== ' ') {
+      productParams.value.slug = slug
+      response = await $fetch('/api/v1/products', { params: productParams.value })
+      console.log('products', response)
+      product.value = response.docs[0]
+      variantParams.value.product = product.value._id
+      response = await $fetch('/api/v1/variants', { params: variantParams.value })
+      console.log('variants', response)
+      product.value.variants = response.docs
+    } else {
+      product.value = {
+        // name: '',
+        // slug: "",
+        // permalink: "",
+        // price: null,
+        // active: true,
+        attributes: [],
+        categories: [],
+        gallery: [],
+        extraFields: [],
+        // taxStatus: 'none',
+        // taxClass: 'standard',
+        // allowBcakOrder: 'notify',
+        // sortOrder: 0,
+        variants: [],
+      }
+    }
+    console.log('PRODUCTS', product.value)
+  } catch (error) {
+    appMessage.errorMsg = error.data
   }
 }
 
-const currentProduct = JSON.stringify(prodState.selectedItem)
-const currentVariants = JSON.stringify(prodState.selectedItem.variants)
+// const fetchVariants = async () => {
+//   appMessage.errorMsg = null
+//   try {
+//     const response = await $fetch('/api/v1/variants', { params: variantParams.value })
+//     product.value.variants = response.docs
+//     console.log(response)
+//   } catch (error) {
+//     appMessage.errorMsg = error.data
+//   }
+// }
+
+const fetchCategories = async () => {
+  appMessage.errorMsg = null
+  try {
+    const response = await $fetch('/api/v1/categories', { params: categoryParams.value })
+    console.log('Categories', response)
+    categories.value = response.docs
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+const fetchAttributes = async () => {
+  appMessage.errorMsg = null
+  try {
+    const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
+    console.log('Attributes', response)
+    attributes.value = response.docs
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+const fetchTerms = async () => {
+  appMessage.errorMsg = null
+  try {
+    const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
+    console.log('Terms', response)
+    terms.value = response.docs
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+await Promise.all([fetchProduct(route.params.slug), fetchCategories(), fetchAttributes(), fetchTerms()])
+
+const currentProduct = JSON.stringify(product.value)
+const currentVariants = JSON.stringify(product.value.variants)
+
+///////////////////////////////
+
+// // Set product filters
+// prodState.query.slug = route.params.slug
+// prodState.query.populate =
+//   'featuredImage gallery  thumbImage bodyBgImage attributesImage recipeImage categories attributes attributes.attribute attributes.terms attributes.defaultTerm'
+
+// const params = {
+//   populate:
+//     'gallery featuredImage thumbImage bodyBgImage attributesImage recipeImage categories attributes attributes.attribute attributes.terms attributes.defaultTerm',
+// }
+
+// fetch product, categories, attributes and attribute terms
 
 // router.beforeEach((to, from) => {
 //   console.log(to)
@@ -81,44 +172,41 @@ const handleMediaSelectorClick = (payload) => {
 
 // Set media ince selection is made
 const processSelectedMedia = async (media) => {
-  showMediaSelector.value = false
-  media = media.filter((el) => el.mimetype.includes('image'))
-  if (mediaReference.value.image === 'variant') {
-    for (const prop in media) {
-      let index = prodState.selectedItem.variants[mediaReference.value.index].gallery.findIndex(
-        (el) => el._id === media[prop]._id
-      )
-      if (index === -1) {
-        prodState.selectedItem.variants[mediaReference.value.index].gallery.push(media[prop])
-      }
-
-      index = prodState.selectedItem.gallery.findIndex((el) => el._id === media[prop]._id)
-      if (index === -1) {
-        prodState.selectedItem.gallery.push(media[prop])
-      }
-    }
-  }
-
-  if (mediaReference.value.image === 'gallery') {
-    for (const prop in media) {
-      const index = prodState.selectedItem.gallery.findIndex((el) => el._id === media[prop]._id)
-      if (index === -1) {
-        prodState.selectedItem.gallery.push(media[prop])
-      }
-    }
-    if (prodState.selectedItem.variants.length) {
-      for (const prop in prodState.selectedItem.variants) {
-        if (!prodState.selectedItem.variants[prop].gallery.length)
-          prodState.selectedItem.variants[prop].gallery.push(prodState.selectedItem.gallery[0])
-      }
-    }
-  }
+  // showMediaSelector.value = false
+  // media = media.filter((el) => el.mimetype.includes('image'))
+  // if (mediaReference.value.image === 'variant') {
+  //   for (const prop in media) {
+  //     let index = prodState.selectedItem.variants[mediaReference.value.index].gallery.findIndex(
+  //       (el) => el._id === media[prop]._id
+  //     )
+  //     if (index === -1) {
+  //       prodState.selectedItem.variants[mediaReference.value.index].gallery.push(media[prop])
+  //     }
+  //     index = prodState.selectedItem.gallery.findIndex((el) => el._id === media[prop]._id)
+  //     if (index === -1) {
+  //       prodState.selectedItem.gallery.push(media[prop])
+  //     }
+  //   }
+  // }
+  // if (mediaReference.value.image === 'gallery') {
+  //   for (const prop in media) {
+  //     const index = prodState.selectedItem.gallery.findIndex((el) => el._id === media[prop]._id)
+  //     if (index === -1) {
+  //       prodState.selectedItem.gallery.push(media[prop])
+  //     }
+  //   }
+  //   if (prodState.selectedItem.variants.length) {
+  //     for (const prop in prodState.selectedItem.variants) {
+  //       if (!prodState.selectedItem.variants[prop].gallery.length)
+  //         prodState.selectedItem.variants[prop].gallery.push(prodState.selectedItem.gallery[0])
+  //     }
+  //   }
+  // }
 }
 
 const saveProduct = async () => {
   // nameInputRef.value.$el.querySelector('.error').innerHTML = ''
   // priceInputRef.value.$el.querySelector('.error').innerHTML = ''
-
   // if (!prodState.selectedItem.name) {
   //   nameInputRef.value.$el.querySelector('input').classList.add('invalid')
   //   nameInputRef.value.$el.querySelector('input').focus()
@@ -126,7 +214,6 @@ const saveProduct = async () => {
   //     nameInputRef.value.$el.querySelector('.error').innerHTML = 'Please enter a name'
   //   return appError.setSnackbar(true, 'Product name is required')
   // }
-
   // if (!prodState.selectedItem.price) {
   //   priceInputRef.value.$el.querySelector('input').classList.add('invalid')
   //   priceInputRef.value.$el.querySelector('input').focus()
@@ -135,45 +222,81 @@ const saveProduct = async () => {
   //   return appError.setSnackbar(true, 'Product price is required')
   // } else if (isNaN(priceInputRef.value.$el.querySelector('input').value)) {
   //   priceInputRef.value.$el.querySelector('.error').innerHTML = 'Please enter a valid price'
-
   //   return appError.setSnackbar(true, 'Price must be a number')
   // }
   // const itemToSave = { ...prodState.selectedItem }
   // prodState.selectedItem = {
-  variantState.selectedItems = prodState.selectedItem.variants
-
+  // variantState.selectedItems = prodState.selectedItem.variants
   // console.log(currentProduct === JSON.stringify(prodState.selectedItem))
   // console.log(currentVariants === JSON.stringify(prodState.selectedItem.variants))
+  // if (currentProduct !== JSON.stringify(prodState.selectedItem)) {
+  //   const newProduct = await prodActions.saveItem()
+  //   if (!prodState.errorMsg) {
+  //     if (variantState.selectedItems.length && currentVariants !== JSON.stringify(variantState.selectedItems)) {
+  //       await variantActions.deleteMany({ product: newProduct._id })
+  //       await variantActions.saveMany()
+  //       if (!variantState.errorMsg) router.push({ name: 'admin-products-slug', params: { slug: newProduct.slug } })
+  //     } else {
+  //       router.push({ name: 'admin-products-slug', params: { slug: newProduct.slug } })
+  //     }
+  //   }
+  // }
+}
 
-  if (currentProduct !== JSON.stringify(prodState.selectedItem)) {
-    const newProduct = await prodActions.saveItem()
-    if (!prodState.errorMsg) {
-      if (variantState.selectedItems.length && currentVariants !== JSON.stringify(variantState.selectedItems)) {
-        await variantActions.deleteMany({ product: newProduct._id })
-        await variantActions.saveMany()
-        if (!variantState.errorMsg) router.push({ name: 'admin-products-slug', params: { slug: newProduct.slug } })
-      } else {
-        router.push({ name: 'admin-products-slug', params: { slug: newProduct.slug } })
-      }
+// Set category gallery
+const selectMedia = async (event) => {
+  console.log(event)
+  showMediaSelector.value = false
+  for (const prop in event) {
+    const index = product.value.gallery.findIndex((el) => el._id === event[prop]._id)
+    if (index === -1) {
+      product.value.gallery.push(event[prop])
     }
   }
 }
 
-provide('prodState', prodState)
-provide('prodActions', prodActions)
-provide('catState', catState)
-provide('attState', attState)
-provide('attTermsState', attTermsState)
-provide('variantState', variantState)
-provide('variantActions', variantActions)
-provide('handleMediaSelectorClick', handleMediaSelectorClick)
-provide('processSelectedMedia', processSelectedMedia)
-provide('showAttVarSlideout', showAttVarSlideout)
-</script>
+// Update product details
+const updateDetails = (event) => {
+  product.value.name = event.name
+  product.value.description = event.description
+  product.value.sku = event.sku
+  product.value.stockQty = event.stockQty
+  product.value.manageInventory = event.manageInventory
+  product.value.slug = slugify(product.value.name, { lower: true })
+}
 
-<script>
-export default {
-  layout: 'admin',
+// Upfate product SEO
+const updateProductSeo = (event) => {
+  product.value.permalink = slugify(event.permalink, { lower: true })
+  product.value.seoTitle = event.seoTitle
+  product.value.seoDescription = event.seoDescription
+}
+
+// Upfate product Misc
+const updateProductMisc = (event) => {
+  product.value.thankYouPage = event.thankYouPage
+  product.value.sortOrder = event.sortOrder
+}
+
+// Update product extra fields
+const updateExtraFields = (event) => {
+  for (const prop in event) {
+    console.log(event[prop].name)
+    product.value.extraFields[prop] = {}
+    product.value.extraFields[prop].name = event[prop].name
+    product.value.extraFields[prop].isRequired = event[prop].isRequired
+  }
+}
+
+// Update product categories
+const updateProductCategories = (event) => {
+  const categorieIds = [...event]
+  product.value.categories =[]
+  for (const prop in categorieIds) {
+    const category = categories.value.find((c) => c._id == categorieIds[prop])
+    console.log(category)
+    product.value.categories.push(category)
+  }
 }
 </script>
 
@@ -183,37 +306,38 @@ export default {
       <Head><Title>Product</Title></Head>
     </Html>
 
-    <NuxtLink class="link" :to="{ name: 'admin-products' }"> <IconsArrowWest /><span>Products</span> </NuxtLink>
+    <NuxtLink class="link" :to="{ name: 'admin-ecommerce-products' }">
+      <IconsArrowWest /><span>Products</span>
+    </NuxtLink>
 
     <h3 class="header">Edit Product</h3>
-    <!-- <pre>{{ prodState.selectedItem }}</pre> -->
     <div class="columns">
       <div class="left shadow-md">
-        <ProductsAdminProductNav />
+        <EcommerceAdminProductLeftSidebar :product="product" />
       </div>
 
       <div class="center">
-        <ProductsAdminDetails />
-        <ProductsAdminPrice />
-        <ProductsAdminProductImageGallery />
-
+        <EcommerceAdminProductDetails :product="product" @productDetailsEmitted="updateDetails" />
+        <EcommerceAdminProductPrice :product="product" @productPriceEmitted="product.price = $event.price" />
+        <EcommerceAdminCategoryGallery
+          :gallery="product.gallery"
+          :galleryIntro="galleryIntro"
+          galleryType="product"
+          @mediaSelectorClicked="showMediaSelector = true"
+        />
         <section class="variants shadow-md" id="variants">
           <header class="admin-section-header">
             <p class="title">Variants</p>
             <button class="btn btn-heading" @click="showAttVarSlideout = true">
-              <IconsPlus v-if="!prodState.selectedItem.variants.length" />
-              <span v-if="!prodState.selectedItem.variants.length">Add</span>
+              <IconsPlus v-if="!product.variants.length" />
+              <span v-if="!product.variants.length">Add</span>
               <span v-else>Edit</span>
             </button>
           </header>
           <div class="content">
             <div>Different types of this product (e.g. size, color)</div>
             <div class="attributes">
-              <div
-                class="attribute"
-                v-for="attribute in prodState.selectedItem.attributes"
-                :key="attribute.attribute._id"
-              >
+              <div class="attribute" v-for="attribute in product.attributes" :key="attribute.attribute._id">
                 <p class="attribute-name">{{ attribute.attribute.name }}:</p>
                 <div class="terms">
                   <div class="term" v-for="term in attribute.terms" :key="term._id">
@@ -223,23 +347,35 @@ export default {
               </div>
             </div>
           </div>
-          <ProductsAdminVariants @saveVariants="saveProduct" />
+          <!-- <ProductsAdminVariants @saveVariants="saveProduct" /> -->
         </section>
 
-        <ProductsAdminShippingOptions />
-        <ProductsAdminDigitalDelivery />
-        <ProductsAdminExtraFields />
-        <ProductsAdminSeo />
-        <ProductsAdminMisc />
+        <EcommerceAdminProductShippingOptions
+          :product="product"
+          @shippingOptionsEmitted="product.shippingOptions = $event.shippingOptions"
+        />
+        <EcommerceAdminProductDigitalDelivery
+          :product="product"
+          @digitalDeliveryEmitted="product.downloadable = $event.downloadable"
+        />
+        <EcommerceAdminProductExtraFields :product="product" @extraFieldsEmitted="updateExtraFields" />
+        <EcommerceAdminProductSeo :product="product" @productSeoEmitted="updateProductSeo" />
+        <EcommerceAdminProductMisc :product="product" @productMiscEmitted="updateProductMisc" />
       </div>
 
       <div class="right">
-        <ProductsAdminRightNav @saveProduct="saveProduct" />
+        <EcommerceAdminProductRightSidebar
+          :product="product"
+          :categories="categories"
+          @productStatusUpdated="product.status = $event"
+          @productCategoriesUpdated="updateProductCategories"
+          @saveProduct="saveProduct"
+        />
       </div>
     </div>
     <div class="media-selector" v-if="showMediaSelector">
       <LazyMediaUploader
-        @mediaSelected="processSelectedMedia"
+        @mediaSelected="selectMedia"
         @mediaSelectCancel="showMediaSelector = false"
         v-if="showMediaSelector"
       />

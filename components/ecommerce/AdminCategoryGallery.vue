@@ -7,6 +7,9 @@ const props = defineProps({
   galleryIntro: {
     type: String,
   },
+  galleryType: {
+    type: String,
+  },
 })
 
 defineEmits(['mediaSelectorClicked'])
@@ -61,6 +64,7 @@ const setFeaturedImage = (event) => {
         <div class="thumbs" v-if="gallery.length">
           <div
             class="thumb shadow-md relative"
+            :class="{ product: galleryType === 'product' }"
             v-for="(image, index) in gallery"
             :key="image._id"
             @dragover="handleDragover($event, index)"
@@ -154,9 +158,61 @@ const setFeaturedImage = (event) => {
           padding: 1rem;
           cursor: pointer;
           border-radius: 5px;
+
           &:first-child {
             grid-column: span 2 / span 2;
             grid-row: span 2 / span 2;
+          }
+
+          &.product {
+            &:nth-of-type(n) {
+              &::after {
+                // content: 'Featured';
+                position: absolute;
+                top: 0rem;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 1rem;
+                background-color: $slate-700;
+                color: $slate-50;
+                padding: 0.25rem 1rem;
+                border-radius: 3px;
+              }
+            }
+            &:nth-of-type(1) {
+              &::after {
+                content: 'Featured';
+              }
+            }
+
+            &:nth-of-type(2) {
+              grid-column: span 2 / span 2;
+              grid-row: span 2 / span 2;
+              &::after {
+                content: 'Thumb';
+              }
+            }
+            &:nth-of-type(3) {
+              grid-column: span 2 / span 2;
+              grid-row: span 2 / span 2;
+              &::after {
+                content: 'Body';
+              }
+            }
+            &:nth-of-type(4) {
+              grid-column: span 2 / span 2;
+              grid-row: span 2 / span 2;
+              &::after {
+                content: 'Attributes';
+              }
+            }
+            &:nth-of-type(5) {
+              grid-column: span 2 / span 2;
+              grid-row: span 2 / span 2;
+              &::after {
+                content: 'Recipe';
+              }
+            }
           }
 
           img {
