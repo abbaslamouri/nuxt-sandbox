@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import Email from '~/server/utils/Email'
-import { useBody, setCookie } from 'h3'
+import { useBody, setCookie, useQuery } from 'h3'
 import config from '#config'
 import User from '~/server/models/user'
 import errorHandler from '~/server/utils/errorHandler'
@@ -26,7 +26,9 @@ export default async (req, res) => {
   }
 
   res.statusCode = 200
+  const params = useQuery(req)
   const urlPath = req.url.split('/')
+  console.log('URLPATH', urlPath)
 
   // @desc      signup
   // @route     POST /api/v1/auth/signup
@@ -47,7 +49,7 @@ export default async (req, res) => {
         throw newError
       }
       const token = await user.createPasswordResetToken()
-      const url = `${config.BASE_URL}/signup-complete?token=${token}`
+      const url = `${config.BASE_URL}/auth/signup-complete?token=${token}`
       await user.save()
       await new Email(user, url).sendCompleteRegistration()
       return {
@@ -69,14 +71,18 @@ export default async (req, res) => {
   // @desc      signup-complete
   // @route     POST /api/v1/auth/signup-complete
   // @access    Public
-  if (req.method === 'PATCH' && urlPath[1] === 'signup-complete') {
+  if (req.method === 'PATCH' && urlPath[1].includes('signup-complete')) {
     try {
       const body = await useBody(req)
-      const hashedToken = await crypto.createHash('sha256').update(body.token).digest('hex')
+      console.log('B', body)
+      console.log('T', params.token)
+
+      const hashedToken = await crypto.createHash('sha256').update(params.token).digest('hex')
       const user = await User.findOne({
         passwordResetToken: hashedToken,
         passwordResetExpire: { $gt: Date.now() },
       })
+      console.log('U', user)
       if (!user) {
         const newError = new Error(`Your registration token is invlaid or has expired`)
         newError.customError = true
@@ -95,9 +101,11 @@ export default async (req, res) => {
       await user.save()
       const url = `${config.BASE_URL}`
       await new Email(user, url).sendWelcome()
-      return {
-        message: `Registration succesful`,
-      }
+      return await sendTokenResponse(res, user)
+
+      // return {
+      //   message: `Registration succesful`,
+      // }
     } catch (error) {
       const err = errorHandler(error)
       res.statusCode = err.statusCode
@@ -126,7 +134,6 @@ export default async (req, res) => {
         throw newError
       }
       user.password = undefined
-
       return await sendTokenResponse(res, user)
     } catch (error) {
       // console.log(error)
@@ -139,7 +146,7 @@ export default async (req, res) => {
   // @desc      logout
   // @route     POST /api/v1/auth/logout
   // @access    Public
-  if (urlPath[1] === 'logout') {
+  if (req.method === 'GET' && urlPath[1] === 'logout') {
     try {
       // res.statusCode = 200
       await sendTokenResponse(res)
@@ -173,7 +180,7 @@ export default async (req, res) => {
         throw newError
       }
       const resetToken = await user.createPasswordResetToken()
-      const url = `${config.BASE_URL}/${resetToken}`
+      const url = `${config.BASE_URL}/auth/${resetToken}`
       await user.save({ validateBeforeSave: false })
       await new Email(user, url).sendPasswordReset()
       return {
@@ -195,7 +202,7 @@ export default async (req, res) => {
   // @desc      resetpassword
   // @route     POST /api/v1/auth/resetpassword
   // @access    Public
-  if (req.method === 'PATCH' && urlPath[1] === 'resetpassword') {
+  if (req.method === 'PATCH' && urlPath[1] === 'reset-password') {
     try {
       const { password, resetToken } = await useBody(req)
       const hashedToken = await crypto.createHash('sha256').update(resetToken).digest('hex')
@@ -210,9 +217,11 @@ export default async (req, res) => {
       user.passwordResetToken = undefined
       user.passwordResetExpire = undefined
       await user.save()
-      return {
-        message: `password reset succesful`,
-      }
+      return await sendTokenResponse(res, user)
+
+      // return {
+      //   message: `password reset succesful`,
+      // }
     } catch (error) {
       const err = errorHandler(error)
       res.statusCode = err.statusCode

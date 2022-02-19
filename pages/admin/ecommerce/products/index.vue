@@ -8,6 +8,7 @@ definePageMeta({
   layout: 'admin',
 })
 
+const route = useRoute()
 const appMessage = useMessage()
 const products = ref([])
 const count = ref(null) // item count taking into account params
@@ -17,6 +18,7 @@ const page = ref(1)
 const perPage = ref(2)
 const sortField = ref('createdAt')
 const sortOrder = ref('-')
+console.log(route)
 
 const pages = computed(() =>
   count.value % perPage.value ? parseInt(count.value / perPage.value) + 1 : parseInt(count.value / perPage.value)

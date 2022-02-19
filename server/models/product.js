@@ -15,7 +15,6 @@ const schema = new mongoose.Schema(
     },
     permalink: {
       type: String,
-      unique: true,
       lowercase: true,
     },
     price: {

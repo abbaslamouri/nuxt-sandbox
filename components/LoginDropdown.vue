@@ -3,40 +3,51 @@ import { useAuth } from '~/store/useAuth'
 import { useMessage } from '~/store/useMessage'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuth()
 const appMessage = useMessage()
-const showAuthForm = ref(false)
+const showAuthDropdown = ref(false)
 const user = reactive({
   email: '',
   password: '',
 })
 
 const register = async () => {
-  router.push({ name: 'auth-signup' })
-  showAuthForm.value = false
+  router.push({ name: 'auth-signup', query: { redirect: route.name } })
+  showAuthDropdown.value = false
 }
 
 const signin = async () => {
-  appMessage.snackbar.show = false
-  await auth.login(user)
-  showAuthForm.value = false
-  if (auth.message) appMessage.setSnackbar(true, auth.message, 'Success')
-  if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
+  appMessage.errorMsg = null
+  appMessage.successMsg = null
+  try {
+    const response = await $fetch('/api/v1/auth/login', {
+      method: 'POST',
+      body: user,
+    })
+    console.log(response)
+    auth.user = response.user
+    auth.token = response.token
+    showAuthDropdown.value = false
+    appMessage.successMsg = 'Login successful'
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
 }
 
 const forgotPassword = async () => {
   router.push({ name: 'auth-forgot-password' })
-  showAuthForm.value = false
+  showAuthDropdown.value = false
 }
 </script>
 
 <template>
   <div class="login-dropdown">
-    <div class="header" :class="{ selected: showAuthForm }" @click="showAuthForm = !showAuthForm">
+    <div class="header" :class="{ selected: showAuthDropdown }" @click="showAuthDropdown = !showAuthDropdown">
       <IconsPersonFill />
       <h3>Sign in / Create acount</h3>
     </div>
-    <form class="shadow-md" v-if="showAuthForm">
+    <form class="shadow-md" v-if="showAuthDropdown">
       <h3 class="title">Sin in</h3>
       <p class="description">Access your account and place an order:</p>
       <div class="inputs">
@@ -65,7 +76,7 @@ const forgotPassword = async () => {
         <IconsChevronRight />
       </NuxtLink> -->
     </form>
-    <div class="overlay" v-if="showAuthForm" @click="showAuthForm = !showAuthForm"></div>
+    <div class="overlay" v-if="showAuthDropdown" @click="showAuthDropdown = !showAuthDropdown"></div>
   </div>
 </template>
 
@@ -121,7 +132,7 @@ const forgotPassword = async () => {
     background-color: white;
     width: 100%;
     padding: 2rem 2rem;
-    z-index: 9;
+    z-index: 99;
     border-radius: 0 0 3px 3px;
 
     .description {

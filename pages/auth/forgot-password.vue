@@ -9,13 +9,28 @@ const appMessage = useMessage()
 const email = ref('lamouri@genvac.com')
 
 const forgotPassword = async () => {
-  appMessage.snackbar.show = false
-  await auth.forgotPassword({ email: email.value })
-  if (auth.message) {
-    appMessage.setSnackbar(true, auth.message, 'Success')
-    router.push({ name: 'index' })
+  appMessage.errorMsg = null
+  appMessage.successMsg = null
+  try {
+    const response = await $fetch('/api/v1/auth/forgot-password', {
+      method: 'POST',
+      body: { email: email.value },
+    })
+    console.log(response)
+
+    appMessage.successMsg = response.message
+    // router.push({ name: 'index' })
+  } catch (error) {
+    appMessage.errorMsg = error.data
   }
-  if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
+
+  // appMessage.snackbar.show = false
+  // await auth.forgotPassword({ email: email.value })
+  // if (auth.message) {
+  //   appMessage.setSnackbar(true, auth.message, 'Success')
+  //   router.push({ name: 'index' })
+  // }
+  // if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
 }
 </script>
 

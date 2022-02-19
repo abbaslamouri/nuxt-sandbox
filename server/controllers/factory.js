@@ -121,6 +121,7 @@ const searchDb = (Model) =>
     const docs = await Model.find({ name: { $regex: regex } })
     res.status(200).json(docs)
   })
+  
 
 // const createSlug = asyncHandler(async (req, res, next) => {
 //   console.log('RBS', req.body);

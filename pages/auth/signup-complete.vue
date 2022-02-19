@@ -13,13 +13,22 @@ const user = reactive({
 })
 
 const signupComplete = async () => {
-  appMessage.snackbar.show = false
-  await auth.signupComplete({ ...user, token: route.query.token })
-  if (!auth.errorMsg) {
-    appMessage.setSnackbar(true, auth.message, 'Success')
-    router.push({ name: 'admin' })
+  appMessage.errorMsg = null
+  appMessage.successMsg = null
+  try {
+    const response = await $fetch('/api/v1/auth/signup-complete', {
+      method: 'PATCH',
+      params: { token: route.query.token },
+      body: { ...user },
+    })
+    console.log(response)
+    auth.user = response.user
+    auth.token = response.token
+    appMessage.successMsg = 'Registration successfull.  You are now logged in.'
+    router.push({ name: 'index' })
+  } catch (error) {
+    appMessage.errorMsg = error.data
   }
-  if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
 }
 
 const getNewToken = async () => {

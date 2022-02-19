@@ -13,10 +13,11 @@ const route = useRoute()
 const router = useRouter()
 const appMessage = useMessage()
 const product = ref({})
+const variants = ref([])
 const categories = ref([])
 const attributes = ref([])
 const terms = ref([])
-const showAttVarSlideout = ref(false)
+const showSlideout = ref(false)
 const showMediaSelector = ref(false) // media selector toggler
 const mediaReference = ref({}) // sets which media to update once a selection is made
 const galleryIntro = ref('This image gallery contains all images associated with this product including its variants.')
@@ -64,7 +65,7 @@ const fetchProduct = async (slug) => {
       variantParams.value.product = product.value._id
       response = await $fetch('/api/v1/variants', { params: variantParams.value })
       console.log('variants', response)
-      product.value.variants = response.docs
+      variants.value = response.docs
     } else {
       product.value = {
         // name: '',
@@ -80,7 +81,7 @@ const fetchProduct = async (slug) => {
         // taxClass: 'standard',
         // allowBcakOrder: 'notify',
         // sortOrder: 0,
-        variants: [],
+        // variants: [],
       }
     }
     console.log('PRODUCTS', product.value)
@@ -205,6 +206,29 @@ const processSelectedMedia = async (media) => {
 }
 
 const saveProduct = async () => {
+  console.log(product.value)
+  appMessage.errorMsg = null
+  let response = null
+  try {
+    if (currentProduct === JSON.stringify(product.value)) return
+    if (product.value._id) {
+      response = await $fetch('/api/v1/products', {
+        method: 'PATCH',
+        body: product.value,
+        params: { id: product.value._id },
+      })
+    } else {
+      response = await $fetch('/api/v1/products', {
+        method: 'POST',
+        body: product.value,
+      })
+    }
+    console.log('product', response)
+    appMessage.successMsg = 'Product saved succesfully'
+    // product.value = response
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
   // nameInputRef.value.$el.querySelector('.error').innerHTML = ''
   // priceInputRef.value.$el.querySelector('.error').innerHTML = ''
   // if (!prodState.selectedItem.name) {
@@ -291,7 +315,7 @@ const updateExtraFields = (event) => {
 // Update product categories
 const updateProductCategories = (event) => {
   const categorieIds = [...event]
-  product.value.categories =[]
+  product.value.categories = []
   for (const prop in categorieIds) {
     const category = categories.value.find((c) => c._id == categorieIds[prop])
     console.log(category)
@@ -325,10 +349,11 @@ const updateProductCategories = (event) => {
           galleryType="product"
           @mediaSelectorClicked="showMediaSelector = true"
         />
-        <section class="variants shadow-md" id="variants">
+        <EcommerceAdminProductVariants :product="product" :variants="variants" @saveVariants="saveProduct" />
+        <!-- <section class="variants shadow-md" id="variants">
           <header class="admin-section-header">
             <p class="title">Variants</p>
-            <button class="btn btn-heading" @click="showAttVarSlideout = true">
+            <button class="btn btn-heading" @click="showSlideout = true">
               <IconsPlus v-if="!product.variants.length" />
               <span v-if="!product.variants.length">Add</span>
               <span v-else>Edit</span>
@@ -347,8 +372,12 @@ const updateProductCategories = (event) => {
               </div>
             </div>
           </div>
-          <!-- <ProductsAdminVariants @saveVariants="saveProduct" /> -->
-        </section>
+          <EcommerceAdminProductVariants
+            :product="product"
+            @saveVariants="saveProduct"
+            :showSlideout="showSlideout"
+          />
+        </section> -->
 
         <EcommerceAdminProductShippingOptions
           :product="product"
@@ -425,55 +454,55 @@ const updateProductCategories = (event) => {
       flex-direction: column;
       gap: 3rem;
 
-      .variants {
-        background-color: white;
-        border-radius: 5px;
-        padding: 2rem 2rem 4rem;
+      // .variants {
+      //   background-color: white;
+      //   border-radius: 5px;
+      //   padding: 2rem 2rem 4rem;
 
-        header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
+      //   header {
+      //     display: flex;
+      //     align-items: center;
+      //     justify-content: space-between;
+      //   }
 
-        .content {
-          display: flex;
-          flex-direction: column;
-          gap: 2rem;
+      //   .content {
+      //     display: flex;
+      //     flex-direction: column;
+      //     gap: 2rem;
 
-          .title {
-            font-size: 80%;
-          }
+      //     .title {
+      //       font-size: 80%;
+      //     }
 
-          .attributes {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
+      //     .attributes {
+      //       display: flex;
+      //       flex-direction: column;
+      //       gap: 2rem;
 
-            .attribute {
-              display: flex;
-              align-items: center;
-              gap: 1rem;
+      //       .attribute {
+      //         display: flex;
+      //         align-items: center;
+      //         gap: 1rem;
 
-              .terms {
-                flex: 1;
-                display: flex;
-                align-items: center;
-                gap: 2rem;
-                // border: 1px solid red;
+      //         .terms {
+      //           flex: 1;
+      //           display: flex;
+      //           align-items: center;
+      //           gap: 2rem;
+      //           // border: 1px solid red;
 
-                .term {
-                  background-color: $slate-500;
-                  color: $slate-50;
-                  font-size: 80%;
-                  padding: 0.25rem 1rem 0.5rem;
-                  border-radius: 2rem;
-                }
-              }
-            }
-          }
-        }
-      }
+      //           .term {
+      //             background-color: $slate-500;
+      //             color: $slate-50;
+      //             font-size: 80%;
+      //             padding: 0.25rem 1rem 0.5rem;
+      //             border-radius: 2rem;
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
       // z-index:-1;
 
       // .details {

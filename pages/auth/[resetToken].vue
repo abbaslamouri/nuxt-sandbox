@@ -9,13 +9,29 @@ const appMessage = useMessage()
 const password = ref('')
 
 const resetPassword = async () => {
-  appMessage.snackbar.show = false
-  await auth.resetPassword({ password: password.value, resetToken: route.params.resetToken })
-  if (auth.message) {
-    appMessage.setSnackbar(true, auth.message, 'Success')
+  appMessage.errorMsg = null
+  appMessage.successMsg = null
+  try {
+    const response = await $fetch('/api/v1/auth/reset-password', {
+      method: 'PATCH',
+      body: { password: password.value, resetToken: route.params.resetToken },
+    })
+    console.log(response)
+    auth.user = response.user
+    auth.token = response.token
+    appMessage.successMsg = 'Password reset succesful, You are now logged in'
     router.push({ name: 'index' })
+  } catch (error) {
+    appMessage.errorMsg = error.data
   }
-  if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
+
+  // appMessage.snackbar.show = false
+  // await auth.resetPassword({ password: password.value, resetToken: route.params.resetToken })
+  // if (auth.message) {
+  //   appMessage.setSnackbar(true, auth.message, 'Success')
+  //   router.push({ name: 'index' })
+  // }
+  // if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
 }
 
 const getNewToken = async () => {

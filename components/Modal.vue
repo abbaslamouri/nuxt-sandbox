@@ -41,6 +41,7 @@
 			align-items: center;
 			width: 100vw;
 			height: 100vh;
+
 			.content {
 				display: flex;
 				flex-direction: column;
@@ -49,6 +50,7 @@
 				background-color: white;
 				border-radius: 5px;
 				overflow: auto;
+        
 				header {
 					display: flex;
 					justify-content: space-between;

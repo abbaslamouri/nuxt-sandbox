@@ -1,11 +1,48 @@
-import { useBody, useQuery } from 'h3'
+import { useBody, useQuery, useCookies } from 'h3'
+import jwt from 'jsonwebtoken'
+
 import Model from '~/server/models/product'
+import User from '~/server/models/user'
 import errorHandler from '~/server/utils/errorHandler'
 import ApiFeatures from '~/server/utils/ApiFeatures'
+import product from '~/server/models/product'
 
 export default async (req, res) => {
   res.statusCode = 200
   const params = useQuery(req)
+  const cookies = useCookies(req)
+
+  const protect = async () => {
+    console.log('COOK', cookies.auth)
+    if (!cookies.auth) {
+      const newError = new Error(`You are not allowed to access these resources, please login`)
+      newError.customError = true
+      newError.statusCode = 401
+      throw newError
+    }
+    const auth = JSON.parse(cookies.auth)
+    console.log('COOK1', JSON.parse(cookies.auth))
+
+    if (!auth.token) {
+      const newError = new Error(`You are not allowed to access these resources, please login`)
+      newError.customError = true
+      newError.statusCode = 401
+      throw newError
+    }
+    const token = auth.token
+    console.log('ALL GOOD', token)
+    const decoded = await jwt.verify(token, process.env.JWT_SECRET)
+    const user = await User.findById(decoded.id)
+    console.log('UUUUUUU', user)
+    return user
+  }
+
+  const authorize = async (...roles) => {
+    console.log('RRRRRROLES', roles)
+    const user = await protect()
+    if (!roles.includes(user.role)) return false
+    return true
+  }
 
   if (req.method === 'GET') {
     let features
@@ -14,7 +51,10 @@ export default async (req, res) => {
       features = new ApiFeatures(Model.find(), params).filter().fields().search().sort()
       const featured = await features.query
       features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
-      const docs = await features.query.populate('gallery', { path: 1, mimetype: 1 }).populate('categories', { name: 1, slug: 1 }).populate('attributes', { name: 1, slug: 1 })
+      const docs = await features.query
+        .populate('gallery', { path: 1, mimetype: 1 })
+        .populate('categories', { name: 1, slug: 1 })
+        .populate('attributes', { name: 1, slug: 1 })
       return { docs, count: featured.length, totalCount: allDocs.length }
     } catch (error) {
       const err = errorHandler(error)
@@ -26,6 +66,15 @@ export default async (req, res) => {
   if (req.method === 'POST') {
     try {
       const body = await useBody(req)
+      const user = await protect()
+      if (!(await authorize('admin'))) {
+        const newError = new Error(`You do not have adequate permisson to perform this action`)
+        newError.customError = true
+        newError.statusCode = 403
+        throw newError
+      }
+      console.log('OOOOOOO', user)
+      body.createdBy = user._id
       const doc = await Model.create(body)
       if (!doc) {
         const newError = new Error(`We are not able to create a new document`)

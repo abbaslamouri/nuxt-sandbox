@@ -1,24 +1,37 @@
 <script setup>
 import { storeToRefs } from 'pinia'
 import { useAuth } from '~/store/useAuth'
+import { useMessage } from '~/store/useMessage'
 
 const auth = useAuth()
+const appMessage = useMessage()
 const { user: currentUser } = storeToRefs(auth)
-const showAuthDropdown = ref(false)
+const showProfileDropdown = ref(false)
 
 const signout = async () => {
-  await auth.logout()
-  showAuthDropdown.value = false
+  appMessage.errorMsg = null
+  appMessage.successMsg = null
+  try {
+    await $fetch('/api/v1/auth/logout')
+    showProfileDropdown.value = false
+    auth.user = null
+    auth.token = null
+    appMessage.successMsg = 'You are logged out'
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+  // await auth.logout()
+  // showProfileDropdown.value = false
 }
 </script>
 
 <template>
   <div class="profile-dropdown">
-    <div class="header" v-bind:class="{ selected: showAuthDropdown }">
+    <div class="header" v-bind:class="{ selected: showProfileDropdown }">
       <IconsPersonFill />
-      <h3 @click="showAuthDropdown = !showAuthDropdown">Welcome {{ currentUser.name }}</h3>
+      <h3 @click="showProfileDropdown = !showProfileDropdown">Welcome {{ currentUser.name }}</h3>
     </div>
-    <div v-if="showAuthDropdown" class="menu flex flex-col">
+    <div v-if="showProfileDropdown" class="menu flex flex-col">
       <h3 class="">My Accoun</h3>
       <ul>
         <li v-if="currentUser.role === 'admin'">
@@ -36,7 +49,7 @@ const signout = async () => {
       </ul>
       <button class="btn btn-primary" @click="signout">Sign out</button>
     </div>
-    <div class="overlay" v-if="showAuthDropdown" @click="showAuthDropdown = !showAuthDropdown"></div>
+    <div class="overlay" v-if="showProfileDropdown" @click="showProfileDropdown = !showProfileDropdown"></div>
   </div>
 </template>
 
