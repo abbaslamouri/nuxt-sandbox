@@ -54,7 +54,6 @@ const attributeTermsSelectOptions = () =>
     })
 
 const setCompAttribute = () => {
-  console.log('HHHHHHH')
   const attr = props.attributes.find((a) => a._id == compAttributeId.value)
   compAttribute.value.attribute = attr
 }

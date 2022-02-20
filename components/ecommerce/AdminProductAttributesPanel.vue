@@ -26,9 +26,10 @@ const appMessage = useMessage()
 const compAttributes = ref([])
 
 for (const prop in props.product.attributes) {
-  compAttributes.value[prop].attribute = { ...props.product.attributes[prop].attribute }
-  compAttributes.value[prop].defaultTerm = props.product.defaultTerms[prop].defaultTerm
-  compAttributes.value[prop].terms = { ...props.product.termss[prop].attribute }
+  compAttributes.value.push(props.product.attributes[prop])
+  // compAttributes.value[prop].attribute = { ...props.product.attributes[prop].attribute }
+  // compAttributes.value[prop].defaultTerm = props.product.defaultTerms[prop].defaultTerm
+  // compAttributes.value[prop].terms = [...props.product.termss[prop].terms]
 }
 
 // import { useError } from '~/pinia/useError'

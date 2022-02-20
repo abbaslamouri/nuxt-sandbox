@@ -121,7 +121,7 @@ const fetchAttributeTerms = async () => {
   }
 }
 
-await Promise.all([fetchProduct(), fetchCategories(), fetchAttributes(), fetchAttributeTerms()])
+await Promise.all([fetchProduct(), fetchCategories()])
 
 // await fetchCategories()
 // await fetchAttributes()
@@ -390,12 +390,17 @@ const updateProductCategories = (event) => {
           galleryType="product"
           @mediaSelectorClicked="showMediaSelector = true"
         />
+        <LazyEcommerceAdminProductAttributes
+          :product="product"
+          @productAttributesUpdated="product.attributes = $event"
+        />
         <LazyEcommerceAdminProductVariants
           :product="product"
           :attributes="attributes"
           :attributeTerms="attributeTerms"
           @productAttributesUpdated="product.attributes = $event"
         />
+
         <EcommerceAdminProductShippingOptions
           :product="product"
           @shippingOptionsEmitted="product.shippingOptions = $event.shippingOptions"

@@ -8,6 +8,7 @@ const nav = ref([
   { key: 'details', title: 'Details', open: true },
   { key: 'price', title: 'Price', open: false },
   { key: 'image-gallery', title: 'Image Gallery', open: false },
+  { key: 'attributes', title: 'Attributes', open: false },
   { key: 'variants', title: 'Variants', open: false },
   { key: 'shipping-options', title: 'Shipping Options', open: false },
   { key: 'digital-delivery', title: 'Digital Delivery', open: false },
