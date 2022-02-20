@@ -16,22 +16,24 @@ const product = ref({})
 const variants = ref([])
 const categories = ref([])
 const attributes = ref([])
-const terms = ref([])
+const attributeTerms = ref([])
 const showSlideout = ref(false)
 const showMediaSelector = ref(false) // media selector toggler
 const mediaReference = ref({}) // sets which media to update once a selection is made
 const galleryIntro = ref('This image gallery contains all images associated with this product including its variants.')
+const slug = route.params.slug === ' ' ? null : route.params.slug
 
 // Set query params
 const productParams = computed(() => {
   return {
     fields: 'name, slug, price, permalink, categories, decsription, attributes, gallery',
+    slug,
   }
 })
 
 const variantParams = computed(() => {
   return {
-    fields: 'product, attrTerms, gallery',
+    fields: 'product, attrattributeTerms, gallery',
   }
 })
 const categoryParams = computed(() => {
@@ -53,60 +55,45 @@ const attributeTermsParams = computed(() => {
   }
 })
 
-const fetchProduct = async (slug) => {
+const fetchProduct = async () => {
   appMessage.errorMsg = null
-  let response = null
   try {
-    if (slug !== ' ') {
-      productParams.value.slug = slug
-      response = await $fetch('/api/v1/products', { params: productParams.value })
-      console.log('products', response)
+    let response = await $fetch('/api/v1/products', { params: productParams.value })
+    if (response) {
       product.value = response.docs[0]
-      variantParams.value.product = product.value._id
-      response = await $fetch('/api/v1/variants', { params: variantParams.value })
-      console.log('variants', response)
-      variants.value = response.docs
+      // await fetchVariants()
     } else {
       product.value = {
-        // name: '',
-        // slug: "",
-        // permalink: "",
-        // price: null,
-        // active: true,
         attributes: [],
         categories: [],
         gallery: [],
         extraFields: [],
-        // taxStatus: 'none',
-        // taxClass: 'standard',
-        // allowBcakOrder: 'notify',
-        // sortOrder: 0,
-        // variants: [],
       }
     }
-    console.log('PRODUCTS', product.value)
+    console.log('Product', product.value)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
 }
 
-// const fetchVariants = async () => {
-//   appMessage.errorMsg = null
-//   try {
-//     const response = await $fetch('/api/v1/variants', { params: variantParams.value })
-//     product.value.variants = response.docs
-//     console.log(response)
-//   } catch (error) {
-//     appMessage.errorMsg = error.data
-//   }
-// }
+const fetchVariants = async () => {
+  appMessage.errorMsg = null
+  try {
+    variantParams.value.product = product.value._id
+    const response = await $fetch('/api/v1/variants', { params: variantParams.value })
+    variants.value = response.docs
+    console.log('variants', variants.value)
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
 
 const fetchCategories = async () => {
   appMessage.errorMsg = null
   try {
     const response = await $fetch('/api/v1/categories', { params: categoryParams.value })
-    console.log('Categories', response)
     categories.value = response.docs
+    console.log('Categories', categories.value)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -116,28 +103,74 @@ const fetchAttributes = async () => {
   appMessage.errorMsg = null
   try {
     const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
-    console.log('Attributes', response)
     attributes.value = response.docs
+    console.log('Attributes', attributes.value)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
 }
 
-const fetchTerms = async () => {
+const fetchAttributeTerms = async () => {
   appMessage.errorMsg = null
   try {
     const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
-    console.log('Terms', response)
-    terms.value = response.docs
+    attributeTerms.value = response.docs
+    console.log('Terms', attributeTerms.value)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
 }
 
-await Promise.all([fetchProduct(route.params.slug), fetchCategories(), fetchAttributes(), fetchTerms()])
+await Promise.all([fetchProduct(), fetchCategories(), fetchAttributes(), fetchAttributeTerms()])
+
+// await fetchCategories()
+// await fetchAttributes()
+// await fetchAttributeTerms()
+// await fetchProduct()
+
+// console.log('SLUG', slug)
+// const response = await $fetch(`/api/v1/products/slug`, { params: productParams.value })
+// console.log('RES', response)
+
+// const fetchProduct = async (slug) => {
+//   appMessage.errorMsg = null
+//   let response = null
+//   try {
+//     if (slug !== ' ') {
+//       productParams.value.slug = slug
+//       response = await $fetch('/api/v1/products', { params: productParams.value })
+//       console.log('products', response)
+//       product.value = response.docs[0]
+//       variantParams.value.product = product.value._id
+//       response = await $fetch('/api/v1/variants', { params: variantParams.value })
+//       console.log('variants', response)
+//       variants.value = response.docs
+//     } else {
+//       product.value = {
+//         // name: '',
+//         // slug: "",
+//         // permalink: "",
+//         // price: null,
+//         // active: true,
+//         attributes: [],
+//         categories: [],
+//         gallery: [],
+//         extraFields: [],
+//         // taxStatus: 'none',
+//         // taxClass: 'standard',
+//         // allowBcakOrder: 'notify',
+//         // sortOrder: 0,
+//         // variants: [],
+//       }
+//     }
+//     console.log('PRODUCTS', product.value)
+//   } catch (error) {
+//     appMessage.errorMsg = error.data
+//   }
+// }
 
 const currentProduct = JSON.stringify(product.value)
-const currentVariants = JSON.stringify(product.value.variants)
+const currentVariants = JSON.stringify(variants.value)
 
 ///////////////////////////////
 
@@ -224,8 +257,8 @@ const saveProduct = async () => {
       })
     }
     console.log('product', response)
-    router.push(`/admin/ecommerce/products/${response.slug}`)
-    router.push({ name: `admin-ecommerce-products-slug`, params: { slug: response.slug } })
+    // router.push(`/admin/ecommerce/products/${response.slug}`)
+    // router.push({ name: `admin-ecommerce-products-slug`, params: { slug: response.slug } })
     // productParams.value.slug = response.slug
     // response = await $fetch('/api/v1/products', { params: productParams.value })
     // console.log('ZZZZZZZZZZZZZZZ', response)
@@ -357,36 +390,12 @@ const updateProductCategories = (event) => {
           galleryType="product"
           @mediaSelectorClicked="showMediaSelector = true"
         />
-        <!-- <EcommerceAdminProductVariants :product="product" :variants="variants" @saveVariants="saveProduct" /> -->
-        <!-- <section class="variants shadow-md" id="variants">
-          <header class="admin-section-header">
-            <p class="title">Variants</p>
-            <button class="btn btn-heading" @click="showSlideout = true">
-              <IconsPlus v-if="!product.variants.length" />
-              <span v-if="!product.variants.length">Add</span>
-              <span v-else>Edit</span>
-            </button>
-          </header>
-          <div class="content">
-            <div>Different types of this product (e.g. size, color)</div>
-            <div class="attributes">
-              <div class="attribute" v-for="attribute in product.attributes" :key="attribute.attribute._id">
-                <p class="attribute-name">{{ attribute.attribute.name }}:</p>
-                <div class="terms">
-                  <div class="term" v-for="term in attribute.terms" :key="term._id">
-                    <span class="term-name">{{ term.name }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <EcommerceAdminProductVariants
-            :product="product"
-            @saveVariants="saveProduct"
-            :showSlideout="showSlideout"
-          />
-        </section> -->
-
+        <LazyEcommerceAdminProductVariants
+          :product="product"
+          :attributes="attributes"
+          :attributeTerms="attributeTerms"
+          @productAttributesUpdated="product.attributes = $event"
+        />
         <EcommerceAdminProductShippingOptions
           :product="product"
           @shippingOptionsEmitted="product.shippingOptions = $event.shippingOptions"
@@ -399,7 +408,6 @@ const updateProductCategories = (event) => {
         <EcommerceAdminProductSeo :product="product" @productSeoEmitted="updateProductSeo" />
         <EcommerceAdminProductMisc :product="product" @productMiscEmitted="updateProductMisc" />
       </div>
-
       <div class="right">
         <EcommerceAdminProductRightSidebar
           :product="product"

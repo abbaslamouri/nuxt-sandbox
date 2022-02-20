@@ -1,20 +1,57 @@
 <script setup>
+import { useMessage } from '~/store/useMessage'
+
+const props = defineProps({
+  product: {
+    type: Object,
+  },
+  attributes: {
+    type: Array,
+  },
+  attributeTerms: {
+    type: Array,
+  },
+  // variants: {
+  //   type: Array,
+  // },
+  // showSlideout: {
+  //   type: Boolean,
+  // },
+  // index: Number,
+})
+
+const emit = defineEmits(['compAttributesUpdated'])
+
+const appMessage = useMessage()
+const compAttributes = ref([])
+
+for (const prop in props.product.attributes) {
+  compAttributes.value[prop].attribute = { ...props.product.attributes[prop].attribute }
+  compAttributes.value[prop].defaultTerm = props.product.defaultTerms[prop].defaultTerm
+  compAttributes.value[prop].terms = { ...props.product.termss[prop].attribute }
+}
+
 // import { useError } from '~/pinia/useError'
 
 // const appError = useError()
 
-const attState = inject('attState')
-const prodState = inject('prodState')
-const attTermsState = inject('attTermsState')
+// const attState = inject('attState')
+// const prodState = inject('prodState')
+// const attTermsState = inject('attTermsState')
 // const attributeSelect = inject('attributeSelect')
 
 const attributeSelect = ref('')
 
 const insertEmptyAttribute = () => {
-  if (prodState.selectedItem.attributes.length == attState.items.length)
-    // return appError.setSnackbar(true, 'You have used all available attributes', 'Error')
+  if (props.product.attributes.length == props.attributes.length)
+    return (appMessage.errorMsg = 'You have used all available attributes')
+  compAttributes.value.push({ attribute: {}, terms: [], defaultTerm: '' })
+}
 
-  prodState.selectedItem.attributes.push({ attribute: '', terms: [], defaultTerm: '' })
+const updateCompAttribute = (event) => {
+  console.log('E', event)
+  console.log('EF', compAttributes.value)
+  compAttributes.value[event.index] = event.attr
 }
 
 const addAttribute = () => {
@@ -40,18 +77,27 @@ const addAttribute = () => {
 // 	prodState.selectedItem.attributes.push({ attribute, defaultTerm: terms[0] })
 // 	attributeSelect.value = ''
 // })
+
+watch(
+  () => compAttributes.value,
+  (current) => {
+    console.log(current)
+    emit('compAttributesUpdated', compAttributes.value)
+  },
+  { deep: true }
+)
 </script>
 
 <template>
   <div class="admin-product-attributes-panel shadow-md">
-    <!-- <pre style="font-size: 1rem">{{ prodState.selectedItem }}</pre> -->
+    <pre style="font-size: 1rem">{{ compAttributes }}===={{ product.attributes }}</pre>
     <div class="attributes">
       <header>
         <h2>Attributes</h2>
         <button class="btn btn-primary" @click="insertEmptyAttribute">Add New</button>
       </header>
       <main>
-        <form @keypress.enter.prevent v-if="prodState.selectedItem.attributes.length">
+        <form @keypress.enter.prevent v-if="product.attributes.length">
           <div class="table">
             <div class="table__header">
               <div class="row">
@@ -62,8 +108,15 @@ const addAttribute = () => {
               </div>
             </div>
             <div class="table__body">
-              <div class="attribute" v-for="(item, i) in prodState.selectedItem.attributes">
-                <ProductsAdminProductAttribute :i="i" :prodAttr="item" class="row" />
+              <div class="attribute" v-for="(attribute, index) in compAttributes">
+                <EcommerceAdminProductAttributeCard
+                  :compAttributes="compAttributes"
+                  :attributes="attributes"
+                  :attributeTerms="attributeTerms"
+                  :attribute="attribute"
+                  :index="index"
+                  @compAttributeUpdated="updateCompAttribute"
+                />
               </div>
             </div>
           </div>

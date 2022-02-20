@@ -1,10 +1,42 @@
 <script setup>
+import { useMessage } from '~/store/useMessage'
+
+const props = defineProps({
+  product: {
+    type: Object,
+  },
+  variants: {
+    type: Array,
+  },
+  attributes: {
+    type: Array,
+  },
+  attributeTerms: {
+    type: Array,
+  },
+
+  // showSlideout: {
+  //   type: Boolean,
+  // },
+  // index: Number,
+})
+
+const emit = defineEmits(['compVariantsUpdated'])
+
 // const product = inject('product')
 // import { useError } from '~/pinia/useError'
 // const appError = useError()
-const prodState = inject('prodState')
-const attState = inject('attState')
-const attTermsState = inject('attTermsState')
+// const prodState = inject('prodState')
+// const attState = inject('attState')
+// const attTermsState = inject('attTermsState')
+
+const appMessage = useMessage()
+
+const compVariants = ref([])
+
+for (const prop in props.variants) {
+  compVariants.value[prop] = { ...props.variants[prop] }
+}
 
 const variantsActionSelect = ref('')
 const regularPrices = ref(null)
@@ -23,33 +55,33 @@ const variantActions = ref([
     key: 'delete-all',
     name: 'Delete all variants',
     disabled: false,
-    disabledIf: !prodState.selectedItem.variants.length,
+    disabledIf: !compVariants.length,
   },
   { key: 'disabled-action', name: 'Status', disabled: true },
   {
     key: 'toggle-enabled',
     name: 'Toggle Enabled',
     disabled: false,
-    disabledIf: !prodState.selectedItem.variants.length,
+    disabledIf: !compVariants.length,
   },
   {
     key: 'toggle-downloadable',
     name: 'Toggle Downloadable',
     disabled: false,
-    disabledIf: !prodState.selectedItem.variants.length,
+    disabledIf: !compVariants.length,
   },
   { key: 'disabled-action', name: 'Pricing', disabled: true },
   {
     key: 'set-regular-prices',
     name: 'Set Regular Prices',
     disabled: false,
-    disabledIf: !prodState.selectedItem.variants.length,
+    disabledIf: !compVariants.length,
   },
   {
     key: 'set-sale-prices',
     name: 'Set Sale Prices',
     disabled: false,
-    disabledIf: !prodState.selectedItem.variants.length,
+    disabledIf: !compVariants.length,
   },
 ])
 
@@ -70,10 +102,10 @@ const getCombinations = (options) => {
 const bulkAddVariants = () => {
   let terms = []
   // Are there attribute terms
-  if (!prodState.selectedItem.attributes.length) {
+  if (!props.product.attributes.length) {
     // return appError.setSnackbar(true, 'Please select at least one attribute')
   } else {
-    for (const prop in prodState.selectedItem.attributes) {
+    for (const prop in props.product.attributes) {
       // if (!prodState.selectedItem.attributes[prop].attribute._id)
       // return appError.setSnackbar(true, `Please select attribute(s)`)
       // if (!prodState.selectedItem.attributes[prop].terms.length)
@@ -82,21 +114,21 @@ const bulkAddVariants = () => {
       //   `Please select terms for attribute ${prodState.selectedItem.attributes[prop].attribute.name}`
       // )
     }
-    terms = prodState.selectedItem.attributes.map((el) => [...el.terms])
+    terms = props.product.attributes.map((el) => [...el.terms])
+    console.log('TERMS', terms)
   }
-
   // Add term combinations if any to variants
   if (getCombinations(terms)[0].length)
-    prodState.selectedItem.variants = [...getCombinations(terms)].map((el) => {
+    compVariants.value = [...getCombinations(terms)].map((el) => {
       return {
-        product: prodState.selectedItem._id,
+        product: props.product._id,
         attrTerms: [...el],
         enabled: true,
         shipping: {
           dimensions: {},
         },
         stockQty: 0,
-        price: prodState.selectedItem.price,
+        price: props.product.price,
         sku: '',
         gallery: [],
       }
@@ -104,116 +136,107 @@ const bulkAddVariants = () => {
 }
 
 const addSingleVariant = () => {
-  if (!prodState.selectedItem.attributes.length) {
-    // return appError.setSnackbar(true, 'Please select at least one attribute to add a variation')
-  }
-
-  // Are there attribute terms
-  const attributes = prodState.selectedItem.attributes.filter((a) => a.terms && a.terms.length > 0)
-  if (!attributes.length) {
-    // console.log('CC', attributes)
-    // showAddVariantForm.value = false
-    // return appError.setSnackbar(true, 'You must selecet at least 21terms per attribute to add a variation')
-  }
-
-  prodState.selectedItem.variants.unshift({
-    product: prodState.selectedItem._id,
-    attrTerms: [],
-    enabled: true,
-    shipping: {
-      dimensions: {},
-    },
-    stockQty: 0,
-    price: prodState.selectedItem.price,
-    sku: '',
-    gallery: [],
-  })
+  // if (!prodState.selectedItem.attributes.length) {
+  //   // return appError.setSnackbar(true, 'Please select at least one attribute to add a variation')
+  // }
+  // // Are there attribute terms
+  // const attributes = prodState.selectedItem.attributes.filter((a) => a.terms && a.terms.length > 0)
+  // if (!attributes.length) {
+  //   // console.log('CC', attributes)
+  //   // showAddVariantForm.value = false
+  //   // return appError.setSnackbar(true, 'You must selecet at least 21terms per attribute to add a variation')
+  // }
+  // prodState.selectedItem.variants.unshift({
+  //   product: prodState.selectedItem._id,
+  //   attrTerms: [],
+  //   enabled: true,
+  //   shipping: {
+  //     dimensions: {},
+  //   },
+  //   stockQty: 0,
+  //   price: prodState.selectedItem.price,
+  //   sku: '',
+  //   gallery: [],
+  // })
 }
 
 const deleteAllVariants = () => {
-  if (!confirm('Are you sure?')) return
-  prodState.selectedItem.variants = []
+  // if (!confirm('Are you sure?')) return
+  // prodState.selectedItem.variants = []
 }
 
 const toggleEnabled = () => {
-  let i = 0
-  while (i < prodState.selectedItem.variants.length) {
-    prodState.selectedItem.variants[i].enabled = !prodState.selectedItem.variants[i].enabled
-    i++
-  }
+  // let i = 0
+  // while (i < prodState.selectedItem.variants.length) {
+  //   prodState.selectedItem.variants[i].enabled = !prodState.selectedItem.variants[i].enabled
+  //   i++
+  // }
 }
 
 const toggleVirtual = () => {
-  let j = 0
-  while (j < prodState.selectedItem.variants.length) {
-    prodState.selectedItem.variants[j].virtual = !prodState.selectedItem.variants[j].virtual
-    j++
-  }
+  // let j = 0
+  // while (j < prodState.selectedItem.variants.length) {
+  //   prodState.selectedItem.variants[j].virtual = !prodState.selectedItem.variants[j].virtual
+  //   j++
+  // }
 }
 
 const toggleDownloadable = () => {
-  let k = 0
-  while (k < prodState.selectedItem.variants.length) {
-    prodState.selectedItem.variants[k].downloadable = !prodState.selectedItem.variants[k].downloadable
-    k++
-  }
+  // let k = 0
+  // while (k < prodState.selectedItem.variants.length) {
+  //   prodState.selectedItem.variants[k].downloadable = !prodState.selectedItem.variants[k].downloadable
+  //   k++
+  // }
 }
 
 const handleVariantsAction = () => {
-  if (!variantsActionSelect.value) return appError.setSnackbar(true, 'Please select an action')
-  switch (variantsActionSelect.value) {
-    case 'create-all':
-      bulkAddVariants()
-      break
-
-    case 'add-variant':
-      addSingleVariant()
-      break
-
-    case 'delete-all':
-      deleteAllVariants()
-      break
-
-    case 'toggle-enabled':
-      toggleEnabled()
-      break
-
-    case 'toggle-virtual':
-      toggleVirtual()
-      break
-
-    case 'toggle-downloadable':
-      toggleDownloadable()
-      break
-
-    case 'set-regular-prices':
-      showRegularPricesInput.value = true
-      break
-
-    case 'set-sale-prices':
-      showSalePricesInput.value = true
-      break
-  }
-  variantsActionSelect.value = ''
+  // if (!variantsActionSelect.value) return appError.setSnackbar(true, 'Please select an action')
+  // switch (variantsActionSelect.value) {
+  //   case 'create-all':
+  //     bulkAddVariants()
+  //     break
+  //   case 'add-variant':
+  //     addSingleVariant()
+  //     break
+  //   case 'delete-all':
+  //     deleteAllVariants()
+  //     break
+  //   case 'toggle-enabled':
+  //     toggleEnabled()
+  //     break
+  //   case 'toggle-virtual':
+  //     toggleVirtual()
+  //     break
+  //   case 'toggle-downloadable':
+  //     toggleDownloadable()
+  //     break
+  //   case 'set-regular-prices':
+  //     showRegularPricesInput.value = true
+  //     break
+  //   case 'set-sale-prices':
+  //     showSalePricesInput.value = true
+  //     break
+  // }
+  // variantsActionSelect.value = ''
 }
 
 const setRegularPrices = () => {
-  let i = 0
-  while (i < prodState.selectedItem.variants.length) {
-    prodState.selectedItem.variants[i].price = regularPrices.value
-    i++
-  }
-  showRegularPricesInput.value = false
+  // let i = 0
+  // while (i < prodState.selectedItem.variants.length) {
+  //   prodState.selectedItem.variants[i].price = regularPrices.value
+  //   i++
+  // }
+  // showRegularPricesInput.value = false
   // variantsActionSelect.value = ''
 }
 
 const setSalePrices = () => {
-  let i = 0
-  while (i < prodState.selectedItem.variants.length) {
-    prodState.selectedItem.variants[i].salePrice = salePrices.value
-    i++
-  }
-  showSalePricesInput.value = false
+  // let i = 0
+  // while (i < prodState.selectedItem.variants.length) {
+  //   prodState.selectedItem.variants[i].salePrice = salePrices.value
+  //   i++
+  // }
+  // showSalePricesInput.value = false
   // variantsActionSelect.value = ''
 }
 
@@ -223,74 +246,58 @@ const setSalePrices = () => {
 
 const setDefaultTerm = (index, value) => {
   // console.log(index, value)
-  prodState.selectedItem.attributes[index].defaultTerm = attTermsState.items.filter((el) => el._id == value)[0]
+  // prodState.selectedItem.attributes[index].defaultTerm = attTermsState.items.filter((el) => el._id == value)[0]
 }
 
 const insertEmptyAttribute = () => {
-  if (prodState.selectedItem.attributes.length == attState.items.length)
-    // return appError.setSnackbar(true, 'You have used all available attributes', 'Error')
-
-    prodState.selectedItem.attributes.push({ attribute: null, terms: [], defaultTerm: null })
+  // if (prodState.selectedItem.attributes.length == attState.items.length)
+  //   // return appError.setSnackbar(true, 'You have used all available attributes', 'Error')
+  //   prodState.selectedItem.attributes.push({ attribute: null, terms: [], defaultTerm: null })
 }
 
 const setProdVariantEdit = (variant, index) => {
-  prodVariantEdit.value = variant
-  editIndex.value = index
-  showVariantSlideout.value = true
+  // prodVariantEdit.value = variant
+  // editIndex.value = index
+  // showVariantSlideout.value = true
   // console.log(editIndex.value)
   // console.log(prodVariantEdit.value)
 }
+
+watch(
+  () => compVariants.value,
+  (current) => {
+    console.log(current)
+    emit('compVariantsUpdated', compVariants.value)
+  },
+  { deep: true }
+)
 </script>
 
 <template>
   <div class="admin-product-variants-panel">
-    <!-- <pre style="font-size: 1rem">{{ prodState.selectedItem }}</pre> -->
-    <div class="variants">
-      <header class="shadow-md" v-if="prodState.selectedItem.attributes.length">
+    <!-- <pre style="font-size: 1rem">{{ compVariants }}===={{ variants }}</pre> -->
+    <div class="variants" v-show="product.attributes && product.attributes.length">
+      <header class="shadow-md">
         <h2>Variants</h2>
         <div class="actions">
           <FormsBaseSelect v-model="variantsActionSelect" nullOption="Select Action" :options="variantActions" />
-          <!-- <div class="actions"> -->
-          <!-- <div class="base-select">
-            <select class="variant-actions" v-model="variantsActionSelect">
-              <option value="">Select Action</option>
-              <option value="create-all">Create variations form all attribute</option>
-              <option value="add-variant">Add Variant</option>
-              <option value="delete-all" :disabled="!prodState.selectedItem.variants.length">
-                Delete all variants
-              </option>
-              <option value="" disabled>Status</option>
-              <option value="toggle-enabled" :disabled="!prodState.selectedItem.variants.length">Toggle Enabled</option>
-              <option value="toggle-virtual" :disabled="!prodState.selectedItem.variants.length">Toggle Virtual</option>
-              <option value="toggle-downloadable" :disabled="!prodState.selectedItem.variants.length">
-                Toggle Downloadable
-              </option>
-              <option value="" disabled>Pricing</option>
-              <option value="set-regular-prices" :disabled="!prodState.selectedItem.variants.length">
-                Set Regular Prices
-              </option>
-              <option value="set-sale-prices" :disabled="!prodState.selectedItem.variants.length">
-                Set Sale Prices
-              </option>
-            </select>
-          </div> -->
-
-          <form v-if="showRegularPricesInput" @submit.prevent="setRegularPrices">
-            <label>Regular Price</label>
-            <input type="text" class="bg-gray-300" v-model="regularPrices" />
-            <button class="btn">submit</button>
-          </form>
-          <form v-if="showSalePricesInput" @submit.prevent="setSalePrices">
-            <label>Sale Price</label>
-            <input type="text" class="bg-gray-300" v-model="salePrices" />
-            <button class="btn">submit</button>
-          </form>
-          <button class="btn btn-primary" @click="handleVariantsAction">Go</button>
-          <button class="btn btn-primary" @click="bulkAddVariants">Bulk Add</button>
-          <!-- </div> -->
+          <div class="actions">
+            <form v-if="showRegularPricesInput" @submit.prevent="setRegularPrices">
+              <label>Regular Price</label>
+              <input type="text" class="bg-gray-300" v-model="regularPrices" />
+              <button class="btn">submit</button>
+            </form>
+            <form v-if="showSalePricesInput" @submit.prevent="setSalePrices">
+              <label>Sale Price</label>
+              <input type="text" class="bg-gray-300" v-model="salePrices" />
+              <button class="btn">submit</button>
+            </form>
+            <button class="btn btn-primary" @click="handleVariantsAction">Go</button>
+            <button class="btn btn-primary" @click="bulkAddVariants">Bulk Add</button>
+          </div>
         </div>
       </header>
-      <main v-if="prodState.selectedItem.variants.length">
+      <main>
         <form @keypress.enter.prevent>
           <!-- <form @keypress.enter.prevent v-if="prodState.selectedItem.variants.length"> -->
           <div class="table">
@@ -305,11 +312,12 @@ const setProdVariantEdit = (variant, index) => {
               </div>
             </div>
             <div class="table__body">
-              <div class="attribute" v-for="(prodVariant, i) in prodState.selectedItem.variants">
-                <ProductsAdminProductVariant
-                  :i="i"
-                  :prodVariant="prodVariant"
-                  class="row"
+              <div class="variants" v-for="(variant, index) in compVariants">
+                <EcommerceAdminProductVariantCard
+                  :index="index"
+                  :variant="variant"
+                  :attributes="attributes"
+                  :attributeTerms="attributeTerms"
                   @showVariantSlideout="setProdVariantEdit(prodVariant, i)"
                 />
               </div>
@@ -318,13 +326,13 @@ const setProdVariantEdit = (variant, index) => {
         </form>
       </main>
     </div>
-    <ProductsAdminVariantEdit
+    <!-- <ProductsAdminVariantEdit
       :prodVariantEdit="prodVariantEdit"
       :editIndex="editIndex"
       :showVariantSlideout="showVariantSlideout"
       v-if="Object.values(prodVariantEdit).length"
       @closeVariantSlideout="showVariantSlideout = false"
-    />
+    /> -->
   </div>
 
   <!-- <pre style="font-size: 1rem">{{ prodState.selectedItem }}</pre> -->

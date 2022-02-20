@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import Category from '~/server/models/category'
+import Media from '~/server/models/media'
 
 const schema = new mongoose.Schema(
   {
@@ -40,7 +41,7 @@ const schema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    gallery: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }],
+    gallery: [{ type: mongoose.Schema.Types.ObjectId, ref: Media }],
 
     // featuredImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
     // thumbImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },

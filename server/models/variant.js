@@ -40,7 +40,7 @@ const schema = new mongoose.Schema(
       type: String,
       maxlength: [2000, 'Name cannot be more than 2000 characters long'],
     },
-    featuredImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    // featuredImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
     // gallery: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Media' }],
     // type: {
     //   type: String,

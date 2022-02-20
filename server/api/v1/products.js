@@ -5,15 +5,18 @@ import Model from '~/server/models/product'
 import User from '~/server/models/user'
 import errorHandler from '~/server/utils/errorHandler'
 import ApiFeatures from '~/server/utils/ApiFeatures'
-import product from '~/server/models/product'
 
 export default async (req, res) => {
   res.statusCode = 200
   const params = useQuery(req)
   const cookies = useCookies(req)
+  const urlPath = req.url.split('/')
+  console.log('reqUrl', req.url)
+  console.log('URLPATH', urlPath)
+  console.log('PARAMS', params)
+  console.log('PARAMS', params)
 
   const protect = async () => {
-    console.log('COOK', cookies.auth)
     if (!cookies.auth) {
       const newError = new Error(`You are not allowed to access these resources, please login`)
       newError.customError = true
@@ -21,7 +24,6 @@ export default async (req, res) => {
       throw newError
     }
     const auth = JSON.parse(cookies.auth)
-    console.log('COOK1', JSON.parse(cookies.auth))
 
     if (!auth.token) {
       const newError = new Error(`You are not allowed to access these resources, please login`)
@@ -30,18 +32,22 @@ export default async (req, res) => {
       throw newError
     }
     const token = auth.token
-    console.log('ALL GOOD', token)
     const decoded = await jwt.verify(token, process.env.JWT_SECRET)
     const user = await User.findById(decoded.id)
-    console.log('UUUUUUU', user)
     return user
   }
 
   const authorize = async (...roles) => {
-    console.log('RRRRRROLES', roles)
     const user = await protect()
     if (!roles.includes(user.role)) return false
     return true
+  }
+
+  if (req.method === 'GET' && req.url.includes('/slug')) {
+    console.log('PPPPP', params.slug)
+    const doc = await Model.find({ slug: params.slug })
+    console.log('DDDDD', doc)
+    return doc.length ? doc[0] : null
   }
 
   if (req.method === 'GET') {

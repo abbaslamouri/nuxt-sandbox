@@ -1,18 +1,31 @@
 <script setup>
+import { useMessage } from '~/store/useMessage'
+
 const props = defineProps({
   product: {
     type: Object,
   },
-  variants: {
+  // variants: {
+  //   type: Array,
+  // },
+  attributes: {
     type: Array,
   },
+  attributeTerms: {
+    type: Array,
+  },
+
   // showSlideout: {
   //   type: Boolean,
   // },
-  index: Number,
+  // index: Number,
 })
 
-const emit = defineEmits(['saveVariants', 'hideSlidout'])
+const emit = defineEmits(['saveVariants', 'hideSlidout', 'productAttributesUpdated'])
+
+const appMessage = useMessage()
+
+const variants = ref([])
 
 const showSlideout = ref(false)
 
@@ -25,7 +38,64 @@ const showSlideout = ref(false)
 
 const router = useRouter()
 
+const variantParams = computed(() => {
+  return {
+    fields: 'product, attrattributeTerms, gallery',
+    product: props.product._id,
+  }
+})
+
 // const showSlideout = ref(false)
+
+const fetchVariants = async () => {
+  appMessage.errorMsg = null
+  try {
+    const response = await $fetch('/api/v1/variants', { params: variantParams.value })
+    variants.value = response.docs
+    console.log('variants', variants.value)
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+const deleteVariants = async () => {
+  appMessage.errorMsg = null
+  try {
+    await Promise.all(
+      variants.value.map(async (item) => {
+        await $fetch('/api/v1/variants', {
+          method: 'DELETE',
+          params: { id: item._id },
+        })
+      })
+    )
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+const createVariants = async () => {
+  appMessage.errorMsg = null
+  try {
+    await Promise.all(
+      variants.value.map(async (item) => {
+        await $fetch('/api/v1/variants', {
+          method: 'POST',
+          body: item,
+        })
+      })
+    )
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+await fetchVariants()
+
+const saveVariants = async () => {
+  // showSlideout.value = false
+  // emit('saveVariants')
+}
 
 const getAttribute = (attributeId) => {
   // return prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].item
@@ -51,7 +121,11 @@ const updateVariant = (attribute, termId) => {
   // }
 }
 
-const saveVariants = async () => {
+const updateVariants = async (event) => {
+  console.log('ECV', event)
+  await deleteVariants()
+  variants.value = event
+  await createVariants()
   // showSlideout.value = false
   // emit('saveVariants')
 }
@@ -62,9 +136,8 @@ const saveVariants = async () => {
     <header class="admin-section-header">
       <p class="title">Variants</p>
       <button class="btn btn-heading" @click="showSlideout = true">
-        <IconsPlus v-if="!variants.length" />
-        <span v-if="!variants.length">Add</span>
-        <span v-else>Edit</span>
+        <span v-show="!variants.length">Add</span>
+        <span v-show="variants.length">Edit</span>
       </button>
     </header>
     <div class="content">
@@ -92,12 +165,25 @@ const saveVariants = async () => {
                 <button class="btn close"><IconsClose @click.prevent="showSlideout = false" /></button>
               </div>
               <div class="main">
-                <!-- <EcommerceAdminProductEmptyVariantMsg :product="product" @hideSlideout="showSlideout = false" /> -->
-                <!-- <div v-else class="attributes-variants">
+                <div v-if="!product._id">
+                  <EcommerceAdminProductEmptyVariantMsg :product="product" @hideSlideout="showSlideout = false" />
+                </div>
+                <div v-else class="attributes-variants">
                   <h3>Please select attributes to use for variants</h3>
-                  <ProductsAdminProductAttributesPanel />
-                  <ProductsAdminProductVariantsPanel />
-                </div> -->
+                  <EcommerceAdminProductAttributesPanel
+                    :product="product"
+                    :attributes="attributes"
+                    :attributeTerms="attributeTerms"
+                    @compAttributesUpdated="$emit('productAttributesUpdated', $event)"
+                  />
+                  <EcommerceAdminProductVariantsPanel
+                    :product="product"
+                    :attributes="attributes"
+                    :attributeTerms="attributeTerms"
+                    :variants="variants"
+                    @compVariantsUpdated="updateVariants"
+                  />
+                </div>
               </div>
 
               <div class="footer actions shadow-md">

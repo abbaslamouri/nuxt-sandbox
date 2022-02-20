@@ -35,7 +35,6 @@ const setProductCategories = () => {
 
 <template>
   <div class="admin-right-nav">
-    {{ selectedCategories }}
     <div class="save-changes shadow-md">
       <button class="btn btn-primary" @click.prevent="$emit('saveProduct')">Save Changes</button>
       <FormsBaseToggle
