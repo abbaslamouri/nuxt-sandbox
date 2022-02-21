@@ -4,42 +4,42 @@
 // const attTermsState = inject('attTermsState')
 
 const props = defineProps({
-  compAttributes: {
-    type: Object,
+  slideoutAttributes: {
+    type: Array,
     required: true,
   },
-  index: {
-    type: Number,
-  },
   attributes: {
-    type: Array,
+    type: Object,
     required: true,
   },
   attributeTerms: {
     type: Array,
     required: true,
   },
-  attribute: {
+  productAttribute: {
     type: Object,
     required: true,
   },
+  index: {
+    type: Number,
+  },
 })
 
-const emit = defineEmits(['compAttributeUpdated'])
+const emit = defineEmits(['cardAttributeUpdated'])
 
-const compAttribute = ref({})
-const compAttributeId = ref('')
-const compDefaultTerm = ref('')
+const cardAttribute = ref({})
+const cardAttributeId = ref('')
+const cardDefaultTerm = ref('')
 const termSelect = ref('')
 const termToDeleteId = ref(null)
 const showSingleTermAlert = ref(false)
 const showAllTermsAlert = ref(false)
 
 // const attributeSelect = ref(props.prodAttr.attribute._id ? props.prodAttr.attribute._id : '')
-// const compDefaultTerm = ref(props.prodAttr.defaultTerm._id ? props.prodAttr.defaultTerm._id : '')
+// const cardDefaultTerm = ref(props.prodAttr.defaultTerm._id ? props.prodAttr.defaultTerm._id : '')
 const showActions = ref(false)
 
-compAttribute.value = { ...props.attribute }
+cardAttribute.value = { ...props.productAttribute }
 
 const attributesSelectOptions = () =>
   props.attributes.map((a) => {
@@ -48,14 +48,14 @@ const attributesSelectOptions = () =>
 
 const attributeTermsSelectOptions = () =>
   props.attributeTerms
-    .filter((t) => t.parent._id == compAttribute.value.attribute._id)
+    .filter((t) => t.parent._id == cardAttribute.value.attribute._id)
     .map((t) => {
       return { key: t._id, name: t.name }
     })
 
-const setCompAttribute = () => {
-  const attr = props.attributes.find((a) => a._id == compAttributeId.value)
-  compAttribute.value.attribute = attr
+const setCardAttribute = () => {
+  const attr = props.attributes.find((a) => a._id == cardAttributeId.value)
+  cardAttribute.value.attribute = attr
 }
 
 const setTermToDelete = (termId) => {
@@ -94,7 +94,7 @@ const removeDuplicateVariants = () => {
   // )
 }
 
-// const setCompAttribute = () => {
+// const setCardAttribute = () => {
 // for (const prop in prodState.selectedItem.attributes[props.i].terms) {
 //   removeVariantByTermId(prodState.selectedItem.attributes[props.i].terms[prop]._id)
 // }
@@ -103,14 +103,13 @@ const removeDuplicateVariants = () => {
 // prodState.selectedItem.attributes[props.i].defaultTerm = attTermsState.items.find(
 //   (t) => t.parent == attributeSelect.value
 // )
-// compDefaultTerm.value = prodState.selectedItem.attributes[props.i].defaultTerm._id
+// cardDefaultTerm.value = prodState.selectedItem.attributes[props.i].defaultTerm._id
 // }
 
 const setDefaultTerm = () => {
-  const term = props.attributeTerms.find((t) => t._id === compDefaultTerm.value)
+  const term = props.attributeTerms.find((t) => t._id == cardDefaultTerm.value)
   console.log(term)
-  if (term) compAttribute.value.defaultTerm = term
-  // prodState.selectedItem.attributes[props.i].defaultTerm = compDefaultTerm
+  if (term) cardAttribute.value.defaultTerm = term
 }
 
 const removeProductAttribute = () => {
@@ -135,17 +134,17 @@ const removeProductAttribute = () => {
 }
 
 const addAllTerms = () => {
-  compAttribute.value.terms = props.attributeTerms.filter((t) => t.parent._id == compAttribute.value.attribute._id)
+  cardAttribute.value.terms = props.attributeTerms.filter((t) => t.parent._id == cardAttribute.value.attribute._id)
 }
 
 const addTerm = () => {
   const term = props.attributeTerms.find((t) => t._id == termSelect.value)
   if (term) {
-    if (!compAttribute.value.terms) {
-      compAttribute.value.terms = [term]
+    if (!cardAttribute.value.terms) {
+      cardAttribute.value.terms = [term]
     } else {
-      const index = compAttribute.value.terms.findIndex((t) => t._id == termSelect.value)
-      if (index == -1) compAttribute.value.terms.push(term)
+      const index = cardAttribute.value.terms.findIndex((t) => t._id == termSelect.value)
+      if (index == -1) cardAttribute.value.terms.push(term)
     }
   }
   termSelect.value = ''
@@ -153,8 +152,10 @@ const addTerm = () => {
 
 const removeTerm = () => {
   console.log('HHHHHHH')
-  const index = compAttribute.value.terms.findIndex((t) => t._id == termToDeleteId.value)
-  if (index !== -1) compAttribute.value.terms.splice(index, 1)
+  const index = cardAttribute.value.terms.findIndex((t) => t._id == termToDeleteId.value)
+  if (index !== -1) cardAttribute.value.terms.splice(index, 1)
+  showSingleTermAlert.value = false
+
   // if (!confirm('Are you sure?')) return
   // prodState.selectedItem.attributes[props.i].terms.splice(j, 1)
   // removeVariantByTermId(termId)
@@ -198,11 +199,12 @@ const removeTerm = () => {
   //   }
   //   j++
   // }
-  showSingleTermAlert.value = false
 }
 
 const removeAllTerms = () => {
-  compAttribute.value.terms = []
+  cardAttribute.value.terms = []
+  showAllTermsAlert.value = false
+
   // // Remove all terms from ttribute
   // if (!confirm('Are you sure?')) return
   // for (const prop in prodState.selectedItem.attributes[props.i].terms) {
@@ -214,7 +216,6 @@ const removeAllTerms = () => {
   // )
   // console.log(index)
   // if (index !== -1) prodState.selectedItem.attributes[props.i].terms = []
-  showAllTermsAlert.value = false
 }
 
 // watch(
@@ -227,10 +228,10 @@ const removeAllTerms = () => {
 // )
 
 watch(
-  () => compAttribute.value,
+  () => cardAttribute.value,
   (current) => {
     console.log(current)
-    emit('compAttributeUpdated', { attr: compAttribute.value, index: props.index })
+    emit('cardAttributeUpdated', { attr: current, index: props.index })
   },
   { deep: true }
 )
@@ -238,46 +239,52 @@ watch(
 
 <template>
   <div class="admin-product-attribute shadow-md row">
-    <!-- {{ attribute }}===={{ compAttribute }} -->
+    <!-- {{ productAttribute }}===={{ cardAttribute }} -->
     <pre style="font-size: 1rem"></pre>
     <div class="attribute td">
       <div class="base-select">
-        <select v-model="compAttributeId" @change="setCompAttribute" class="centered">
+        <select v-model="cardAttributeId" @change="setCardAttribute" class="centered">
           <option value="">Attribute</option>
           <option
             v-for="option in attributesSelectOptions()"
             :key="option.key"
             :value="option.key"
-            :disabled="compAttributes.find((a) => a.attribute._id == option.key)"
+            :disabled="slideoutAttributes.find((a) => a.attribute._id == option.key)"
           >
             {{ option.name }}
           </option>
         </select>
       </div>
     </div>
-    <div class="attribute-default-term td">
-      <div v-if="Object.keys(compAttribute.attribute).length">
+    <div class="default-term td">
+      <div v-if="Object.keys(cardAttribute.attribute).length">
         <FormsBaseSelect
           nullOption="Default Term"
-          v-model="compDefaultTerm"
+          v-model="cardDefaultTerm"
           @update:modelValue="setDefaultTerm"
           :options="attributeTermsSelectOptions()"
         />
       </div>
     </div>
+    <div class="active td">
+      <FormsBaseToggle v-model="cardAttribute.active" v-if="Object.keys(cardAttribute.attribute).length" />
+    </div>
+    <div class="variation td">
+      <FormsBaseToggle v-model="cardAttribute.variation" v-if="Object.keys(cardAttribute.attribute).length" />
+    </div>
     <div class="terms td">
-      <div v-if="Object.keys(compAttribute.attribute).length" class="terms-wrapper">
+      <div v-if="Object.keys(cardAttribute.attribute).length" class="terms-wrapper">
         <div class="term-actions">
           <button class="btn" @click.prevent="addAllTerms()">Select All</button>
-          <button class="btn" @click.prevent="removeAllTerms()">Select None</button>
+          <button class="btn" @click.prevent="showAllTermsAlert = true">Select None</button>
           <div class="base-select">
             <select v-model="termSelect" @change="addTerm" class="centered">
               <option value="">Add term</option>
               <option
-                v-for="term in attributeTerms.filter((t) => t.parent._id == compAttribute.attribute._id)"
+                v-for="term in attributeTerms.filter((t) => t.parent._id == cardAttribute.attribute._id)"
                 :key="term._id"
                 :value="term._id"
-                :disabled="compAttribute.terms && compAttribute.terms.find((t) => t._id == term._id)"
+                :disabled="cardAttribute.terms && cardAttribute.terms.find((t) => t._id == term._id)"
               >
                 {{ term.name }}
               </option>
@@ -285,11 +292,11 @@ watch(
           </div>
         </div>
         <div class="terms-list">
-          <div class="list" v-if="compAttribute.terms.length">
+          <div class="list" v-if="cardAttribute.terms.length">
             <div
-              v-if="compAttribute.terms.length"
+              v-if="cardAttribute.terms.length"
               class="term shadow-md"
-              v-for="(term, j) in compAttribute.terms"
+              v-for="(term, j) in cardAttribute.terms"
               :key="term._id"
             >
               <span>{{ term.name }}</span>
@@ -304,13 +311,9 @@ watch(
     <div class="actions td">
       <button class="btn" @click.prevent="showActions = !showActions"><IconsMoreHoriz /></button>
       <div class="menu shadow-md" v-show="showActions">
-        <!-- <a href="#" class="link"><div class="advanced">Advanced</div></a> -->
         <a href="#" class="link" @click.prevent="removeProductAttribute">
           <div class="cancel">Delete</div>
         </a>
-        <!-- <a href="#" class="link" @click.prevent="attributes.splice(i, 1)">
-          <div class="cancel">Cancel</div>
-        </a> -->
       </div>
     </div>
     <Alert v-if="showSingleTermAlert" @ok="removeTerm" @cancel="showSingleTermAlert = false">
@@ -331,12 +334,9 @@ watch(
   border: 1px solid $slate-200;
   border-radius: 3px;
   padding: 1rem;
+
   .attribute {
-    // .base-select {
-    //   select {
-    //     padding: 1rem 2rem;
-    //   }
-    // }
+    // width: 20rem;
   }
 
   // border: 1px solid red;

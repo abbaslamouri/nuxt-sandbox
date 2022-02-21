@@ -12,20 +12,27 @@ defineProps({
     type: Number,
     default: 20,
   },
-});
-defineEmits(['update:modelValue']);
-const attrs = useAttrs();
+  direction: {
+    type: String,
+    default: 'horizontal',
+    validator: (value) => {
+      return !value || ['horizontal', 'vertical'].includes(value)
+    },
+  },
+})
+defineEmits(['update:modelValue'])
+const attrs = useAttrs()
 </script>
 
 <script>
 export default {
   inheritAttrs: false,
-};
+}
 </script>
 
 <template>
   <!-- <div class="base-toggle flex items-center gap-4"> -->
-  <label class="toggle">
+  <label class="toggle" :class="{ vertical: direction === 'vertical' }">
     <span> {{ label }}</span>
     <input
       class=""
@@ -47,6 +54,10 @@ export default {
   display: flex;
   align-items: center;
   gap: 1rem;
+
+  &.vertical {
+    flex-direction: column;
+  }
 
   input {
     position: absolute;

@@ -91,7 +91,6 @@ watch(
 
 <template>
   <div class="admin-product-attributes-panel shadow-md">
-    <pre style="font-size: 1rem">{{ compAttributes }}===={{ product.attributes }}</pre>
     <div class="attributes">
       <header>
         <h2>Attributes</h2>

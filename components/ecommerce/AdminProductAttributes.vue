@@ -2,8 +2,11 @@
 import { useMessage } from '~/store/useMessage'
 
 const props = defineProps({
-  product: {
-    type: Object,
+  productAttributes: {
+    type: Array,
+  },
+  productId: {
+    type: String,
   },
   // variants: {
   //   type: Array,
@@ -21,26 +24,22 @@ const props = defineProps({
   // index: Number,
 })
 
-const emit = defineEmits(['saveVariants', 'hideSlidout', 'productAttributesUpdated'])
+const emit = defineEmits(['saveVariants', 'hideSlidout', 'compAttributesUpdated'])
 
 const appMessage = useMessage()
 const attributes = ref([])
 const attributeTerms = ref([])
-
-const variants = ref([])
-
 const showSlideout = ref(false)
+const showAlert = ref(false)
+const compAttributes = ref([])
 
-// const prodState = inject('prodState')
-// const attState = inject('attState')
-// const variantState = inject('variantState')
-// const variantActions = inject('variantActions')
-
-// const showSlideout = inject('showSlideout')
+for (const prop in props.productAttributes) {
+  compAttributes.value.push(props.productAttributes[prop])
+}
 
 const router = useRouter()
 
-const currentProductAttributes = JSON.stringify(props.product.attributes)
+const currentProductAttributes = JSON.stringify(props.productAttributes)
 
 const attributeParams = computed(() => {
   return {
@@ -52,13 +51,6 @@ const attributeParams = computed(() => {
 const attributeTermsParams = computed(() => {
   return {
     fields: 'name, slug, parent',
-  }
-})
-
-const variantParams = computed(() => {
-  return {
-    fields: 'product, attrattributeTerms, gallery',
-    product: props.product._id,
   }
 })
 
@@ -84,59 +76,7 @@ const fetchAttributeTerms = async () => {
   }
 }
 
-// const showSlideout = ref(false)
-
-const fetchVariants = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/variants', { params: variantParams.value })
-    variants.value = response.docs
-    console.log('variants', variants.value)
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
-const deleteVariants = async () => {
-  appMessage.errorMsg = null
-  try {
-    await Promise.all(
-      variants.value.map(async (item) => {
-        await $fetch('/api/v1/variants', {
-          method: 'DELETE',
-          params: { id: item._id },
-        })
-      })
-    )
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
-const createVariants = async () => {
-  appMessage.errorMsg = null
-  try {
-    await Promise.all(
-      variants.value.map(async (item) => {
-        await $fetch('/api/v1/variants', {
-          method: 'POST',
-          body: item,
-        })
-      })
-    )
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
-// await fetchVariants()
-
 await Promise.all([fetchAttributes(), fetchAttributeTerms()])
-
-const saveVariants = async () => {
-  // showSlideout.value = false
-  // emit('saveVariants')
-}
 
 const getAttribute = (attributeId) => {
   // return prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].item
@@ -163,198 +103,212 @@ const updateVariant = (attribute, termId) => {
 }
 
 const closeSlideout = () => {
-  console.log(props.product.attributes)
-  console.log('COMPARE', currentProductAttributes === JSON.stringify(props.product.attributes))
-  // const terms = prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].terms
-  // return terms
+  console.log('Before', JSON.parse(currentProductAttributes))
+  console.log('COMPARE', currentProductAttributes === JSON.stringify(props.productAttributes))
+  if (currentProductAttributes !== JSON.stringify(props.productAttributes)) return (showAlert.value = true)
+  showSlideout.value = false
+  // const newAttributes = []
+  // for (const prop in props.productAttributes) {
+  //   if (Object.values(props.productAttributes[prop].attribute).length)
+  //     newAttributes.push(props.productAttributes[prop])
+  // }
+  // props.productAttributes = newAttributes
+  // console.log('After', props.productAttributes)
+}
+
+const saveCompAttributes = () => {
+  const newAttributes = []
+  for (const prop in compAttributes.value) {
+    if (Object.values(compAttributes.value[prop].attribute).length) newAttributes.push(compAttributes.value[prop])
+  }
+  compAttributes.value = newAttributes
+  console.log('CCCC', compAttributes.value)
+  // showSlideout.value = false
+  // emit('productAttributesUpdated', newAttributes)
+}
+
+const updateCompAttributes = () => {
+  const newAttributes = []
+  for (const prop in compAttributes.value) {
+    if (Object.values(compAttributes.value[prop].attribute).length) newAttributes.push(compAttributes.value[prop])
+  }
+  compAttributes.value = newAttributes
+  console.log('CCCC', compAttributes.value)
+  // showSlideout.value = false
+  // emit('productAttributesUpdated', newAttributes)
+}
+
+const cancelAttributes = () => {
+  compAttributes.value = JSON.parse(currentProductAttributes)
+  // emit('productAttributesUpdated', JSON.parse(currentProductAttributes))
   showSlideout.value = false
 }
 
 const updateVariants = async (event) => {
-  console.log('ECV', event)
-  await deleteVariants()
-  variants.value = event
-  await createVariants()
+  // console.log('ECV', event)
+  // await deleteVariants()
+  // variants.value = event
+  // await createVariants()
   // showSlideout.value = false
   // emit('saveVariants')
 }
+
+// watch(
+//   () => compAttributes.value,
+//   (current) => {
+//     console.log(current)
+//     emit('compAttributesUpdated', compAttributes.value)
+//   },
+//   { deep: true }
+// )
 </script>
 
 <template>
-  <section class="attributes shadow-md" id="attributes">
-    <header class="admin-section-header">
-      <p class="title">Attributes</p>
-      <button class="btn btn-heading" @click="showSlideout = true">
-        <span v-show="!product.attributes.length">Add</span>
-        <span v-show="product.attributes.length">Edit</span>
-      </button>
-    </header>
-    <div class="content">
-      <div>Different attributes for this product (e.g. size, color)</div>
-      <div class="attributes">
-        <div class="attribute" v-for="attribute in product.attributes" :key="attribute.attribute._id">
-          <p class="attribute-name">{{ attribute.attribute.name }}:</p>
-          <div class="terms">
-            <div class="term" v-for="term in attribute.terms" :key="term._id">
-              <span class="term-name">{{ term.name }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="slideout" v-show="showSlideout">
-      <div class="overlay"></div>
-      <div class="wrapper" @click.self="showSlideout = false">
-        <transition name="slideout">
-          <div class="content" v-show="showSlideout">
-            <section class="attributes-variants">
-              <!-- <div class="dialog shadow-md"> -->
-              <div class="header shadow-md">
-                <h3 class="title">Edit Variants</h3>
-                <button class="btn close"><IconsClose @click.prevent="closeSlideout" /></button>
-              </div>
-              <div class="main">
-                <div v-if="!product._id">
-                  <EcommerceAdminProductEmptyVariantMsg :product="product" @hideSlideout="showSlideout = false" />
-                </div>
-                <div v-else class="attributes-variants">
-                  <h3>Please select attributes to use for variants</h3>
-                  <LazyEcommerceAdminProductAttributesPanel
-                    v-if="showSlideout"
-                    :product="product"
-                    :attributes="attributes"
-                    :attributeTerms="attributeTerms"
-                    @compAttributesUpdated="$emit('productAttributesUpdated', $event)"
-                  />
-                  <!-- <EcommerceAdminProductVariantsPanel
-                    :product="product"
-                    :attributes="attributes"
-                    :attributeTerms="attributeTerms"
-                    :variants="variants"
-                    @compVariantsUpdated="updateVariants"
-                  /> -->
-                </div>
-              </div>
-
-              <div class="footer actions shadow-md">
-                <!-- <div class="actions" v-if="product._id && product.attributes.length"> -->
-                <!-- <div class="actions"> -->
-                <button class="btn btn-secondary cancel" @click="saveAttributes">Cancel</button>
-                <button class="btn btn-primary save" @click.prevent="saveVariants">Save Changes</button>
-                <!-- </div> -->
-              </div>
-            </section>
-
-            <!-- </div> -->
-          </div>
-        </transition>
-      </div>
-    </div>
-    <!-- <EcommerceAdminProductVariants
-            :product="product"
-            @saveVariants="saveProduct"
-            :showSlideout="showSlideout"
-          /> -->
+  <section class="attributes" id="attributes">
+    <EcommerceAdminProductAttributesSectionContent :productAttributes="compAttributes" />
+    <EcommerceAdminProductAttributesSlideout />
   </section>
 </template>
 
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
-.attributes {
-  background-color: white;
-  border-radius: 5px;
-  padding: 2rem 2rem 4rem;
+// .attributes {
+//   background-color: white;
+//   border-radius: 5px;
+//   padding: 2rem 2rem 4rem;
 
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+//   // header {
+//   //   display: flex;
+//   //   align-items: center;
+//   //   justify-content: space-between;
+//   // }
 
-  .content {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+//   .content {
+//     display: flex;
+//     flex-direction: column;
+//     gap: 2rem;
 
-    .title {
-      font-size: 80%;
-    }
+//     .title {
+//       font-size: 80%;
+//     }
 
-    .attributes {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
+//     .attributes {
+//       display: flex;
+//       flex-direction: column;
+//       gap: 2rem;
 
-      .attribute {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+//       .attribute {
+//         display: flex;
+//         align-items: center;
+//         gap: 1rem;
 
-        .terms {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          gap: 2rem;
-          // border: 1px solid red;
+//         .terms {
+//           flex: 1;
+//           display: flex;
+//           align-items: center;
+//           gap: 2rem;
+//           // border: 1px solid red;
 
-          .term {
-            background-color: $slate-500;
-            color: $slate-50;
-            font-size: 80%;
-            padding: 0.25rem 1rem 0.5rem;
-            border-radius: 2rem;
-          }
-        }
-      }
-    }
-  }
-  .attributes-variants {
-    width: 100%;
-    height: 100%;
-    background-color: $slate-100;
-    // border: 10px solid red;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+//           .term {
+//             background-color: $slate-500;
+//             color: $slate-50;
+//             font-size: 80%;
+//             padding: 0.25rem 1rem 0.5rem;
+//             border-radius: 2rem;
+//           }
+//         }
+//       }
+//     }
+//   }
+//   .attributes-variants {
+//     width: 100%;
+//     height: 100%;
+//     background-color: $slate-100;
+//     // border: 10px solid red;
+//     display: flex;
+//     flex-direction: column;
+//     justify-content: space-between;
 
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 2rem;
-      background-color: white;
-      // border: 1px solid red;
+//     .header {
+//       display: flex;
+//       align-items: center;
+//       justify-content: space-between;
+//       padding: 2rem;
+//       background-color: white;
+//       // border: 1px solid red;
 
-      .btn {
-        border: none;
+//       .btn {
+//         border: none;
 
-        svg {
-          width: 2rem;
-          height: 2rem;
-        }
-      }
-    }
-    .main {
-      flex: 1;
-      // border: 1px solid red;
+//         svg {
+//           width: 2rem;
+//           height: 2rem;
+//         }
+//       }
+//     }
+//     .admin-product-attributes-panel {
+//       background-color: white;
+//       // border: 1px solid red;
+//       height: 95%;
+//       display: flex;
+//       flex-direction: column;
+//       gap: 2rem;
+//       // padding: 4rem 2rem;
+//       header {
+//         display: flex;
+//         align-items: center;
+//         justify-content: space-between;
+//         padding: 2rem;
+//         background-color: $slate-300;
+//       }
 
-      // .attributes-variants {
-      //   display: flex;
-      //   flex-direction: column;
-      //   gap: 2rem;
-      // }
-    }
+//       main {
+//         form {
+//           display: flex;
+//           flex-direction: column;
+//           gap: 1rem;
 
-    .footer {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 2rem;
-      padding: 2rem;
-      background-color: white;
-      // border: 1px solid red;
-    }
-  }
-}
+//           .btn {
+//             align-self: flex-end;
+//             margin-top: 1rem;
+//           }
+//         }
+//         // flex: 1;
+//         // border: 1px solid red;
+//       }
+//       // footer {
+//       //   display: flex;
+//       //   justify-content: flex-end;
+//       //   gap: 2rem;
+//       //   padding: 1rem 3rem;
+
+//       //   .btn {
+//       //     padding: 2rem 3rem;
+//       //     border-radius: 5px;
+//       //   }
+//       // }
+//     }
+//     .main {
+//       flex: 1;
+//       // border: 1px solid red;
+
+//       // .attributes-variants {
+//       //   display: flex;
+//       //   flex-direction: column;
+//       //   gap: 2rem;
+//       // }
+//     }
+
+//     .footer {
+//       width: 100%;
+//       display: flex;
+//       align-items: center;
+//       justify-content: flex-end;
+//       gap: 2rem;
+//       padding: 2rem;
+//       background-color: white;
+//       // border: 1px solid red;
+//     }
+//   }
+// }
 </style>

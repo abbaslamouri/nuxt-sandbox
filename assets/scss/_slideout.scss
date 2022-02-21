@@ -1,5 +1,5 @@
 .slideout {
-  .wrapper {
+  .slideout__wrapper {
     position: fixed;
     inset: 0;
     display: flex;
@@ -10,7 +10,7 @@
     // border: 10px solid red;
     z-index: 9;
 
-    .content {
+    .slideout__content {
       display: flex;
       flex-direction: column;
       align-items: center;

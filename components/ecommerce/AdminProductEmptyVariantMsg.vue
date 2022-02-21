@@ -1,17 +1,17 @@
 <script setup>
-defineProps({
-  product: {
-    type: Object,
-  },
-})
+// defineProps({
+//   productId: {
+//     type: Object,
+//   },
+// })
 
-defineEmits(['hideSlideout'])
+defineEmits(['slideoutEventEmitted'])
 </script>
 
 <template>
   <div class="empty-variant-message">
     <div class="card">
-      <h3>Set up variant groups to sell variations of the same product</h3>
+      <h3>Set up attributes for this product</h3>
       <p class="message">
         Variants help you to sell products with slight differences, but are still the same product. For example, you
         might sell a t-shirt in different colors, or a plant pot in different sizes.<br /><br />You can configure
@@ -19,10 +19,8 @@ defineEmits(['hideSlideout'])
         terms for your variants. Attributes define the type of variant (e.g. color). Terms are a choice your customer
         can make within that group (e.g. blue).
       </p>
-      <p class="sub-message" v-if="!product._id">
-        <IconsInfo />Using this feature requires you to save the product first.
-      </p>
-      <button class="btn btn-primary" @click="$emit('hideSlideout')">Cancel</button>
+      <p class="sub-message"><IconsInfo />Using this feature requires you to save the product first.</p>
+      <button class="btn btn-primary" @click="$emit('slideoutEventEmitted', false)">Cancel</button>
     </div>
   </div>
 </template>

@@ -308,6 +308,12 @@ const saveProduct = async () => {
   // }
 }
 
+const updateAttributes = async (event) => {
+  product.value.attributes = event
+  console.log(product.value.attributes)
+  await saveProduct()
+}
+
 // Set category gallery
 const selectMedia = async (event) => {
   console.log(event)
@@ -363,6 +369,11 @@ const updateProductCategories = (event) => {
     product.value.categories.push(category)
   }
 }
+
+const xxx = async (event) => {
+  console.log(event)
+  showSlideout.value = true
+}
 </script>
 
 <template>
@@ -390,16 +401,31 @@ const updateProductCategories = (event) => {
           galleryType="product"
           @mediaSelectorClicked="showMediaSelector = true"
         />
-        <LazyEcommerceAdminProductAttributes
-          :product="product"
-          @productAttributesUpdated="product.attributes = $event"
-        />
-        <LazyEcommerceAdminProductVariants
+        <section class="attributes" id="attributes">
+          <EcommerceAdminProductAttributesContent
+            :productAttributes="product.attributes"
+            @slideoutEventEmitted="showSlideout = $event"
+          />
+          <EcommerceAdminProductAttributesSlideout
+            v-show="showSlideout"
+            :productAttributes="product.attributes"
+            :productId="product._id"
+            :showSlideout="showSlideout"
+            @slideoutEventEmitted="showSlideout = $event"
+            @slideoutAttributesUpdated="updateAttributes"
+          />
+        </section>
+        <!-- <LazyEcommerceAdminProductAttributes
+          :productId="product._id"
+          :productAttributes="product.attributes"
+          @compAttributesUpdated="updateAttributes"
+        /> -->
+        <!-- <LazyEcommerceAdminProductVariants
           :product="product"
           :attributes="attributes"
           :attributeTerms="attributeTerms"
           @productAttributesUpdated="product.attributes = $event"
-        />
+        /> -->
 
         <EcommerceAdminProductShippingOptions
           :product="product"
