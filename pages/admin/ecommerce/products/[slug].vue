@@ -18,6 +18,7 @@ const categories = ref([])
 const attributes = ref([])
 const attributeTerms = ref([])
 const showSlideout = ref(false)
+const showVariantSlideout = ref(false)
 const showMediaSelector = ref(false) // media selector toggler
 const mediaReference = ref({}) // sets which media to update once a selection is made
 const galleryIntro = ref('This image gallery contains all images associated with this product including its variants.')
@@ -33,7 +34,7 @@ const productParams = computed(() => {
 
 const variantParams = computed(() => {
   return {
-    fields: 'product, attrattributeTerms, gallery',
+    fields: 'product, parent, attrattributeTerms, gallery',
   }
 })
 const categoryParams = computed(() => {
@@ -61,7 +62,7 @@ const fetchProduct = async () => {
     let response = await $fetch('/api/v1/products', { params: productParams.value })
     if (response) {
       product.value = response.docs[0]
-      // await fetchVariants()
+      await fetchVariants()
     } else {
       product.value = {
         attributes: [],
@@ -314,6 +315,12 @@ const updateAttributes = async (event) => {
   await saveProduct()
 }
 
+const updateVariants = async (event) => {
+  product.value.attributes = event
+  console.log(product.value.attributes)
+  await saveProduct()
+}
+
 // Set category gallery
 const selectMedia = async (event) => {
   console.log(event)
@@ -413,6 +420,22 @@ const xxx = async (event) => {
             :showSlideout="showSlideout"
             @slideoutEventEmitted="showSlideout = $event"
             @slideoutAttributesUpdated="updateAttributes"
+          />
+        </section>
+        <section class="variants" id="variants">
+          <EcommerceAdminProductVariantsContent
+            :productVariants="variants"
+            @slideoutEventEmitted="showVariantSlideout = $event"
+          />
+          <EcommerceAdminProductVariantsSlideout
+            v-show="showVariantSlideout"
+            :product="product"
+            :productVariants="variants"
+            :productAttributes="product.attributes"
+            :productId="product._id"
+            :showSlideout="showVariantSlideout"
+            @slideoutEventEmitted="showVariantSlideout = $event"
+            @slideoutVariantUpdated="updateVariants"
           />
         </section>
         <!-- <LazyEcommerceAdminProductAttributes

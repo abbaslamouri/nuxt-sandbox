@@ -133,7 +133,7 @@ const updateVariants = async (event) => {
 
 <template>
   <section class="variants shadow-md" id="variants">
-    <header class="admin-section-header">
+    <!-- <header class="admin-section-header">
       <p class="title">Variants</p>
       <button class="btn btn-heading" @click="showSlideout = true">
         <span v-show="!variants.length">Add</span>
@@ -152,7 +152,7 @@ const updateVariants = async (event) => {
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
     <div class="slideout" v-show="showSlideout">
       <div class="overlay"></div>
       <div class="wrapper" @click.self="showSlideout = false">

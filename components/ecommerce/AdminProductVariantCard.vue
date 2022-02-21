@@ -1,6 +1,6 @@
 <script setup>
 const props = defineProps({
-  variant: {
+  productVariant: {
     type: Object,
     required: true,
   },
@@ -22,9 +22,12 @@ defineEmits(['mediaSelectorClicked', 'showVariantSlideout'])
 //   // variant: Object,
 //   index: Number,
 // })
+const cardVariant = ref({})
 
 const showActions = ref(false)
 const showVariantSlideout = ref(false)
+
+cardVariant.value = { ...props.productVariant }
 
 const getAttribute = (attributeId) => {
   // return prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].item
@@ -57,14 +60,15 @@ const updateVariant = (attribute, termId) => {
 
 <template>
   <div class="admin-product-variant row">
+    {{ cardVariant }}
     <div class="thumb td" @click="$emit('showVariantSlideout')">
-      <img v-if="variant.gallery[0]" :src="variant.gallery[0].path" alt="Variant Image" />
+      <img v-if="cardVariant.gallery[0]" :src="cardVariant.gallery[0].path" alt="Variant Image" />
       <img v-else src="/placeholder.png" alt="Variant Image" />
     </div>
     <div class="option td" @click="$emit('showVariantSlideout')">
-      <div v-for="term in variant.attrTerms" :key="term" class="attribute-term">
+      <div v-for="term in cardVariant.attrTerms" :key="term" class="attribute-term">
         <div class="attribute">
-          <!-- {{ attributes.find((a) => a._id == term.parent).name }} -->
+          <!-- {{ attributes.find((a) => a._id == term.parent._id).name }} -->
         </div>
         <div class="term">
           <!-- {{ attributeTerms.find((t) => t._id == term._id).name }} -->

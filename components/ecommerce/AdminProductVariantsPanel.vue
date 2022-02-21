@@ -300,7 +300,7 @@ watch(
       <main>
         <form @keypress.enter.prevent>
           <!-- <form @keypress.enter.prevent v-if="prodState.selectedItem.variants.length"> -->
-          <div class="table">
+          <div class="table admin-product-variants">
             <div class="table__header">
               <div class="row">
                 <div class="th">Image</div>
@@ -312,15 +312,14 @@ watch(
               </div>
             </div>
             <div class="table__body">
-              <div class="variants" v-for="(variant, index) in compVariants">
-                <EcommerceAdminProductVariantCard
-                  :index="index"
-                  :variant="variant"
-                  :attributes="attributes"
-                  :attributeTerms="attributeTerms"
-                  @showVariantSlideout="setProdVariantEdit(prodVariant, i)"
-                />
-              </div>
+              <EcommerceAdminProductVariantCard
+                v-for="(variant, index) in compVariants"
+                :index="index"
+                :variant="variant"
+                :attributes="attributes"
+                :attributeTerms="attributeTerms"
+                @showVariantSlideout="setProdVariantEdit(prodVariant, i)"
+              />
             </div>
           </div>
         </form>

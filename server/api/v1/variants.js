@@ -17,7 +17,7 @@ export default async (req, res) => {
       const docs = await features.query
         .populate('gallery', { path: 1, mimetype: 1 })
         .populate('attrTerms', { name: 1, slug: 1 })
-        .populate('product', { name: 1, slug: 1 })
+        // .populate('product', { name: 1, slug: 1 })
       return { docs, count: featured.length, totalCount: allDocs.length }
     } catch (error) {
       const err = errorHandler(error)
