@@ -165,7 +165,7 @@ export default async (req, res) => {
 			}
 			return doc
 		} catch (error) {
-			console.log(error)
+			// console.log(error)
 			const err = errorHandler(error)
 			res.statusCode = err.statusCode
 			return err.message
@@ -302,7 +302,7 @@ export default async (req, res) => {
 		let user = null
 		try {
 			const { email } = await useBody(req)
-			console.log(email)
+			// console.log(email)
 			if (!email) {
 				const newError = new Error(`Please enter a valid email`)
 				newError.customError = true

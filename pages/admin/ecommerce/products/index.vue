@@ -40,7 +40,7 @@ const fetchAll = async () => {
   appMessage.errorMsg = null
   try {
     const response = await $fetch('/api/v1/products', { params: params.value })
-    console.log(response)
+    // console.log(response)
 
     products.value = response.docs
     count.value = response.count
@@ -52,7 +52,7 @@ const fetchAll = async () => {
 
 // Fetch all
 await fetchAll()
-console.log('P', products.value)
+// console.log('P', products.value)
 
 // Search
 const handleSearch = async (event) => {

@@ -40,7 +40,7 @@ const fetchAll = async () => {
     categories.value = response.docs
     count.value = response.count
     totalCount.value = response.totalCount
-    console.log(response)
+    // console.log(response)
   } catch (error) {
     appMessage.errorMsg = error.data
   }

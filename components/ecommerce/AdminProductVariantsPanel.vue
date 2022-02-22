@@ -115,7 +115,7 @@ const bulkAddVariants = () => {
       // )
     }
     terms = props.product.attributes.map((el) => [...el.terms])
-    console.log('TERMS', terms)
+    // console.log('TERMS', terms)
   }
   // Add term combinations if any to variants
   if (getCombinations(terms)[0].length)
@@ -266,7 +266,7 @@ const setProdVariantEdit = (variant, index) => {
 watch(
   () => compVariants.value,
   (current) => {
-    console.log(current)
+    // console.log(current)
     emit('compVariantsUpdated', compVariants.value)
   },
   { deep: true }

@@ -143,7 +143,7 @@ const removeFromSelectedMedia = (event) => {
 const handleDeleteMedia = async () => {
   let message = ''
   let error = ''
-  console.log(selectedMedia.value)
+  // console.log(selectedMedia.value)
   await Promise.all(
     selectedMedia.value.map(async (item) => {
       try {
@@ -177,9 +177,9 @@ const handleMoveMediaToFolder = async (event) => {
             params: { id: item._id },
             body: { folder: event },
           })
-          console.log(response)
+          // console.log(response)
         } catch (err) {
-          console.error('MyERROR', err)
+          // console.error('MyERROR', err)
           appMessage.errorMsg= err.data
         }
       })

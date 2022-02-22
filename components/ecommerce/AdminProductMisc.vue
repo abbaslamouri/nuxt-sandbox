@@ -13,7 +13,7 @@ const productMisc = reactive({
 watch(
   () => productMisc,
   (current) => {
-    console.log(current)
+    // console.log(current)
     emit('productMiscEmitted', current)
   },
   { deep: true }

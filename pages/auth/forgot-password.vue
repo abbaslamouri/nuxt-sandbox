@@ -16,7 +16,7 @@ const forgotPassword = async () => {
       method: 'POST',
       body: { email: email.value },
     })
-    console.log(response)
+    // console.log(response)
 
     appMessage.successMsg = response.message
     // router.push({ name: 'index' })

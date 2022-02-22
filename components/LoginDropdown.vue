@@ -25,7 +25,7 @@ const signin = async () => {
       method: 'POST',
       body: user,
     })
-    console.log(response)
+    // console.log(response)
     auth.user = response.user
     auth.token = response.token
     showAuthDropdown.value = false

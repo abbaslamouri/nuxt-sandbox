@@ -60,7 +60,7 @@ export const useStore = defineStore('store', {
         const index = this.products.findIndex((el) => el._id == id)
         if (index !== -1) this.products.splice(index, 1)
       } catch (err) {
-        console.log('MyERROR', err.response)
+        // console.log('MyERROR', err.response)
         this.errorMsg = err.response.data.message || err.response.data.statusMessage
         // appError.setSnackbar(true, this.errorMsg)
       }
@@ -87,7 +87,7 @@ export const useStore = defineStore('store', {
         // console.log(response)
         appError.setSnackbar(true, 'Please check your email', 'success')
       } catch (err) {
-        console.log('MyERROR', err.response)
+        // console.log('MyERROR', err.response)
         this.errorMsg = err.response.data.message || err.response.data.statusMessage
         console.error('MyERROR', err.response)
         // appError.setSnackbar(true, this.errorMsg)
@@ -103,7 +103,7 @@ export const useStore = defineStore('store', {
         this.user = response.data.user
         this.token = response.data.token
       } catch (err) {
-        console.log('MyERROR', err.response)
+        // console.log('MyERROR', err.response)
         this.errorMsg = err.response.data.message || err.response.data.statusMessage
         // mainStore.setSnackbar({
         //   show: true,
@@ -127,7 +127,7 @@ export const useStore = defineStore('store', {
         // console.log(response)
         this.user = response.data.user
       } catch (err) {
-        console.log('MyERROR', err)
+        // console.log('MyERROR', err)
         this.errorMsg = err.response.data.message || err.response.data.statusMessage
         // mainStore.setSnackbar({
         //   show: true,
@@ -150,7 +150,7 @@ export const useStore = defineStore('store', {
         // this.user = response.data.user
         // this.token = response.data.token
       } catch (err) {
-        console.log('MyERROR', err)
+        // console.log('MyERROR', err)
         this.errorMsg = err.response.data.message || err.response.data.statusMessage
         // mainStore.setSnackbar({
         //   show: true,
@@ -173,7 +173,7 @@ export const useStore = defineStore('store', {
         // this.user = response.data.user
         // this.token = response.data.token
       } catch (err) {
-        console.log('MyERROR', err.response)
+        // console.log('MyERROR', err.response)
         this.errorMsg = err.response.data.message || err.response.data.statusMessage
         // mainStore.setSnackbar({
         //   show: true,
@@ -193,7 +193,7 @@ export const useStore = defineStore('store', {
         this.user = response.data.user
         this.token = response.data.token
       } catch (err) {
-        console.log('MyERROR', err.response)
+        // console.log('MyERROR', err.response)
         this.errorMsg = err.response.data.message || err.response.data.statusMessage
         appError.setSnackbar(true, this.errorMsg)
       }
@@ -217,7 +217,7 @@ export const useStore = defineStore('store', {
         // cart.customer._id = null
         // Cookies.set('cartCustomer', JSON.stringify(cart.customer))
       } catch (err) {
-        console.log('MyERROR', err.response)
+        // console.log('MyERROR', err.response)
         this.errorMsg = err.response.data.message || err.response.data.statusMessage
         // mainStore.setSnackbar({
         //   show: true,

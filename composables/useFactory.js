@@ -9,9 +9,9 @@ const useFactory = (collection) => {
     try {
       const response = await $fetch('auth/signup', { baseURL: this.apiURL, method: 'POST', body: user })
       this.message = response.message
-      console.log(response)
+      // console.log(response)
     } catch (err) {
-      console.log('MyERROR', err.data)
+      // console.log('MyERROR', err.data)
       this.errorMsg = err.data
     }
 
@@ -83,7 +83,7 @@ const useFactory = (collection) => {
       if (index !== -1) state.items.splice(index, 1)
       return true
     } catch (err) {
-      console.log('MyERROR', err.response)
+      // console.log('MyERROR', err.response)
       state.errorMsg = err.response.data.message || err.response.data.statusMessage
       // appError.setSnackbar(true, state.errorMsg)
       return false

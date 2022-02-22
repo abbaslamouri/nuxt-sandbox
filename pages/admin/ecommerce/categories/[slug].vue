@@ -29,7 +29,7 @@ const fetchAll = async () => {
   try {
     const response = await $fetch('/api/v1/categories', { params: params.value })
     categories.value = response.docs
-    console.log(response)
+    // console.log(response)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -52,7 +52,7 @@ const currentCategory = JSON.stringify(category.value)
 
 // Set category gallery
 const selectMedia = async (event) => {
-  console.log(event)
+  // console.log(event)
   showMediaSelector.value = false
   for (const prop in event) {
     const index = category.value.gallery.findIndex((el) => el._id === event[prop]._id)
@@ -66,7 +66,7 @@ const selectMedia = async (event) => {
 const saveCategory = async () => {
   appMessage.errorMsg = null
   appMessage.successMsg = null
-  console.log(category.value._id)
+  // console.log(category.value._id)
   try {
     if (currentCategory !== JSON.stringify(category.value)) {
       if (category.value._id) {

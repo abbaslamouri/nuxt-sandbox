@@ -12,7 +12,7 @@ const productShippingOptions = reactive({
 watch(
   () => productShippingOptions,
   (current) => {
-    console.log(current)
+    // console.log(current)
     emit('shippingOptionsEmitted', current)
   },
   { deep: true }

@@ -17,7 +17,7 @@ const user = reactive({
   email: 'lamouri@genvac.com',
   password: 'arar0714',
 })
-console.log(route)
+// console.log(route)
 
 // router.push(route.query.redirect || '/admin')
 
@@ -29,7 +29,7 @@ const signup = async () => {
       method: 'POST',
       body: user,
     })
-    console.log(response)
+    // console.log(response)
     appMessage.successMsg = response.message
     formMsg.value = response.message
     formMsgType.value = 'success'

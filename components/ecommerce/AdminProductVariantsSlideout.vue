@@ -43,7 +43,7 @@
 	}
 	const currentVariants = JSON.stringify(slideoutVariants.value)
 
-	console.log('COMPARE', currentVariants === JSON.stringify(slideoutVariants.value))
+	// console.log('COMPARE', currentVariants === JSON.stringify(slideoutVariants.value))
 
 	const variantActions = ref([
 		{ key: 'create-all', name: 'Create variations form all attribute', disable: false },
@@ -98,7 +98,7 @@
 		try {
 			const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
 			attributes.value = response.docs
-			console.log('Attributes', attributes.value)
+			// console.log('Attributes', attributes.value)
 		} catch (error) {
 			appMessage.errorMsg = error.data
 		}
@@ -109,7 +109,7 @@
 		try {
 			const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
 			attributeTerms.value = response.docs
-			console.log('Terms', attributeTerms.value)
+			// console.log('Terms', attributeTerms.value)
 		} catch (error) {
 			appMessage.errorMsg = error.data
 		}
@@ -142,7 +142,7 @@
 			for (const prop in props.product.attributes) {
 			}
 			terms = props.product.attributes.map((el) => [...el.terms])
-			console.log('TERMS', terms)
+			// console.log('TERMS', terms)
 		}
 		// Add term combinations if any to variants
 		if (getCombinations(terms)[0].length)
@@ -163,7 +163,7 @@
 	}
 
 	const insertEmptyAttribute = () => {
-		console.log(slideoutVariants.value.length == attributes.value.length)
+		// console.log(slideoutVariants.value.length == attributes.value.length)
 		if (slideoutVariants.value.length == attributes.value.length)
 			return (appMessage.errorMsg = 'You have used all available attributes')
 		slideoutVariants.value.push({
@@ -176,7 +176,7 @@
 	}
 
 	const updateCompAttribute = (event) => {
-		console.log('MNMNMNM')
+		// console.log('MNMNMNM')
 		slideoutVariants.value[event.index] = event.attr
 	}
 
@@ -205,8 +205,8 @@
 	}
 
 	const closeSlideout = () => {
-		console.log('Before', JSON.parse(currentVariants))
-		console.log('COMPARE', currentVariants === JSON.stringify(slideoutVariants.value))
+		// console.log('Before', JSON.parse(currentVariants))
+		// console.log('COMPARE', currentVariants === JSON.stringify(slideoutVariants.value))
 		if (currentVariants !== JSON.stringify(slideoutVariants.value)) return (showAlert.value = true)
 		emit('slideoutEventEmitted', false)
 		// const newAttributes = []
@@ -224,7 +224,7 @@
 			if (Object.values(slideoutVariants.value[prop].attribute).length) newAttributes.push(slideoutVariants.value[prop])
 		}
 		slideoutVariants.value = newAttributes
-		console.log('CCCC', slideoutVariants.value)
+		// console.log('CCCC', slideoutVariants.value)
 		emit('slideoutVariantsUpdated', slideoutVariants.value)
 
 		// showVariantsSlideout.value = false

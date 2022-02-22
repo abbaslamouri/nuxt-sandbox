@@ -29,19 +29,19 @@ const saveAttribute = async () => {
     if (newAttribute.name) {
       newAttribute.slug = slugify(newAttribute.name, { lower: true })
       if (!newAttribute._id) {
-        console.log('POST', newAttribute)
+        // console.log('POST', newAttribute)
         const response = await $fetch('/api/v1/attributes', {
           method: 'POST',
           body: newAttribute,
         })
-        console.log('RES', response)
+        // console.log('RES', response)
       } else {
         const response = await $fetch('/api/v1/attributes', {
           method: 'PATCH',
           body: newAttribute,
           params: { id: newAttribute._id },
         })
-        console.log('RES', response)
+        // console.log('RES', response)
       }
     }
     emit('attributeUpdated')
@@ -56,7 +56,7 @@ const deleteAttribute = async () => {
   // Delete all terms assocaited with this attrubute
   await Promise.all(
     props.attributeTerms.map(async (item) => {
-      console.log('IIIII', item)
+      // console.log('IIIII', item)
       await $fetch('/api/v1/attributeterms', {
         method: 'DELETE',
         params: { id: item._id },
@@ -95,7 +95,7 @@ const addAttributeTerm = async () => {
 }
 
 const deleteTerm = async (termId) => {
-  console.log(termId)
+  // console.log(termId)
   appMessage.errorMsg = null
   try {
     await $fetch('/api/v1/attributeterms', {

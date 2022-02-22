@@ -74,7 +74,7 @@
 					extraFields: [],
 				}
 			}
-			console.log('Product', product.value)
+			// console.log('Product', product.value)
 		} catch (error) {
 			appMessage.errorMsg = error.data
 		}
@@ -86,7 +86,7 @@
 			variantParams.value.product = product.value._id
 			const response = await $fetch('/api/v1/variants', { params: variantParams.value })
 			variants.value = response.docs
-			console.log('variants', variants.value)
+			// console.log('variants', variants.value)
 		} catch (error) {
 			appMessage.errorMsg = error.data
 		}
@@ -97,7 +97,7 @@
 		try {
 			const response = await $fetch('/api/v1/categories', { params: categoryParams.value })
 			categories.value = response.docs
-			console.log('Categories', categories.value)
+			// console.log('Categories', categories.value)
 		} catch (error) {
 			appMessage.errorMsg = error.data
 		}
@@ -108,7 +108,7 @@
 		try {
 			const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
 			attributes.value = response.docs
-			console.log('Attributes', attributes.value)
+			// console.log('Attributes', attributes.value)
 		} catch (error) {
 			appMessage.errorMsg = error.data
 		}
@@ -119,7 +119,7 @@
 		try {
 			const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
 			attributeTerms.value = response.docs
-			console.log('Terms', attributeTerms.value)
+			// console.log('Terms', attributeTerms.value)
 		} catch (error) {
 			appMessage.errorMsg = error.data
 		}
@@ -243,7 +243,7 @@
 	}
 
 	const saveProduct = async () => {
-		console.log('SAVE', product.value)
+		// console.log('SAVE', product.value)
 		appMessage.errorMsg = null
 		let response = null
 		try {
@@ -262,7 +262,7 @@
 					body: product.value,
 				})
 			}
-			console.log('savedProduct', response)
+			// console.log('savedProduct', response)
 			// product.value = response
 			router.push({ name: 'admin-ecommerce-products-slug', params: { slug: response.slug } })
 			appMessage.successMsg = 'Product saved succesfully'
@@ -315,7 +315,7 @@
 				method: 'POST',
 				params: { id: product.value._id },
 			})
-			console.log('deletedCount', response.deletedCount)
+			// console.log('deletedCount', response.deletedCount)
 			if (response.deletedCount) appMessage.successMsg = 'All variants deleted succesfuluy'
 			variants.value = []
 		} catch (error) {
@@ -325,13 +325,13 @@
 
 	const updateAttributes = async (event) => {
 		product.value.attributes = event
-		console.log(product.value)
+		// console.log(product.value)
 		await saveProduct()
 	}
 
 	const updateVariants = async (event) => {
 		variants.value = event
-		console.log('VVVVV', variants.value)
+		// console.log('VVVVV', variants.value)
 		appMessage.errorMsg = null
 		let response = null
 		let message = ''
@@ -342,7 +342,7 @@
 				method: 'POST',
 				params: { id: product.value._id },
 			})
-			console.log('deletedCount', response.deletedCount)
+			// console.log('deletedCount', response.deletedCount)
 			await Promise.all(
 				variants.value.map(async (variant) => {
 					try {
@@ -366,7 +366,7 @@
 
 	// Set category gallery
 	const selectMedia = async (event) => {
-		console.log(event)
+		// console.log(event)
 		showMediaSelector.value = false
 		for (const prop in event) {
 			const index = product.value.gallery.findIndex((el) => el._id === event[prop]._id)
@@ -402,7 +402,7 @@
 	// Update product extra fields
 	const updateExtraFields = (event) => {
 		for (const prop in event) {
-			console.log(event[prop].name)
+			// console.log(event[prop].name)
 			product.value.extraFields[prop] = {}
 			product.value.extraFields[prop].name = event[prop].name
 			product.value.extraFields[prop].isRequired = event[prop].isRequired
@@ -415,13 +415,13 @@
 		product.value.categories = []
 		for (const prop in categorieIds) {
 			const category = categories.value.find((c) => c._id == categorieIds[prop])
-			console.log(category)
+			// console.log(category)
 			product.value.categories.push(category)
 		}
 	}
 
 	const xxx = async (event) => {
-		console.log(event)
+		// console.log(event)
 		showAttributesSlideout.value = true
 	}
 </script>

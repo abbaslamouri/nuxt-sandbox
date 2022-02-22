@@ -36,9 +36,9 @@ export default async (req, res) => {
   }
 
   if (req.method === 'POST' && req.url.includes('/delete-many')) {
-    console.log('VVVVVV', params.id)
+    // console.log('VVVVVV', params.id)
     const docs = await Model.deleteMany({ product: params.id })
-    console.log('VVVVVDDDDDD', docs)
+    // console.log('VVVVVDDDDDD', docs)
     return docs
   }
 
@@ -54,7 +54,7 @@ export default async (req, res) => {
       }
       return doc
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -76,7 +76,7 @@ export default async (req, res) => {
       }
       return doc
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -95,7 +95,7 @@ export default async (req, res) => {
       }
       return null
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message

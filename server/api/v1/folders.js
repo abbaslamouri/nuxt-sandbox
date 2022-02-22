@@ -33,7 +33,7 @@ export default async (req, res) => {
 
   // console.log('UUUUUU', urlPath[1])
   // console.log('PPPPP', params)
-  console.log(req.method)
+  // console.log(req.method)
 
   // @desc      signup
   // @route     POST /api/v1/auth/signup
@@ -64,7 +64,7 @@ export default async (req, res) => {
       }
       return folder
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -86,7 +86,7 @@ export default async (req, res) => {
       }
       return folder
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -106,7 +106,7 @@ export default async (req, res) => {
       return null
       // res.status(204).json(null)
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message

@@ -2,97 +2,69 @@
   .slideout__wrapper {
     position: fixed;
     inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: 100vw;
     height: 100vh;
-    // border: 10px solid red;
     z-index: 9;
 
     .slideout__content {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      // padding: 2rem;
-      background-color: white;
-      // border-radius: 5px;
-      overflow: auto;
+      background-color: $slate-50;
       height: 100%;
       position: fixed;
       top: 0;
       bottom: 0;
       right: 0;
-      width: 100vw;
+      width: 100%;
       max-width: 1040px;
+
+      &.variant {
+        max-width: 1000px;
+      }
+
+      .slideout__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 2rem;
+        background-color: $slate-300;
+        width: 100%;
+
+        .title {
+          font-size: 1.5rem;
+          font-weight: 700;
+        }
+
+        .btn {
+          border: none;
+
+          svg {
+            width: 2rem;
+            height: 2rem;
+          }
+        }
+      }
+
+      .slideout__main {
+        height: 100%;
+        width: 100%;
+        overflow: scroll;
+      }
+
+      .slideout__footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 2rem;
+        padding: 2rem;
+        background-color: $slate-300;
+        width: 100%;
+
+        .btn {
+          height: 100%;
+          padding: 0.75rem 2rem;
+        }
+      }
     }
   }
 }
-
-// .slideout {
-//   position: absolute;
-//   top: 0;
-//   left: 0;
-//   z-index: 9;
-//   // height: 100vh;
-//   // width: 100vw;
-
-//   // overflow:scroll;
-//   // min-height: 100vh;
-
-//   // .overlay {
-//   //   // opacity: 0.8;
-//   //   // z-index: 99;
-//   //   overflow: hidden;
-//   // }
-
-//   .dialog {
-//     display: flex;
-//     flex-direction: column;
-//     position: fixed;
-//     top: 0;
-//     right: 0;
-//     bottom: 0;
-//     width: 100vw;
-//     max-width: 1040px;
-
-//     // height:80vh;
-//     // max-width: 800px;
-//     background-color: white;
-
-//     .header {
-//       display: flex;
-//       align-items: center;
-//       justify-content: space-between;
-//       padding: 2rem;
-//       background-color: white;
-//       .btn {
-//         svg {
-//           width: 1.8rem;
-//           height: 1.8rem;
-//         }
-//       }
-//     }
-
-//     .main {
-//       background-color: $slate-100;
-//       border: 1px solid teal;
-//       flex: 1;
-//       overflow-y: scroll;
-//       padding: 2rem;
-
-//       // border: 1px solid green;
-//       // min-height: 100%;
-//     }
-
-//     .footer {
-//       align-self: flex-end;
-//       display: flex;
-//       align-items: center;
-//       // justify-content: space-between;
-//       gap: 2rem;
-//       padding: 2rem;
-//       background-color: white;
-//     }
-//   }
-// }

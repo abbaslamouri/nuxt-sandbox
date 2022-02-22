@@ -35,7 +35,7 @@ export default async (req, res) => {
       }
       return doc
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -57,7 +57,7 @@ export default async (req, res) => {
       }
       return doc
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -76,7 +76,7 @@ export default async (req, res) => {
       }
       return null
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message

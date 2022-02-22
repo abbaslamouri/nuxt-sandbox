@@ -37,7 +37,7 @@
 		try {
 			const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
 			attributes.value = response.docs
-			console.log('Attributes', attributes.value)
+			// console.log('Attributes', attributes.value)
 		} catch (error) {
 			appMessage.errorMsg = error.data
 		}
@@ -48,7 +48,7 @@
 		try {
 			const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
 			attributeTerms.value = response.docs
-			console.log('Terms', attributeTerms.value)
+			// console.log('Terms', attributeTerms.value)
 		} catch (error) {
 			appMessage.errorMsg = error.data
 		}
@@ -61,7 +61,7 @@
 	await Promise.all([fetchAttributes(), fetchAttributeTerms()])
 
 	const insertEmptyAttribute = () => {
-		console.log(slideoutAttributes.value.length == attributes.value.length)
+		// console.log(slideoutAttributes.value.length == attributes.value.length)
 		if (slideoutAttributes.value.length == attributes.value.length)
 			return (appMessage.errorMsg = 'You have used all available attributes')
 		slideoutAttributes.value.push({
@@ -74,13 +74,13 @@
 	}
 
 	const updateAttribute = (event) => {
-		console.log('MNMNMNM')
+		// console.log('MNMNMNM')
 		slideoutAttributes.value[event.index] = event.attr
 	}
 
 	const deleteAttribute = (event) => {
 		slideoutAttributes.value.splice(event, 1)
-		console.log(event)
+		// console.log(event)
 	}
 
 	const getAttribute = (attributeId) => {
@@ -108,8 +108,8 @@
 	}
 
 	const closeSlideout = () => {
-		console.log('Before', JSON.parse(currentAttributes))
-		console.log('COMPARE', currentAttributes === JSON.stringify(slideoutAttributes.value))
+		// console.log('Before', JSON.parse(currentAttributes))
+		// console.log('COMPARE', currentAttributes === JSON.stringify(slideoutAttributes.value))
 		if (currentAttributes !== JSON.stringify(slideoutAttributes.value)) return (showAlert.value = true)
 		emit('slideoutEventEmitted', false)
 		// const newAttributes = []
@@ -128,7 +128,7 @@
 				newAttributes.push(slideoutAttributes.value[prop])
 		}
 		slideoutAttributes.value = newAttributes
-		console.log('CCCC', slideoutAttributes.value)
+		// console.log('CCCC', slideoutAttributes.value)
 		emit('slideoutAttributesUpdated', slideoutAttributes.value)
 
 		// showAttributesSlideout.value = false
@@ -142,7 +142,7 @@
 				newAttributes.push(slideoutAttributes.value[prop])
 		}
 		slideoutAttributes.value = newAttributes
-		console.log('CCCC', slideoutAttributes.value)
+		// console.log('CCCC', slideoutAttributes.value)
 		emit('slideoutAttributesUpdated', slideoutAttributes.value)
 		emit('slideoutEventEmitted', false)
 

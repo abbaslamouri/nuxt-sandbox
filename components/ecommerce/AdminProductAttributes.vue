@@ -59,7 +59,7 @@ const fetchAttributes = async () => {
   try {
     const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
     attributes.value = response.docs
-    console.log('Attributes', attributes.value)
+    // console.log('Attributes', attributes.value)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -70,7 +70,7 @@ const fetchAttributeTerms = async () => {
   try {
     const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
     attributeTerms.value = response.docs
-    console.log('Terms', attributeTerms.value)
+    // console.log('Terms', attributeTerms.value)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -103,8 +103,8 @@ const updateVariant = (attribute, termId) => {
 }
 
 const closeSlideout = () => {
-  console.log('Before', JSON.parse(currentProductAttributes))
-  console.log('COMPARE', currentProductAttributes === JSON.stringify(props.productAttributes))
+  // console.log('Before', JSON.parse(currentProductAttributes))
+  // console.log('COMPARE', currentProductAttributes === JSON.stringify(props.productAttributes))
   if (currentProductAttributes !== JSON.stringify(props.productAttributes)) return (showAlert.value = true)
   showSlideout.value = false
   // const newAttributes = []
@@ -122,7 +122,7 @@ const saveCompAttributes = () => {
     if (Object.values(compAttributes.value[prop].attribute).length) newAttributes.push(compAttributes.value[prop])
   }
   compAttributes.value = newAttributes
-  console.log('CCCC', compAttributes.value)
+  // console.log('CCCC', compAttributes.value)
   // showSlideout.value = false
   // emit('productAttributesUpdated', newAttributes)
 }
@@ -133,7 +133,7 @@ const updateCompAttributes = () => {
     if (Object.values(compAttributes.value[prop].attribute).length) newAttributes.push(compAttributes.value[prop])
   }
   compAttributes.value = newAttributes
-  console.log('CCCC', compAttributes.value)
+  // console.log('CCCC', compAttributes.value)
   // showSlideout.value = false
   // emit('productAttributesUpdated', newAttributes)
 }

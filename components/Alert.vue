@@ -8,6 +8,15 @@ defineProps({
     type: Number,
     default: 40,
   },
+  showOkBtn: {
+    type:Boolean,
+    default: true
+  },
+  showCancelBtn: {
+    type:Boolean,
+    default: true
+  }
+  
 })
 
 defineEmits(['cancel', 'ok'])
@@ -23,8 +32,8 @@ defineEmits(['cancel', 'ok'])
           <slot></slot>
         </main>
         <footer>
-          <button class="btn btn-secondary" @click.prevent="$emit('cancel')">Cancel</button>
-          <button class="btn btn-primary" @click.prevent="$emit('ok')">OK</button>
+          <button class="btn btn-secondary" @click.prevent="$emit('cancel')" v-if="showCancelBtn">Cancel</button>
+          <button class="btn btn-primary" @click.prevent="$emit('ok')" v-if="showOkBtn">OK</button>
         </footer>
       </div>
     </div>

@@ -26,7 +26,7 @@ export default async (req, res) => {
   }
 
   if (req.method === 'POST') {
-    console.log('HELLO')
+    // console.log('HELLO')
     try {
       const body = await useBody(req)
       const doc = await Model.create(body)
@@ -38,7 +38,7 @@ export default async (req, res) => {
       }
       return doc
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -49,7 +49,7 @@ export default async (req, res) => {
 
     try {
       const body = await useBody(req)
-      console.log('HELLOXXX', body)
+      // console.log('HELLOXXX', body)
 
       const doc = await Model.findByIdAndUpdate(params.id, body, {
         new: true,
@@ -63,7 +63,7 @@ export default async (req, res) => {
       }
       return doc
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -82,7 +82,7 @@ export default async (req, res) => {
       }
       return null
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message

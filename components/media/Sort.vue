@@ -24,7 +24,7 @@ const sortByOptions = [
 watch(
   () => sort,
   (sortVal) => {
-    console.log(sortVal)
+    // console.log(sortVal)
     emit('toggleMediaSort', sortVal)
   },
   { deep: true }

@@ -28,7 +28,7 @@ export default async (req, res) => {
   res.statusCode = 200
   const params = useQuery(req)
   const urlPath = req.url.split('/')
-  console.log('URLPATH', urlPath)
+  // console.log('URLPATH', urlPath)
 
   // @desc      signup
   // @route     POST /api/v1/auth/signup
@@ -74,15 +74,15 @@ export default async (req, res) => {
   if (req.method === 'PATCH' && urlPath[1].includes('signup-complete')) {
     try {
       const body = await useBody(req)
-      console.log('B', body)
-      console.log('T', params.token)
+      // console.log('B', body)
+      // console.log('T', params.token)
 
       const hashedToken = await crypto.createHash('sha256').update(params.token).digest('hex')
       const user = await User.findOne({
         passwordResetToken: hashedToken,
         passwordResetExpire: { $gt: Date.now() },
       })
-      console.log('U', user)
+      // console.log('U', user)
       if (!user) {
         const newError = new Error(`Your registration token is invlaid or has expired`)
         newError.customError = true
@@ -165,7 +165,7 @@ export default async (req, res) => {
     let user = null
     try {
       const { email } = await useBody(req)
-      console.log(email)
+      // console.log(email)
       if (!email) {
         const newError = new Error(`Please enter a valid email`)
         newError.customError = true

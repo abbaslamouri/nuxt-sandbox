@@ -27,9 +27,9 @@ const uploadProgress = ref(0)
 const uploadState = ref('')
 
 const upload = async () => {
-  console.log('HHHere', props.file)
-  console.log(props.file.file)
-  console.log(props.selectedFolder._id)
+  // console.log('HHHere', props.file)
+  // console.log(props.file.file)
+  // console.log(props.selectedFolder._id)
 
   // let response = null
   try {
@@ -62,7 +62,7 @@ const upload = async () => {
 
     // response = await http.post(`v1/media/image`, formData)
 
-    console.log('GGGGG', response)
+    // console.log('GGGGG', response)
 
     // await http.post(`v1/media/image`, formData, config)
     //   else response = await http.post(`v1/media`, formData, config)
@@ -76,7 +76,7 @@ const upload = async () => {
     //   emit('itemUploadedError', `<p>${err.response.data.message || err.response.data.statusMessage}</p>`)
     // }
   } catch (error) {
-    console.log(error)
+    // console.log(error)
     appMessage.setSnackbar(true, error.data, 'Error')
   }
 }

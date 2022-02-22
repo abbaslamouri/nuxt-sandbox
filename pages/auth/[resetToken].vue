@@ -16,7 +16,7 @@ const resetPassword = async () => {
       method: 'PATCH',
       body: { password: password.value, resetToken: route.params.resetToken },
     })
-    console.log(response)
+    // console.log(response)
     auth.user = response.user
     auth.token = response.token
     appMessage.successMsg = 'Password reset succesful, You are now logged in'

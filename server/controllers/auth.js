@@ -184,7 +184,7 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
 			message: 'Email sent',
 		})
 	} catch (err) {
-		console.log(err)
+		// console.log(err)
 		user.passwordResetToken = undefined
 		user.passwordResetExpire = undefined
 		await user.save({ validateBeforeSave: false })

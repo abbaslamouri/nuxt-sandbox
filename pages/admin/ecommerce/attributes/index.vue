@@ -51,7 +51,7 @@ const fetchAllAttributes = async () => {
     attributes.value = response.docs
     count.value = response.count
     totalCount.value = response.totalCount
-    console.log(response)
+    // console.log(response)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -62,7 +62,7 @@ const fetchAllTerms = async () => {
   try {
     const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
     terms.value = response.docs
-    console.log(response)
+    // console.log(response)
   } catch (error) {
     appMessage.errorMsg = error.data
   }

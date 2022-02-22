@@ -110,7 +110,7 @@ const removeDuplicateVariants = () => {
 
 const setDefaultTerm = () => {
   const term = props.attributeTerms.find((t) => t._id == cardDefaultTermId.value)
-  console.log(term)
+  // console.log(term)
   if (term) cardAttribute.value.defaultTerm = term
 }
 
@@ -154,7 +154,7 @@ const addTerm = () => {
 }
 
 const removeTerm = () => {
-  console.log('HHHHHHH')
+  // console.log('HHHHHHH')
   const index = cardAttribute.value.terms.findIndex((t) => t._id == termToDeleteId.value)
   if (index !== -1) cardAttribute.value.terms.splice(index, 1)
   showSingleTermAlert.value = false

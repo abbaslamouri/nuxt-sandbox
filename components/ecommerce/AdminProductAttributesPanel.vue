@@ -50,13 +50,13 @@ const insertEmptyAttribute = () => {
 }
 
 const updateCompAttribute = (event) => {
-  console.log('E', event)
-  console.log('EF', compAttributes.value)
+  // console.log('E', event)
+  // console.log('EF', compAttributes.value)
   compAttributes.value[event.index] = event.attr
 }
 
 const addAttribute = () => {
-  console.log(attributeSelect.value)
+  // console.log(attributeSelect.value)
   // const attribute = attState.items.find((el) => el._id == attributeSelect.value)
   // console.log(attribute)
   // const terms = attTermsState.items.filter((el) => el.parent == attribute._id)

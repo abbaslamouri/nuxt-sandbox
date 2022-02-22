@@ -42,7 +42,7 @@ onMounted(() => {
 watch(
   () => inputRef,
   (current, prev) => {
-    console.log('PPPPP', inputRef.value)
+    // console.log('PPPPP', inputRef.value)
 
     // if (current) inputRef.value.focus()
   }

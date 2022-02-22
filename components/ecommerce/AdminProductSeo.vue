@@ -14,7 +14,7 @@ const productSeo = reactive({
 watch(
   () => productSeo,
   (current) => {
-    console.log(current)
+    // console.log(current)
     emit('productSeoEmitted', current)
   },
   { deep: true }

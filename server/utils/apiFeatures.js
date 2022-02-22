@@ -24,7 +24,7 @@ class ApiFeatures {
 
   search() {
     if (this.queryObj.keyword) {
-      console.log('SEARCH', this.queryObj.keyword)
+      // console.log('SEARCH', this.queryObj.keyword)
       const regex = new RegExp(this.queryObj.keyword, 'i')
       // this.query = this.query.or({ $text: { $search: this.queryObj.keyword } })
       this.query = this.query.or([{ name: { $regex: regex } }, { slug: { $regex: regex } }])

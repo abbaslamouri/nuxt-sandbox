@@ -12,7 +12,7 @@
 	}
 
 	const handleItemsSelected = (event) => {
-		console.log(event.target.files)
+		// console.log(event.target.files)
 		itemsToUpload.value = Array.from(event.target.files).map((item) => item)
 		emit('uploadItemsSelected', itemsToUpload.value)
 	}

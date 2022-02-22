@@ -52,7 +52,7 @@ const fetchVariants = async () => {
   try {
     const response = await $fetch('/api/v1/variants', { params: variantParams.value })
     variants.value = response.docs
-    console.log('variants', variants.value)
+    // console.log('variants', variants.value)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -122,7 +122,7 @@ const updateVariant = (attribute, termId) => {
 }
 
 const updateVariants = async (event) => {
-  console.log('ECV', event)
+  // console.log('ECV', event)
   await deleteVariants()
   variants.value = event
   await createVariants()

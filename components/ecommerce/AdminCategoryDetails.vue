@@ -14,8 +14,8 @@ const details = reactive({
 watch(
   () => details,
   (current, old) => {
-    console.log(current)
-    console.log(old)
+    // console.log(current)
+    // console.log(old)
     emit('detailsEmitted', current)
   },
   { deep: true }

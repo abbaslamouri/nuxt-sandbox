@@ -12,7 +12,7 @@ const digitalDelivery = reactive({
 watch(
   () => digitalDelivery,
   (current) => {
-    console.log(current)
+    // console.log(current)
     emit('digitalDeliveryEmitted', current)
   },
   { deep: true }

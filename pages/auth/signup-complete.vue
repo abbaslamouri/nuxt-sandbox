@@ -21,7 +21,7 @@ const signupComplete = async () => {
       params: { token: route.query.token },
       body: { ...user },
     })
-    console.log(response)
+    // console.log(response)
     auth.user = response.user
     auth.token = response.token
     appMessage.successMsg = 'Registration successfull.  You are now logged in.'

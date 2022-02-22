@@ -34,7 +34,7 @@ export default (err, req, res, next) => {
     )
   }
 
-  console.log('ERR', error.message)
+  // console.log('ERR', error.message)
   // console.log('ERR', error.message.split(',').join('<br>'))?
 
   res.status(error.statusCode || 500).json({

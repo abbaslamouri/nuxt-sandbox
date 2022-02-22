@@ -28,9 +28,9 @@ export const useAuth = defineStore('auth', {
         // this.user = response.user
         // this.token = response.token
         this.message = response.message
-        console.log(response)
+        // console.log(response)
       } catch (err) {
-        console.log('MyERROR', err.data)
+        // console.log('MyERROR', err.data)
         this.errorMsg = err.data
       }
     },
@@ -67,9 +67,9 @@ export const useAuth = defineStore('auth', {
         this.user = response.user
         this.token = response.token
         this.message = response.message
-        console.log(response)
+        // console.log(response)
       } catch (err) {
-        console.log('MyERROR', err.data)
+        // console.log('MyERROR', err.data)
         this.errorMsg = err.data
       }
     },
@@ -79,9 +79,9 @@ export const useAuth = defineStore('auth', {
       try {
         const response = await $fetch('auth/forgot-password', { baseURL: this.apiURL, method: 'POST', body: payload })
         this.message = response.message
-        console.log(response)
+        // console.log(response)
       } catch (err) {
-        console.log('MyERROR', err.data)
+        // console.log('MyERROR', err.data)
         this.errorMsg = err.data
       }
     },
@@ -91,9 +91,9 @@ export const useAuth = defineStore('auth', {
       try {
         const response = await $fetch('auth/resetpassword', { baseURL: this.apiURL, method: 'PATCH', body: payload })
         this.message = response.message
-        console.log(response)
+        // console.log(response)
       } catch (err) {
-        console.log('MyERROR', err.data)
+        // console.log('MyERROR', err.data)
         this.errorMsg = err.data
       }
     },

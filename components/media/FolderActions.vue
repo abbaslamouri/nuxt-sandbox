@@ -70,7 +70,7 @@ const deleteFolder = async () => {
   }
   try {
     const response = await $fetch('/api/v1/folders/', { method: 'DELETE', params: { id: props.selectedFolder._id } })
-    console.log(response)
+    // console.log(response)
     emit('folderDeleted')
     appMessage.setSnackbar(true, `Folder ${props.selectedFolder.name} deleted succesfully`, 'Success', 5)
   } catch (error) {

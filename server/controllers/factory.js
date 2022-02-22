@@ -11,7 +11,7 @@ const getAllDocs = async (Model, params) => {
   let features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
   let docs = []
   if (params.populate) {
-    console.log(params.populate)
+    // console.log(params.populate)
     const populateOptions = `${params.populate.split(',').join(' ')}`
     docs = await features.query.populate(populateOptions)
   } else {

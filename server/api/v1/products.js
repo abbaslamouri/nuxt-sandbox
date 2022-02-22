@@ -11,9 +11,9 @@ export default async (req, res) => {
   const params = useQuery(req)
   const cookies = useCookies(req)
   const urlPath = req.url.split('/')
-  console.log('reqUrl', req.url)
-  console.log('URLPATH', urlPath)
-  console.log('PARAMSX', params)
+  // console.log('reqUrl', req.url)
+  // console.log('URLPATH', urlPath)
+  // console.log('PARAMSX', params)
 
   const protect = async () => {
     if (!cookies.auth) {
@@ -43,9 +43,9 @@ export default async (req, res) => {
   }
 
   if (req.method === 'GET' && req.url.includes('/slug')) {
-    console.log('PPPPP', params.slug)
+    // console.log('PPPPP', params.slug)
     const doc = await Model.find({ slug: params.slug })
-    console.log('DDDDD', doc)
+    // console.log('DDDDD', doc)
     return doc.length ? doc[0] : null
   }
 
@@ -118,7 +118,7 @@ export default async (req, res) => {
         newError.statusCode = 403
         throw newError
       }
-      console.log('OOOOOOO', user)
+      // console.log('OOOOOOO', user)
       body.createdBy = user._id
       const doc = await Model.create(body)
       if (!doc) {
@@ -129,7 +129,7 @@ export default async (req, res) => {
       }
       return doc
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -151,7 +151,7 @@ export default async (req, res) => {
       }
       return doc
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -170,7 +170,7 @@ export default async (req, res) => {
       }
       return null
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message

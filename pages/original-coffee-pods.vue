@@ -3,7 +3,7 @@
 	provide('state', state)
 	provide('actions', actions)
 	const route = useRoute()
-	console.log(route.name)
+	// console.log(route.name)
 	const page = ref(1)
 	const perPage = ref(10)
 	const selectedCategories = ref('')
