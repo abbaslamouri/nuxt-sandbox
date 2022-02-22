@@ -16,7 +16,6 @@ const productDetails = reactive({
 watch(
   () => productDetails,
   (current) => {
-    console.log(current)
     emit('productDetailsEmitted', current)
   },
   { deep: true }

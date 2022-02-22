@@ -19,16 +19,16 @@ defineEmits(['slideoutEventEmitted'])
     </header>
     <div class="content">
       <div>Different types of this product (e.g. size, color)</div>
-      <!-- <div class="variants">
-        <div class="variant" v-for="variant in productvariants" :key="attribute.attribute._id">
-          <p class="attribute-name">{{ attribute.attribute.name }}:</p>
+      <div class="variants">
+        <!-- <div class="variant" v-for="variant in productVariants" :key="variant._id">
+          <p class="variant-name">{{ attribute.attribute.name }}:</p>
           <div class="terms">
             <div class="term" v-for="term in attribute.terms" :key="term._id">
               <span class="term-name">{{ term.name }}</span>
             </div>
           </div>
-        </div>
-      </div> -->
+        </div> -->
+      </div>
     </div>
   </section>
 </template>

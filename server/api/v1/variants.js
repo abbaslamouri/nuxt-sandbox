@@ -16,14 +16,30 @@ export default async (req, res) => {
       features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
       const docs = await features.query
         .populate('gallery', { path: 1, mimetype: 1 })
-        .populate('attrTerms', { name: 1, slug: 1 })
-        // .populate('product', { name: 1, slug: 1 })
+        // .populate('attrTerms', { name: 1, slug: 1, parent: 1 })
+        .populate({
+          path: 'attrTerms',
+          model: 'Attributeterm',
+          populate: {
+            path: 'parent',
+            model: 'Attribute',
+          },
+        })
+      // .populate('attrTerms.parent', { name: 1, slug: 1 })
+      // .populate('product', { name: 1, slug: 1 })
       return { docs, count: featured.length, totalCount: allDocs.length }
     } catch (error) {
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
     }
+  }
+
+  if (req.method === 'POST' && req.url.includes('/delete-many')) {
+    console.log('VVVVVV', params.id)
+    const docs = await Model.deleteMany({ product: params.id })
+    console.log('VVVVVDDDDDD', docs)
+    return docs
   }
 
   if (req.method === 'POST') {

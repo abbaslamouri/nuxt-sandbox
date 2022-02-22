@@ -60,7 +60,7 @@ const updateVariant = (attribute, termId) => {
 
 <template>
   <div class="admin-product-variant row">
-    {{ cardVariant }}
+    <!-- {{ cardVariant }} -->
     <div class="thumb td" @click="$emit('showVariantSlideout')">
       <img v-if="cardVariant.gallery[0]" :src="cardVariant.gallery[0].path" alt="Variant Image" />
       <img v-else src="/placeholder.png" alt="Variant Image" />
@@ -68,30 +68,26 @@ const updateVariant = (attribute, termId) => {
     <div class="option td" @click="$emit('showVariantSlideout')">
       <div v-for="term in cardVariant.attrTerms" :key="term" class="attribute-term">
         <div class="attribute">
-          <!-- {{ attributes.find((a) => a._id == term.parent._id).name }} -->
+          {{ attributes.find((a) => a._id == term.parent._id).name }}
         </div>
         <div class="term">
-          <!-- {{ attributeTerms.find((t) => t._id == term._id).name }} -->
+          {{ attributeTerms.find((t) => t._id == term._id).name }}
         </div>
       </div>
     </div>
     <div class="stock-qty td">
-      <!-- <div v-if="!prodState.selectedItem.manageInventory">&infin;</div> -->
-      <!-- <div v-else>{{ prodVariant.stockQty }}</div> -->
+      <div v-if="!cardVariant.manageInventory">&infin;</div>
+      <div v-else>{{ cardVariant.stockQty }}</div>
     </div>
-    <!-- <div class="price td">{{ prodVariant.price }}</div> -->
-    <!-- <div class="sku td">{{ prodVariant.sku }}</div> -->
+    <div class="price td">{{ cardVariant.price }}</div>
+    <div class="sku td">{{ cardVariant.sku }}</div>
     <div class="actions td">
-      <!-- <button class="btn" @click.prevent="showActions = !showActions"><IconsMoreHoriz /></button>
+      <button class="btn" @click.prevent="showActions = !showActions"><IconsMoreHoriz /></button>
       <div class="menu shadow-md" v-show="showActions">
-        <a href="#" class="link"><div class="advanced">Advanced</div></a>
         <a href="#" class="link" @click.prevent="removeProductVariant">
           <div class="cancel">Delete</div>
         </a>
-        <a href="#" class="link" @click.prevent="attState.items.splice(i, 1)">
-          <div class="cancel">Cancel</div>
-        </a>
-      </div> -->
+      </div>
     </div>
   </div>
 </template>

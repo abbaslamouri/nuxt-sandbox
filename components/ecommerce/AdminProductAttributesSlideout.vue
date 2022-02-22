@@ -8,7 +8,7 @@ const props = defineProps({
   productId: {
     type: String,
   },
-  showSlideout: {
+  showAttributesSlideout: {
     type: Boolean,
   },
 })
@@ -73,7 +73,7 @@ const insertEmptyAttribute = () => {
   })
 }
 
-const updateCompAttribute = (event) => {
+const updateAttribute = (event) => {
   console.log('MNMNMNM')
   slideoutAttributes.value[event.index] = event.attr
 }
@@ -131,11 +131,11 @@ const saveslideoutAttributes = () => {
   console.log('CCCC', slideoutAttributes.value)
   emit('slideoutAttributesUpdated', slideoutAttributes.value)
 
-  // showSlideout.value = false
+  // showAttributesSlideout.value = false
   // emit('productAttributesUpdated', newAttributes)
 }
 
-const updateslideoutAttributes = async () => {
+const updateAttributes = async () => {
   const newAttributes = []
   for (const prop in slideoutAttributes.value) {
     if (Object.values(slideoutAttributes.value[prop].attribute).length)
@@ -146,7 +146,7 @@ const updateslideoutAttributes = async () => {
   emit('slideoutAttributesUpdated', slideoutAttributes.value)
   emit('slideoutEventEmitted', false)
 
-  // showSlideout.value = false
+  // showAttributesSlideout.value = false
   // emit('productAttributesUpdated', newAttributes)
 }
 
@@ -161,7 +161,7 @@ const updateVariants = async (event) => {
   // await deleteVariants()
   // variants.value = event
   // await createVariants()
-  // showSlideout.value = false
+  // showAttributesSlideout.value = false
   // emit('saveVariants')
 }
 
@@ -180,7 +180,7 @@ const updateVariants = async (event) => {
     <div class="overlay"></div>
     <div class="slideout__wrapper" @click.self="closeSlideout">
       <transition name="slideout">
-        <div class="slideout__content" v-show="showSlideout">
+        <div class="slideout__content" v-show="showAttributesSlideout">
           <section class="attributes">
             <div class="header shadow-md">
               <h3 class="title">Edit Attributes</h3>
@@ -220,7 +220,7 @@ const updateVariants = async (event) => {
                         :attributeTerms="attributeTerms"
                         :productAttribute="attribute"
                         :index="index"
-                        @cardAttributeUpdated="updateCompAttribute"
+                        @cardAttributeUpdated="updateAttribute"
                         @attributeToDeleteSelected="slideoutAttributes.splice($event, 1)"
                       />
                     </div>
@@ -230,7 +230,7 @@ const updateVariants = async (event) => {
             </div>
             <div class="footer actions shadow-md">
               <button class="btn btn-secondary cancel" @click.prevent="cancelAttributes">Cancel</button>
-              <button class="btn btn-primary save" @click.prevent="updateslideoutAttributes">Save Changes</button>
+              <button class="btn btn-primary save" @click.prevent="updateAttributes">Save Changes</button>
             </div>
           </section>
         </div>

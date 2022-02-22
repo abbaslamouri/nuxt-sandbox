@@ -18,7 +18,7 @@ const page = ref(1)
 const perPage = ref(6)
 const sortField = ref('createdAt')
 const sortOrder = ref('-')
-console.log(route)
+// console.log(route)
 
 const pages = computed(() =>
   count.value % perPage.value ? parseInt(count.value / perPage.value) + 1 : parseInt(count.value / perPage.value)
@@ -32,6 +32,7 @@ const params = computed(() => {
     limit: perPage.value,
     sort: `${sortOrder.value}${sortField.value}`,
     keyword: keyword.value,
+    indexPage: true,
   }
 })
 
@@ -39,10 +40,11 @@ const fetchAll = async () => {
   appMessage.errorMsg = null
   try {
     const response = await $fetch('/api/v1/products', { params: params.value })
+    console.log(response)
+
     products.value = response.docs
     count.value = response.count
     totalCount.value = response.totalCount
-    console.log(response)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -50,6 +52,7 @@ const fetchAll = async () => {
 
 // Fetch all
 await fetchAll()
+console.log('P', products.value)
 
 // Search
 const handleSearch = async (event) => {
@@ -93,7 +96,7 @@ export default {
         </button>
       </NuxtLink>
     </header>
-    <div class="main" v-if="products">
+    <div class="main" v-if="products.length">
       <div class="content">
         <Search @searchKeywordSelected="handleSearch" />
         <div class="admin-product-list">

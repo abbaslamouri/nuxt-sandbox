@@ -14,12 +14,12 @@ const props = defineProps({
   productId: {
     type: String,
   },
-  showSlideout: {
+  showVariantsSlideout: {
     type: Boolean,
   },
 })
 
-const emit = defineEmits(['saveVariants', 'slideoutEventEmitted', 'slideoutAttributesUpdated'])
+const emit = defineEmits(['saveVariants', 'slideoutEventEmitted', 'slideoutVariantsUpdated'])
 
 const appMessage = useMessage()
 const attributes = ref([])
@@ -35,6 +35,9 @@ const showSalePricesInput = ref(false)
 for (const prop in props.productVariants) {
   slideoutVariants.value.push(props.productVariants[prop])
 }
+const currentVariants = JSON.stringify(slideoutVariants.value)
+
+console.log('COMPARE', currentVariants === JSON.stringify(slideoutVariants.value))
 
 const variantActions = ref([
   { key: 'create-all', name: 'Create variations form all attribute', disable: false },
@@ -73,7 +76,6 @@ const variantActions = ref([
   },
 ])
 
-const currentAttributes = JSON.stringify(props.productVariants)
 const attributeParams = computed(() => {
   return {
     fields: 'name, slug',
@@ -107,9 +109,9 @@ const fetchAttributeTerms = async () => {
   }
 }
 
-for (const prop in props.productVariants) {
-  slideoutAttributes.value.push(props.productVariants[prop])
-}
+// for (const prop in props.productVariants) {
+//   slideoutVariants.value.push(props.productVariants[prop])
+// }
 
 await Promise.all([fetchAttributes(), fetchAttributeTerms()])
 
@@ -155,10 +157,10 @@ const bulkAddVariants = () => {
 }
 
 const insertEmptyAttribute = () => {
-  console.log(slideoutAttributes.value.length == attributes.value.length)
-  if (slideoutAttributes.value.length == attributes.value.length)
+  console.log(slideoutVariants.value.length == attributes.value.length)
+  if (slideoutVariants.value.length == attributes.value.length)
     return (appMessage.errorMsg = 'You have used all available attributes')
-  slideoutAttributes.value.push({
+  slideoutVariants.value.push({
     attribute: {},
     terms: [],
     defaultTerm: '',
@@ -169,7 +171,7 @@ const insertEmptyAttribute = () => {
 
 const updateCompAttribute = (event) => {
   console.log('MNMNMNM')
-  slideoutAttributes.value[event.index] = event.attr
+  slideoutVariants.value[event.index] = event.attr
 }
 
 const getAttribute = (attributeId) => {
@@ -197,9 +199,9 @@ const updateVariant = (attribute, termId) => {
 }
 
 const closeSlideout = () => {
-  console.log('Before', JSON.parse(currentAttributes))
-  console.log('COMPARE', currentAttributes === JSON.stringify(slideoutAttributes.value))
-  if (currentAttributes !== JSON.stringify(slideoutAttributes.value)) return (showAlert.value = true)
+  console.log('Before', JSON.parse(currentVariants))
+  console.log('COMPARE', currentVariants === JSON.stringify(slideoutVariants.value))
+  if (currentVariants !== JSON.stringify(slideoutVariants.value)) return (showAlert.value = true)
   emit('slideoutEventEmitted', false)
   // const newAttributes = []
   // for (const prop in props.productVariants) {
@@ -210,38 +212,29 @@ const closeSlideout = () => {
   // console.log('After', props.productVariants)
 }
 
-const saveslideoutAttributes = () => {
+const saveslideoutVariants = () => {
   const newAttributes = []
-  for (const prop in slideoutAttributes.value) {
-    if (Object.values(slideoutAttributes.value[prop].attribute).length)
-      newAttributes.push(slideoutAttributes.value[prop])
+  for (const prop in slideoutVariants.value) {
+    if (Object.values(slideoutVariants.value[prop].attribute).length) newAttributes.push(slideoutVariants.value[prop])
   }
-  slideoutAttributes.value = newAttributes
-  console.log('CCCC', slideoutAttributes.value)
-  emit('slideoutAttributesUpdated', slideoutAttributes.value)
+  slideoutVariants.value = newAttributes
+  console.log('CCCC', slideoutVariants.value)
+  emit('slideoutVariantsUpdated', slideoutVariants.value)
 
-  // showSlideout.value = false
+  // showVariantsSlideout.value = false
   // emit('productVariantsUpdated', newAttributes)
 }
 
-const updateslideoutAttributes = async () => {
-  const newAttributes = []
-  for (const prop in slideoutAttributes.value) {
-    if (Object.values(slideoutAttributes.value[prop].attribute).length)
-      newAttributes.push(slideoutAttributes.value[prop])
-  }
-  slideoutAttributes.value = newAttributes
-  console.log('CCCC', slideoutAttributes.value)
-  emit('slideoutAttributesUpdated', slideoutAttributes.value)
+const updatesVariants = async () => {
+  emit('slideoutVariantsUpdated', slideoutVariants.value)
   emit('slideoutEventEmitted', false)
 
-  // showSlideout.value = false
+  // showVariantsSlideout.value = false
   // emit('productVariantsUpdated', newAttributes)
 }
 
-const cancelAttributes = () => {
-  slideoutAttributes.value = JSON.parse(currentAttributes)
-  // emit('productVariantsUpdated', JSON.parse(currentAttributes))
+const cancelVariants = () => {
+  slideoutVariants.value = JSON.parse(currentVariants)
   emit('slideoutEventEmitted', false)
 }
 
@@ -250,15 +243,15 @@ const updateVariants = async (event) => {
   // await deleteVariants()
   // variants.value = event
   // await createVariants()
-  // showSlideout.value = false
+  // showVariantsSlideout.value = false
   // emit('saveVariants')
 }
 
 // watch(
-//   () => slideoutAttributes.value,
+//   () => slideoutVariants.value,
 //   (current) => {
 //     console.log(current)
-//     emit('slideoutAttributesUpdated', slideoutAttributes.value)
+//     emit('slideoutVariantsUpdated', slideoutVariants.value)
 //   },
 //   { deep: true }
 // )
@@ -269,14 +262,14 @@ const updateVariants = async (event) => {
     <div class="overlay"></div>
     <div class="slideout__wrapper" @click.self="closeSlideout">
       <transition name="slideout">
-        <div class="slideout__content" v-show="showSlideout">
+        <div class="slideout__content" v-show="showVariantsSlideout">
           <section class="variants">
             <div class="header shadow-md">
               <h3 class="title">Edit Variants</h3>
               <button class="btn close"><IconsClose @click.prevent="closeSlideout" /></button>
             </div>
             <div class="main">
-              <pre style="font-size: 1rem">======={{ slideoutVariants }}</pre>
+              <pre style="font-size: 1rem">{{ productVariants }}=======+++++++++++++{{ slideoutVariants }}</pre>
               <div v-if="!productId">
                 <EcommerceAdminProductEmptyVariantMsg
                   :productId="productId"
@@ -335,8 +328,8 @@ const updateVariants = async (event) => {
               </div>
             </div>
             <div class="footer actions shadow-md">
-              <button class="btn btn-secondary cancel" @click.prevent="cancelAttributes">Cancel</button>
-              <button class="btn btn-primary save" @click.prevent="updateslideoutAttributes">Save Changes</button>
+              <button class="btn btn-secondary cancel" @click.prevent="cancelVariants">Cancel</button>
+              <button class="btn btn-primary save" @click.prevent="updatesVariants">Save Changes</button>
             </div>
           </section>
         </div>

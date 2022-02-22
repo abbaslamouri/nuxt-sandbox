@@ -13,8 +13,7 @@ export default async (req, res) => {
   const urlPath = req.url.split('/')
   console.log('reqUrl', req.url)
   console.log('URLPATH', urlPath)
-  console.log('PARAMS', params)
-  console.log('PARAMS', params)
+  console.log('PARAMSX', params)
 
   const protect = async () => {
     if (!cookies.auth) {
@@ -52,43 +51,55 @@ export default async (req, res) => {
 
   if (req.method === 'GET') {
     let features
+    let docs
     try {
       const allDocs = await Model.find()
       features = new ApiFeatures(Model.find(), params).filter().fields().search().sort()
       const featured = await features.query
       features = new ApiFeatures(Model.find(), params).filter().fields().search().sort().paginate()
-      const docs = await features.query
-        .populate('gallery', { name: 1, path: 1, mimetype: 1 })
-        .populate('categories', { name: 1, slug: 1 })
-        .populate('attributes.attribute', { name: 1, slug: 1 })
-        // .populate('attributes.terms', { name: 1, slug: 1, parent: 1 })
-        // .populate('attributes.defaultTerm', { name: 1, slug: 1, parent: 1 })
-        .populate({
-          path: 'attributes',
-          model: 'Attribute',
-          populate: {
-            path: 'terms',
-            model: 'Attributeterm',
+      if (params.fields && params.indexPage) {
+        docs = await features.query.populate('gallery', { name: 1, path: 1, mimetype: 1 })
+      } else {
+        docs = await features.query
+          .populate({ path: 'gallery', model: 'Media' })
+          .populate({ path: 'categories', model: 'Category' })
+          // .populate('', { name: 1, slug: 1 })
+          .populate({
+            path: 'attributes',
+            model: 'Attribute',
             populate: {
-              path: 'parent',
+              path: 'attribute',
               model: 'Attribute',
-              // select: 'name slug',
             },
-          },
-        })
-        .populate({
-          path: 'attributes',
-          model: 'Attribute',
-          populate: {
-            path: 'defaultTerm',
-            model: 'Attributeterm',
+          })
+          // .populate('attributes.attribute', { name: 1, slug: 1 })
+          .populate({
+            path: 'attributes',
+            model: 'Attribute',
             populate: {
-              path: 'parent',
-              model: 'Attribute',
-              // select: 'name slug',
+              path: 'terms',
+              model: 'Attributeterm',
+              populate: {
+                path: 'parent',
+                model: 'Attribute',
+                // select: 'name slug',
+              },
             },
-          },
-        })
+          })
+          .populate({
+            path: 'attributes',
+            model: 'Attribute',
+            populate: {
+              path: 'defaultTerm',
+              model: 'Attributeterm',
+              populate: {
+                path: 'parent',
+                model: 'Attribute',
+                // select: 'name slug',
+              },
+            },
+          })
+      }
       return { docs, count: featured.length, totalCount: allDocs.length }
     } catch (error) {
       const err = errorHandler(error)

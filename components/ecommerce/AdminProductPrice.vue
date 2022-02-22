@@ -12,7 +12,6 @@ const productPrice = reactive({
 watch(
   () => productPrice,
   (current) => {
-    console.log(current)
     emit('productPriceEmitted', current)
   },
   { deep: true }

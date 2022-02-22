@@ -17,8 +17,8 @@ const variants = ref([])
 const categories = ref([])
 const attributes = ref([])
 const attributeTerms = ref([])
-const showSlideout = ref(false)
-const showVariantSlideout = ref(false)
+const showAttributesSlideout = ref(false)
+const showVariantsSlideout = ref(false)
 const showMediaSelector = ref(false) // media selector toggler
 const mediaReference = ref({}) // sets which media to update once a selection is made
 const galleryIntro = ref('This image gallery contains all images associated with this product including its variants.')
@@ -29,12 +29,13 @@ const productParams = computed(() => {
   return {
     fields: 'name, slug, price, permalink, categories, decsription, attributes, gallery',
     slug,
+    indexPage: false,
   }
 })
 
 const variantParams = computed(() => {
   return {
-    fields: 'product, parent, attributeTerms, gallery',
+    fields: 'product, attrTerms, gallery',
   }
 })
 const categoryParams = computed(() => {
@@ -59,8 +60,8 @@ const attributeTermsParams = computed(() => {
 const fetchProduct = async () => {
   appMessage.errorMsg = null
   try {
-    let response = await $fetch('/api/v1/products', { params: productParams.value })
-    if (response) {
+    if (slug) {
+      let response = await $fetch('/api/v1/products', { params: productParams.value })
       product.value = response.docs[0]
       await fetchVariants()
     } else {
@@ -244,6 +245,8 @@ const saveProduct = async () => {
   appMessage.errorMsg = null
   let response = null
   try {
+    if (!product.value.name || !product.value.price)
+      return (appMessage.errorMsg = 'Product name and price are required')
     if (currentProduct === JSON.stringify(product.value)) return
     if (product.value._id) {
       response = await $fetch('/api/v1/products', {
@@ -258,16 +261,9 @@ const saveProduct = async () => {
       })
     }
     console.log('savedProduct', response)
-    // router.push(`/admin/ecommerce/products/${response.slug}`)
-    // router.push({ name: `admin-ecommerce-products-slug`, params: { slug: response.slug } })
-    // productParams.value.slug = response.slug
-    // response = await $fetch('/api/v1/products', { params: productParams.value })
-    // console.log('ZZZZZZZZZZZZZZZ', response)
-    // product.value = response.docs[0]
-
     // product.value = response
+    router.push({ name: 'admin-ecommerce-products-slug', params: { slug: response.slug } })
     appMessage.successMsg = 'Product saved succesfully'
-    // product.value = response
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -316,9 +312,38 @@ const updateAttributes = async (event) => {
 }
 
 const updateVariants = async (event) => {
-  product.value.attributes = event
-  console.log(product.value.attributes)
-  await saveProduct()
+  variants.value = event
+  console.log('VVVVV', variants.value)
+  appMessage.errorMsg = null
+  let response = null
+  let message = ''
+  let error = ''
+  const newVariants = []
+  try {
+    response = await $fetch('/api/v1/variants/delete-many', {
+      method: 'POST',
+      params: { id: product.value._id },
+    })
+    console.log('deletedCount', response.deletedCount)
+    await Promise.all(
+      variants.value.map(async (variant) => {
+        try {
+          const response = await $fetch(`/api/v1/variants`, {
+            method: 'POST',
+            body: variant,
+          })
+          newVariants.push(response)
+          message += ` deleted.<br>`
+        } catch (err) {
+          console.error('MyERROR', err)
+          error += `${err.data}.<br>`
+        }
+      })
+    )
+    variants.value = newVariants
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
 }
 
 // Set category gallery
@@ -379,7 +404,7 @@ const updateProductCategories = (event) => {
 
 const xxx = async (event) => {
   console.log(event)
-  showSlideout.value = true
+  showAttributesSlideout.value = true
 }
 </script>
 
@@ -394,6 +419,7 @@ const xxx = async (event) => {
     </NuxtLink>
 
     <h3 class="header">Edit Product</h3>
+    <pre style="font-size: 1rem">{{ variants }}</pre>
     <div class="columns">
       <div class="left shadow-md">
         <EcommerceAdminProductLeftSidebar :product="product" />
@@ -411,31 +437,31 @@ const xxx = async (event) => {
         <section class="attributes" id="attributes">
           <EcommerceAdminProductAttributesContent
             :productAttributes="product.attributes"
-            @slideoutEventEmitted="showSlideout = $event"
+            @slideoutEventEmitted="showAttributesSlideout = $event"
           />
           <EcommerceAdminProductAttributesSlideout
-            v-show="showSlideout"
+            v-show="showAttributesSlideout"
             :productAttributes="product.attributes"
             :productId="product._id"
-            :showSlideout="showSlideout"
-            @slideoutEventEmitted="showSlideout = $event"
+            :showAttributesSlideout="showAttributesSlideout"
+            @slideoutEventEmitted="showAttributesSlideout = $event"
             @slideoutAttributesUpdated="updateAttributes"
           />
         </section>
         <section class="variants" id="variants">
           <EcommerceAdminProductVariantsContent
             :productVariants="variants"
-            @slideoutEventEmitted="showVariantSlideout = $event"
+            @slideoutEventEmitted="showVariantsSlideout = $event"
           />
           <EcommerceAdminProductVariantsSlideout
-            v-show="showVariantSlideout"
+            v-show="showVariantsSlideout"
             :product="product"
             :productVariants="variants"
             :productAttributes="product.attributes"
             :productId="product._id"
-            :showSlideout="showVariantSlideout"
-            @slideoutEventEmitted="showVariantSlideout = $event"
-            @slideoutVariantUpdated="updateVariants"
+            :showVariantsSlideout="showVariantsSlideout"
+            @slideoutEventEmitted="showVariantsSlideout = $event"
+            @slideoutVariantsUpdated="updateVariants"
           />
         </section>
         <!-- <LazyEcommerceAdminProductAttributes

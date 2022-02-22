@@ -25,7 +25,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['cardAttributeUpdated', 'attributeToDeleteSelected'])
+const emit = defineEmits(['cardAttributeUpdated', 'cardAttributeAttributeUpdated', 'attributeToDeleteSelected'])
 
 const cardAttribute = ref({})
 const cardAttributeId = ref('')
@@ -54,9 +54,22 @@ const attributeTermsSelectOptions = () =>
       return { key: t._id, name: t.name }
     })
 
-const setCardAttribute = () => {
-  const attr = props.attributes.find((a) => a._id == cardAttributeId.value)
-  cardAttribute.value.attribute = attr
+const updateAttribute = () => {
+  const newAttr = props.attributes.find((a) => a._id == cardAttributeId.value)
+  cardAttribute.value.attribute = newAttr
+  cardAttribute.value.terms = []
+  const newAttrTerms = props.attributeTerms.filter((t) => t.parent._id == cardAttributeId.value)
+  cardAttribute.value.defaultTerm = newAttrTerms[0]
+  cardDefaultTermId.value = cardAttribute.value.defaultTerm._id
+
+  // for (const prop in prodState.selectedItem.attributes[props.i].terms) {
+  //   removeVariantByTermId(prodState.selectedItem.attributes[props.i].terms[prop]._id)
+  // }
+  // prodState.selectedItem.attributes[props.i].terms = []
+  // prodState.selectedItem.attributes[props.i].attribute = attributes.find((a) => a._id == attributeSelect.value)
+  // prodState.selectedItem.attributes[props.i].defaultTerm = attTermsState.items.find(
+  //   (t) => t.parent == attributeSelect.value
+  // )
 }
 
 const setTermToDelete = (termId) => {
@@ -94,18 +107,6 @@ const removeDuplicateVariants = () => {
   //     .values()
   // )
 }
-
-// const setCardAttribute = () => {
-// for (const prop in prodState.selectedItem.attributes[props.i].terms) {
-//   removeVariantByTermId(prodState.selectedItem.attributes[props.i].terms[prop]._id)
-// }
-// prodState.selectedItem.attributes[props.i].terms = []
-// prodState.selectedItem.attributes[props.i].attribute = attributes.find((a) => a._id == attributeSelect.value)
-// prodState.selectedItem.attributes[props.i].defaultTerm = attTermsState.items.find(
-//   (t) => t.parent == attributeSelect.value
-// )
-// cardDefaultTerm.value = prodState.selectedItem.attributes[props.i].defaultTerm._id
-// }
 
 const setDefaultTerm = () => {
   const term = props.attributeTerms.find((t) => t._id == cardDefaultTermId.value)
@@ -245,7 +246,7 @@ watch(
     <pre style="font-size: 1rem"></pre>
     <div class="attribute td">
       <div class="base-select">
-        <select v-model="cardAttributeId" @change="setCardAttribute" class="centered">
+        <select v-model="cardAttributeId" @change="updateAttribute" class="centered">
           <option value="">Attribute</option>
           <option
             v-for="option in attributesSelectOptions()"

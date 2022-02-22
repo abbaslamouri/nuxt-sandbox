@@ -1,4 +1,6 @@
 import mongoose from 'mongoose'
+import Product from '~/server/models/product'
+import Attributeterm from '~/server/models/attributeterm'
 
 const schema = new mongoose.Schema(
   {
@@ -18,8 +20,8 @@ const schema = new mongoose.Schema(
     //   unique: true,
     //   lowercase: true,
     // },
-    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-    attrTerms: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attributeterm' }],
+    product: { type: mongoose.Schema.Types.ObjectId, ref: Product },
+    attrTerms: [{ type: mongoose.Schema.Types.ObjectId, ref: Attributeterm }],
     enabled: {
       type: Boolean,
       default: true,
