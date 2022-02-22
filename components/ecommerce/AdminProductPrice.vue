@@ -1,27 +1,12 @@
 <script setup>
-const props = defineProps({
-  product: {
-    type: Object,
-  },
-})
-const emit = defineEmits(['productPriceEmitted'])
-const productPrice = reactive({
-  price: props.product.price,
-})
-
-watch(
-  () => productPrice,
-  (current) => {
-    emit('productPriceEmitted', current)
-  },
-  { deep: true }
-)
+import { useStore } from '~/store/useStore'
+const store = useStore()
 </script>
 
 <template>
   <section class="price shadow-md" id="price">
     <header class="admin-section-header">Price</header>
-    <FormsBaseInput label="Price" required currency v-model="productPrice.price" />
+    <FormsBaseInput label="Price" required currency v-model="store.product.price" />
   </section>
 </template>
 

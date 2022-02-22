@@ -1,51 +1,28 @@
 <script setup>
-const props = defineProps({
-  product: {
-    type: Object,
-  },
-})
-const emit = defineEmits(['productDetailsEmitted'])
-const productDetails = reactive({
-  name: props.product.name,
-  sku: props.product.sku,
-  stockQty: props.product.stockQty,
-  manageInventory: props.product.manageInventory,
-  description: props.product.description,
-})
+import { useStore } from '~/store/useStore'
+const store = useStore()
 
-watch(
-  () => productDetails,
-  (current) => {
-    emit('productDetailsEmitted', current)
-  },
-  { deep: true }
-)
 </script>
 
 <template>
   <section class="details shadow-md" id="details">
     <header class="admin-section-header">Details</header>
     <div class="content">
-      <FormsBaseInput label="Name" placeholder="Name" required v-model="productDetails.name" />
+      <FormsBaseInput label="Name" placeholder="Name" required v-model="store.product.name" />
       <div class="sku-inventory">
         <div class="sku">
-          <FormsBaseInput label="SKU" placeholder="SKU" v-model="productDetails.sku" />
+          <FormsBaseInput label="SKU" placeholder="SKU" v-model="store.product.sku" />
         </div>
         <div class="inventory">
           <div class="available">
             <h4 class="title">Available Stock:</h4>
-            <span>{{ productDetails.stockQty || 0 }}</span>
+            <span>{{ store.product.stockQty || 0 }}</span>
           </div>
-          <FormsBaseToggle v-model="productDetails.manageInventory" label="Manage Inventory" />
+          <FormsBaseToggle v-model="store.product.manageInventory" label="Manage Inventory" />
         </div>
       </div>
       <div class="base-textarea">
-        <textarea
-          v-model="productDetails.description"
-          label="Description"
-          placeholder="Description"
-          rows="5"
-        ></textarea>
+        <textarea v-model="store.product.description" label="Description" placeholder="Description" rows="5"></textarea>
         <label>Description</label>
       </div>
     </div>

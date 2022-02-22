@@ -150,7 +150,7 @@ const cancelVariant = () => {
                 </div>
               </div>
               <h3>Variant Details</h3>
-              <EcommerceAdminCategoryGallery
+              <EcommerceAdminImageGallery
                 :gallery="editdVariant.gallery"
                 :galleryIntro="galleryIntro"
                 galleryType="product"

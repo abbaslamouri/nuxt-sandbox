@@ -109,7 +109,7 @@ const updateDetails = (event) => {
     <div class="columns">
       <div class="left">
         <EcommerceAdminCategoryDetails :category="category" @detailsEmitted="updateDetails" />
-        <EcommerceAdminCategoryGallery
+        <EcommerceAdminImageGallery
           :gallery="category.gallery"
           :galleryIntro="galleryIntro"
           @mediaSelectorClicked="showMediaSelector = true"
