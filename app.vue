@@ -31,7 +31,7 @@ const appMessage = useMessage()
         :show="!!appMessage.successMsg"
         :message="appMessage.successMsg"
         snackbarType="Success"
-        duration="5"
+        duration="0"
         @hideSnackbar="appMessage.successMsg = null"
       />
     </NuxtLayout>

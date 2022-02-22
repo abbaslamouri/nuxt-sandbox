@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
 import Category from '~/server/models/category'
 import Media from '~/server/models/media'
+import Attribute from '~/server/models/attribute'
+import Attributeterm from '~/server/models/attributeterm'
 
 const schema = new mongoose.Schema(
   {
@@ -114,11 +116,19 @@ const schema = new mongoose.Schema(
     ],
     attributes: [
       {
-        attribute: { type: mongoose.Schema.Types.ObjectId, ref: 'Attribute' },
+        attribute: { type: mongoose.Schema.Types.ObjectId, ref: Attribute },
         // required: [true, 'Product Category is required'],
-        terms: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Attributeterm' }],
+        terms: [{ type: mongoose.Schema.Types.ObjectId, ref: Attributeterm }],
         // required: [true, 'Product Category is required'],
-        defaultTerm: { type: mongoose.Schema.Types.ObjectId, ref: 'Attributeterm' },
+        defaultTerm: { type: mongoose.Schema.Types.ObjectId, ref: Attributeterm },
+        active: {
+          type: Boolean,
+          default: false,
+        },
+        variation: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
     soldQty: {

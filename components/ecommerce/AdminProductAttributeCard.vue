@@ -25,11 +25,12 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['cardAttributeUpdated'])
+const emit = defineEmits(['cardAttributeUpdated', 'attributeToDeleteSelected'])
 
 const cardAttribute = ref({})
 const cardAttributeId = ref('')
-const cardDefaultTerm = ref('')
+const cardDefaultTerm = ref({})
+const cardDefaultTermId = ref(null)
 const termSelect = ref('')
 const termToDeleteId = ref(null)
 const showSingleTermAlert = ref(false)
@@ -107,12 +108,13 @@ const removeDuplicateVariants = () => {
 // }
 
 const setDefaultTerm = () => {
-  const term = props.attributeTerms.find((t) => t._id == cardDefaultTerm.value)
+  const term = props.attributeTerms.find((t) => t._id == cardDefaultTermId.value)
   console.log(term)
   if (term) cardAttribute.value.defaultTerm = term
 }
 
 const removeProductAttribute = () => {
+  emit('attributeToDeleteSelected', props.index)
   // if (!confirm('Are you sure?')) return
   // // Remove all terms whose parent attarubute is to be deleted and mark all variants with empty eterms fro deletion
   // let j = 0
@@ -260,7 +262,7 @@ watch(
       <div v-if="Object.keys(cardAttribute.attribute).length">
         <FormsBaseSelect
           nullOption="Default Term"
-          v-model="cardDefaultTerm"
+          v-model="cardDefaultTermId"
           @update:modelValue="setDefaultTerm"
           :options="attributeTermsSelectOptions()"
         />

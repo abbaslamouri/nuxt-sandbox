@@ -61,8 +61,34 @@ export default async (req, res) => {
         .populate('gallery', { name: 1, path: 1, mimetype: 1 })
         .populate('categories', { name: 1, slug: 1 })
         .populate('attributes.attribute', { name: 1, slug: 1 })
-        .populate('attributes.terms', { name: 1, slug: 1 })
-        .populate('attributes.defaultTerm', { name: 1, slug: 1 })
+        // .populate('attributes.terms', { name: 1, slug: 1, parent: 1 })
+        // .populate('attributes.defaultTerm', { name: 1, slug: 1, parent: 1 })
+        .populate({
+          path: 'attributes',
+          model: 'Attribute',
+          populate: {
+            path: 'terms',
+            model: 'Attributeterm',
+            populate: {
+              path: 'parent',
+              model: 'Attribute',
+              // select: 'name slug',
+            },
+          },
+        })
+        .populate({
+          path: 'attributes',
+          model: 'Attribute',
+          populate: {
+            path: 'defaultTerm',
+            model: 'Attributeterm',
+            populate: {
+              path: 'parent',
+              model: 'Attribute',
+              // select: 'name slug',
+            },
+          },
+        })
       return { docs, count: featured.length, totalCount: allDocs.length }
     } catch (error) {
       const err = errorHandler(error)

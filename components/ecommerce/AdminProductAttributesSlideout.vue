@@ -67,7 +67,7 @@ const insertEmptyAttribute = () => {
   slideoutAttributes.value.push({
     attribute: {},
     terms: [],
-    defaultTerm: '',
+    defaultTerm: {},
     active: true,
     variation: false,
   })
@@ -76,6 +76,11 @@ const insertEmptyAttribute = () => {
 const updateCompAttribute = (event) => {
   console.log('MNMNMNM')
   slideoutAttributes.value[event.index] = event.attr
+}
+
+const deleteAttribute = (event) => {
+  slideoutAttributes.value.splice(event, 1)
+  console.log(event)
 }
 
 const getAttribute = (attributeId) => {
@@ -216,6 +221,7 @@ const updateVariants = async (event) => {
                         :productAttribute="attribute"
                         :index="index"
                         @cardAttributeUpdated="updateCompAttribute"
+                        @attributeToDeleteSelected="slideoutAttributes.splice($event, 1)"
                       />
                     </div>
                   </div>

@@ -34,7 +34,7 @@ const productParams = computed(() => {
 
 const variantParams = computed(() => {
   return {
-    fields: 'product, parent, attrattributeTerms, gallery',
+    fields: 'product, parent, attributeTerms, gallery',
   }
 })
 const categoryParams = computed(() => {
@@ -257,7 +257,7 @@ const saveProduct = async () => {
         body: product.value,
       })
     }
-    console.log('product', response)
+    console.log('savedProduct', response)
     // router.push(`/admin/ecommerce/products/${response.slug}`)
     // router.push({ name: `admin-ecommerce-products-slug`, params: { slug: response.slug } })
     // productParams.value.slug = response.slug
@@ -311,7 +311,7 @@ const saveProduct = async () => {
 
 const updateAttributes = async (event) => {
   product.value.attributes = event
-  console.log(product.value.attributes)
+  console.log(product.value)
   await saveProduct()
 }
 

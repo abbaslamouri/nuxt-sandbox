@@ -14,14 +14,14 @@ const schema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
-    variation: {
-      type: Boolean,
-      default: false,
-    },
-    active: {
-      type: Boolean,
-      default: false,
-    },
+    // variation: {
+    //   type: Boolean,
+    //   default: false,
+    // },
+    // active: {
+    //   type: Boolean,
+    //   default: false,
+    // },
   },
 
   {
