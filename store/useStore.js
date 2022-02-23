@@ -8,6 +8,7 @@ export const useStore = defineStore('store', {
       categories: [],
       attributes: [],
       attributeTerms: [],
+      showAttributesSlideout:false
     }
   },
 })

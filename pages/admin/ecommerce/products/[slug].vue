@@ -46,19 +46,6 @@ const categoryParams = computed(() => {
   }
 })
 
-const attributeParams = computed(() => {
-  return {
-    fields: 'name, slug',
-  }
-})
-
-// Set query params
-const attributeTermsParams = computed(() => {
-  return {
-    fields: 'name, slug, parent',
-  }
-})
-
 const fetchProduct = async () => {
   appMessage.errorMsg = null
   try {
@@ -112,31 +99,11 @@ const fetchCategories = async () => {
   }
 }
 
-const fetchAttributes = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
-    attributes.value = response.docs
-    store.attributes = response.docs
-    // console.log('Attributes', attributes.value)
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
-const fetchAttributeTerms = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
-    attributeTerms.value = response.docs
-    store.attributeTerms = response.docs
-    // console.log('Terms', attributeTerms.value)
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
 await Promise.all([fetchProduct(), fetchCategories()])
+
+// const pp = useState('pp', () => product.value)
+
+// pp.value = product.value
 
 // await fetchCategories()
 // await fetchAttributes()
@@ -184,7 +151,7 @@ await Promise.all([fetchProduct(), fetchCategories()])
 //   }
 // }
 
-const currentProduct = JSON.stringify(product.value)
+const current = JSON.stringify(store.product)
 const currentVariants = JSON.stringify(variants.value)
 
 ///////////////////////////////
@@ -204,11 +171,11 @@ const currentVariants = JSON.stringify(variants.value)
 // router.beforeEach((to, from) => {
 //   console.log(to)
 
-//   if (currentProduct !== JSON.stringify(prodState.selectedItem)) {
+//   if (current !== JSON.stringify(prodState.selectedItem)) {
 //     const answer = window.confirm('Do you really want to leave? you have unsaved changes!')
 //     // cancel the navigation and stay on the same page
 //     if (!answer) return false
-//     // else currentProduct = JSON.stringify(prodState.selectedItem)
+//     // else current = JSON.stringify(prodState.selectedItem)
 //   }
 // })
 
@@ -258,23 +225,26 @@ const saveProduct = async () => {
   appMessage.errorMsg = null
   let response = null
   try {
-    if (!product.value.name || !product.value.price)
+    if (!store.product.name || !store.product.price)
       return (appMessage.errorMsg = 'Product name and price are required')
-    if (currentProduct === JSON.stringify(product.value)) return
-    if (product.value._id) {
+    if (current === JSON.stringify(store.product)) return (appMessage.errorMsg = 'All is good')
+    store.product.slug = slugify(store.product.name, { lower: true })
+    if (!store.product.permalink) store.product.permalink = slugify(store.product.name, { lower: true })
+
+    if (store.product._id) {
       response = await $fetch('/api/v1/products', {
         method: 'PATCH',
-        body: product.value,
-        params: { id: product.value._id },
+        body: store.product,
+        params: { id: store.product._id },
       })
     } else {
       response = await $fetch('/api/v1/products', {
         method: 'POST',
-        body: product.value,
+        body: store.product,
       })
     }
     // console.log('savedProduct', response)
-    // product.value = response
+    // store.product = response
     router.push({ name: 'admin-ecommerce-products-slug', params: { slug: response.slug } })
     appMessage.successMsg = 'Product saved succesfully'
   } catch (error) {
@@ -303,9 +273,9 @@ const saveProduct = async () => {
   // const itemToSave = { ...prodState.selectedItem }
   // prodState.selectedItem = {
   // variantState.selectedItems = prodState.selectedItem.variants
-  // console.log(currentProduct === JSON.stringify(prodState.selectedItem))
+  // console.log(current === JSON.stringify(prodState.selectedItem))
   // console.log(currentVariants === JSON.stringify(prodState.selectedItem.variants))
-  // if (currentProduct !== JSON.stringify(prodState.selectedItem)) {
+  // if (current !== JSON.stringify(prodState.selectedItem)) {
   //   const newProduct = await prodActions.saveItem()
   //   if (!prodState.errorMsg) {
   //     if (variantState.selectedItems.length && currentVariants !== JSON.stringify(variantState.selectedItems)) {
@@ -336,7 +306,6 @@ const deleteAllVariants = async () => {
 
 const updateAttributes = async (event) => {
   product.value.attributes = event
-  // console.log(product.value)
   await saveProduct()
 }
 
@@ -388,14 +357,14 @@ const selectMedia = async (event) => {
 }
 
 // Update product details
-const updateDetails = (event) => {
-  product.value.name = event.name
-  product.value.description = event.description
-  product.value.sku = event.sku
-  product.value.stockQty = event.stockQty
-  product.value.manageInventory = event.manageInventory
-  product.value.slug = slugify(product.value.name, { lower: true })
-}
+// const updateDetails = (event) => {
+//   product.value.name = event.name
+//   product.value.description = event.description
+//   product.value.sku = event.sku
+//   product.value.stockQty = event.stockQty
+//   product.value.manageInventory = event.manageInventory
+//   product.value.slug = slugify(product.value.name, { lower: true })
+// }
 
 // Upfate product SEO
 const updateProductSeo = (event) => {
@@ -448,26 +417,23 @@ const xxx = async (event) => {
     </NuxtLink>
 
     <h3 class="header">Edit Product</h3>
-    <pre style="font-size: 1rem">{{ store.variants }}</pre>
+    <pre style="font-size: 1rem">{{ store.product }}</pre>
     <div class="columns">
       <div class="left shadow-md">
         <EcommerceAdminProductLeftSidebar :product="product" />
       </div>
 
       <div class="center">
-        <EcommerceAdminProductDetails :product="product" @productDetailsEmitted="updateDetails" />
-        <EcommerceAdminProductPrice :product="product" @productPriceEmitted="product.price = $event.price" />
+        <EcommerceAdminProductDetails :product="product" />
+        <EcommerceAdminProductPrice :product="product" />
         <EcommerceAdminImageGallery
-          :gallery="product.gallery"
+          :gallery="store.product.gallery"
           :galleryIntro="galleryIntro"
           galleryType="product"
           @mediaSelectorClicked="showMediaSelector = true"
         />
         <section class="attributes" id="attributes">
-          <EcommerceAdminProductAttributesContent
-            :productAttributes="product.attributes"
-            @slideoutEventEmitted="showAttributesSlideout = $event"
-          />
+          <EcommerceAdminProductAttributesContent />
           <EcommerceAdminProductAttributesSlideout
             v-show="showAttributesSlideout"
             :productAttributes="product.attributes"
@@ -477,7 +443,7 @@ const xxx = async (event) => {
             @slideoutAttributesUpdated="updateAttributes"
           />
         </section>
-        <section class="variants" id="variants">
+        <!-- <section class="variants" id="variants">
           <EcommerceAdminProductVariantsContent
             :productVariants="variants"
             @slideoutEventEmitted="showVariantsSlideout = $event"
@@ -493,7 +459,7 @@ const xxx = async (event) => {
             @slideoutVariantsUpdated="updateVariants"
             @deleteAllVariantsEventEmitted="deleteAllVariants"
           />
-        </section>
+        </section> -->
         <!-- <LazyEcommerceAdminProductAttributes
           :productId="product._id"
           :productAttributes="product.attributes"

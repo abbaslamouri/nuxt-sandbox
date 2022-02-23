@@ -1,8 +1,5 @@
 <script setup>
 import { useStore } from '~/store/useStore'
-
-defineEmits(['slideoutEventEmitted'])
-
 const store = useStore()
 </script>
 
@@ -10,7 +7,7 @@ const store = useStore()
   <section class="attributes-content shadow-md" id="attributes">
     <header class="admin-section-header">
       <p class="title">Attributes</p>
-      <button class="btn btn-heading" @click="$emit('slideoutEventEmitted', true)">
+      <button class="btn btn-heading" @click="store.product.showAttributesSlideout = true">
         <span v-show="!store.product.attributes.length">Add</span>
         <span v-show="store.product.attributes.length">Edit</span>
       </button>

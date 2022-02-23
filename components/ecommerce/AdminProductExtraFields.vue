@@ -1,31 +1,13 @@
 <script setup>
-const props = defineProps({
-  product: {
-    type: Object,
-  },
-})
-const emit = defineEmits(['extraFieldsEmitted'])
-const productExtraFields = ref([])
-
-for (const prop in props.product.extraFields) {
-  productExtraFields.value[prop].name = props.product.extraFields[prop].name
-  productExtraFields.value[prop].isRequired = props.product.extraFields[prop].isRequired
-}
-
-watch(
-  () => productExtraFields.value,
-  (current) => {
-    emit('extraFieldsEmitted', current)
-  },
-  { deep: true }
-)
+import { useStore } from '~/store/useStore'
+const store = useStore()
 </script>
 
 <template>
   <div class="extra-fields" id="extra-fields">
     <header class="admin-section-header">
       <p class="title">Extra Fields</p>
-      <button class="btn btn-heading" @click="productExtraFields.push({ name: '', isRequired: false })">
+      <button class="btn btn-heading" @click="store.product.extraFields.push({ name: '', isRequired: false })">
         <IconsPlus />
         <span>Add</span>
       </button>
@@ -33,12 +15,12 @@ watch(
     <div class="content">
       <p>Collect custom information from your customer.</p>
       <div class="fields">
-        <div class="field" v-for="(field, k) in productExtraFields" :key="`extra-field-${k}`">
+        <div class="field" v-for="(field, k) in store.product.extraFields" :key="`extra-field-${k}`">
           <div class="name">
-            <FormsBaseInput label="Extra Field" placeholder="Extra Field" v-model="productExtraFields[k].name" />
+            <FormsBaseInput label="Extra Field" placeholder="Extra Field" v-model="store.product.extraFields[k].name" />
           </div>
           <div class="is-required">
-            <FormsBaseToggle v-model="productExtraFields[k].isRequired" label="Required" />
+            <FormsBaseToggle v-model="store.product.extraFields[k].isRequired" label="Required" />
           </div>
         </div>
       </div>

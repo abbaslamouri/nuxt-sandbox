@@ -32,20 +32,21 @@ const emit = defineEmits(['cardAttributeUpdated', 'cardAttributeAttributeUpdated
 const store = useStore()
 
 const cardAttribute = ref({})
-const cardAttributeId = ref('')
+const attributeSelectId = ref('')
 const cardDefaultTerm = ref({})
 const cardDefaultTermId = ref(null)
-const termSelect = ref('')
+const termSelectId = ref('')
 const termToDeleteId = ref(null)
-const showSingleTermAlert = ref(false)
-const showAllTermsAlert = ref(false)
+const showActions = ref(false)
+const showDeleteAttributeAlert = ref(false)
+const showDeleteTermAlert = ref(false)
+const showDeleteAllTermsAlert = ref(false)
 
-// cardAttributeId.value = store.product.attributes[props.index].attribute._id
+// attributeSelectId.value = store.product.attributes[props.index].attribute._id
 // cardDefaultTermId.value = store.product.attributes[props.index].defaultTerm._id
 
 // const attributeSelect = ref(props.prodAttr.attribute._id ? props.prodAttr.attribute._id : '')
 // const cardDefaultTerm = ref(props.prodAttr.defaultTerm._id ? props.prodAttr.defaultTerm._id : '')
-const showActions = ref(false)
 
 cardAttribute.value = { ...props.productAttribute }
 
@@ -61,14 +62,16 @@ const attributeTermsSelectOptions = () =>
       return { key: t._id, name: t.name }
     })
 
-const updateAttribute = () => {
-  const newAttr = store.attributes.find((a) => a._id == cardAttributeId.value)
+const updateAttribute = (event) => {
+  console.log('E', event.target.value)
+  const newAttr = store.attributes.find((a) => a._id == event.target.value)
+  console.log('ID', event.target.value)
   console.log(store.attributeTerms)
   console.log('NEW', newAttr)
-  console.log('NEW', cardAttributeId.value)
+  console.log('NEW', event.target.value)
   store.product.attributes[props.index].attribute = newAttr
   store.product.attributes[props.index].terms = []
-  const newAttrTerms = store.attributeTerms.filter((t) => t.parent._id == cardAttributeId.value)
+  const newAttrTerms = store.attributeTerms.filter((t) => t.parent._id == event.target.value)
   console.log('NEWTERM', newAttrTerms)
 
   store.product.attributes[props.index].defaultTerm = newAttrTerms[0]
@@ -86,7 +89,7 @@ const updateAttribute = () => {
 
 const setTermToDelete = (termId) => {
   termToDeleteId.value = termId
-  showSingleTermAlert.value = true
+  showDeleteTermAlert.value = true
 }
 
 const removeVariantByTermId = (termId) => {
@@ -120,14 +123,17 @@ const removeDuplicateVariants = () => {
   // )
 }
 
-const setDefaultTerm = () => {
-  const term = props.attributeTerms.find((t) => t._id == cardDefaultTermId.value)
-  // console.log(term)
-  if (term) cardAttribute.value.defaultTerm = term
+const setDefaultTerm = (event) => {
+  console.log('E', event.target.value)
+  const term = store.attributeTerms.find((t) => t._id == event.target.value)
+  console.log('T', term)
+
+  if (term) store.product.attributes[props.index].defaultTerm = term
 }
 
-const removeProductAttribute = () => {
-  emit('attributeToDeleteSelected', props.index)
+const deleteAttribute = () => {
+  store.product.attributes.splice(props.index, 1)
+  // emit('attributeToDeleteSelected', props.index)
   // if (!confirm('Are you sure?')) return
   // // Remove all terms whose parent attarubute is to be deleted and mark all variants with empty eterms fro deletion
   // let j = 0
@@ -149,27 +155,34 @@ const removeProductAttribute = () => {
 }
 
 const addAllTerms = () => {
-  cardAttribute.value.terms = props.attributeTerms.filter((t) => t.parent._id == cardAttribute.value.attribute._id)
+  store.product.attributes[props.index].terms = props.attributeTerms.filter(
+    (t) => t.parent._id == store.product.attributes[props.index].attribute._id
+  )
 }
 
 const addTerm = () => {
-  const term = props.attributeTerms.find((t) => t._id == termSelect.value)
+  const term = props.attributeTerms.find((t) => t._id == termSelectId.value)
   if (term) {
-    if (!cardAttribute.value.terms) {
-      cardAttribute.value.terms = [term]
+    if (!store.product.attributes[props.index].terms) {
+      store.product.attributes[props.index].terms = [term]
     } else {
-      const index = cardAttribute.value.terms.findIndex((t) => t._id == termSelect.value)
-      if (index == -1) cardAttribute.value.terms.push(term)
+      const index = store.product.attributes[props.index].terms.findIndex((t) => t._id == termSelectId.value)
+      if (index == -1) store.product.attributes[props.index].terms.push(term)
     }
   }
-  termSelect.value = ''
+  termSelectId.value = ''
+}
+
+const cancelDeleteAttribute = () => {
+  showDeleteAttributeAlert.value = false
+  showActions.value = false
 }
 
 const removeTerm = () => {
   // console.log('HHHHHHH')
-  const index = cardAttribute.value.terms.findIndex((t) => t._id == termToDeleteId.value)
-  if (index !== -1) cardAttribute.value.terms.splice(index, 1)
-  showSingleTermAlert.value = false
+  const index = store.product.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
+  if (index !== -1) store.product.attributes[props.index].terms.splice(index, 1)
+  showDeleteTermAlert.value = false
 
   // if (!confirm('Are you sure?')) return
   // prodState.selectedItem.attributes[props.i].terms.splice(j, 1)
@@ -217,8 +230,8 @@ const removeTerm = () => {
 }
 
 const removeAllTerms = () => {
-  cardAttribute.value.terms = []
-  showAllTermsAlert.value = false
+  store.product.attributes[props.index].terms = []
+  showDeleteAllTermsAlert.value = false
 
   // // Remove all terms from ttribute
   // if (!confirm('Are you sure?')) return
@@ -254,18 +267,20 @@ watch(
 
 <template>
   <div class="admin-product-attribute shadow-md row">
-    {{ store.product.attributes[index].attribute._id }}===={{ store.product.attributes[index].attribute._id }}
+    <!-- {{ store.product.attributes[index].attribute._id }}===={{ store.product.attributes[index].defaultTerm.name }} -->
     <pre style="font-size: 1rem"></pre>
     <div class="attribute td">
       <div class="base-select">
         <select @change="updateAttribute" class="centered">
           <option value="">Attribute</option>
           <option
-            v-for="option in attributesSelectOptions()"
+            v-for="option in props.attributes.map((a) => {
+              return { key: a._id, name: a.name }
+            })"
             :key="option.key"
             :value="option.key"
-            :disabled="slideoutAttributes.find((a) => a.attribute._id == option.key)"
             :selected="store.product.attributes[index].attribute._id == option.key"
+            :disabled="store.product.attributes.find((a) => a.attribute._id == option.key)"
           >
             {{ option.name }}
           </option>
@@ -273,9 +288,9 @@ watch(
       </div>
     </div>
     <div class="default-term td">
-      <div v-if="Object.keys(cardAttribute.attribute).length">
-        <select @update:modelValue="setDefaultTerm">
-          <option value="Default Term"></option>
+      <div class="base-select" v-if="Object.keys(store.product.attributes[index].attribute).length">
+        <select @change="setDefaultTerm">
+          <option value="">Default Term</option>
           <option
             v-for="option in store.attributeTerms
               .filter((t) => t.parent._id == store.product.attributes[index].attribute._id)
@@ -283,22 +298,12 @@ watch(
                 return { key: t._id, name: t.name }
               })"
             :key="option.key"
+            :value="option.key"
             :selected="store.product.attributes[index].defaultTerm._id == option.key"
           >
             {{ option.name }}
           </option>
         </select>
-        <!-- <FormsBaseSelect
-          nullOption="Default Term"
-          @update:modelValue="setDefaultTerm"
-          :options="
-            store.attributeTerms
-              .filter((t) => t.parent._id == store.product.attributes[index].attribute._id)
-              .map((t) => {
-                return { key: t._id, name: t.name }
-              })
-          "
-        /> -->
       </div>
     </div>
     <div class="active td">
@@ -317,9 +322,9 @@ watch(
       <div v-if="Object.keys(store.product.attributes[index].attribute).length" class="terms-wrapper">
         <div class="term-actions">
           <button class="btn" @click.prevent="addAllTerms()">Select All</button>
-          <button class="btn" @click.prevent="showAllTermsAlert = true">Select None</button>
+          <button class="btn" @click.prevent="showDeleteAllTermsAlert = true">Select None</button>
           <div class="base-select">
-            <select v-model="termSelect" @change="addTerm" class="centered">
+            <select v-model="termSelectId" @change="addTerm" class="centered">
               <option value="">Add term</option>
               <option
                 v-for="term in attributeTerms.filter(
@@ -327,10 +332,7 @@ watch(
                 )"
                 :key="term._id"
                 :value="term._id"
-                :disabled="
-                  store.product.attributes[index].terms &&
-                  store.product.attributes[index].terms.find((t) => t._id == term._id)
-                "
+                :disabled="store.product.attributes[index].terms.find((t) => t._id == term._id)"
               >
                 {{ term.name }}
               </option>
@@ -357,16 +359,20 @@ watch(
     <div class="actions td">
       <button class="btn" @click.prevent="showActions = !showActions"><IconsMoreHoriz /></button>
       <div class="menu shadow-md" v-show="showActions">
-        <a href="#" class="link" @click.prevent="removeProductAttribute">
+        <a href="#" class="link" @click.prevent="showDeleteAttributeAlert = true">
           <div class="cancel">Delete</div>
         </a>
       </div>
     </div>
-    <Alert v-if="showSingleTermAlert" @ok="removeTerm" @cancel="showSingleTermAlert = false">
+    <Alert v-if="showDeleteAttributeAlert" @ok="deleteAttribute" @cancel="cancelDeleteAttribute">
+      <h3>Are you sure you want to delete this attribute?</h3>
+      <p>All variants associated with this attribute will also be removed.</p>
+    </Alert>
+    <Alert v-if="showDeleteTermAlert" @ok="removeTerm" @cancel="showDeleteTermAlert = false">
       <h3>Are you sure you want to remove this term?</h3>
       <p>All variants associated with this term will also be removed.</p>
     </Alert>
-    <Alert v-if="showAllTermsAlert" @ok="removeAllTerms" @cancel="showAllTermsAlert = false">
+    <Alert v-if="showDeleteAllTermsAlert" @ok="removeAllTerms" @cancel="showDeleteAllTermsAlert = false">
       <h3>Are you sure you want to remove all terms?</h3>
       <p>All variants associated with these terms will also be removed.</p>
     </Alert>

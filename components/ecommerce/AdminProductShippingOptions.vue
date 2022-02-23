@@ -1,29 +1,13 @@
 <script setup>
-const props = defineProps({
-  product: {
-    type: Object,
-  },
-})
-const emit = defineEmits(['shippingOptionsEmitted'])
-const productShippingOptions = reactive({
-  shippingOptions: props.product.shippingOptions,
-})
-
-watch(
-  () => productShippingOptions,
-  (current) => {
-    // console.log(current)
-    emit('shippingOptionsEmitted', current)
-  },
-  { deep: true }
-)
+import { useStore } from '~/store/useStore'
+const store = useStore()
 </script>
 
 <template>
   <div class="shipping-options shadow-md" id="shipping-options">
     <header class="admin-section-header">
       <p class="title">Shipping Options</p>
-      <FormsBaseToggle v-model="productShippingOptions.shippingOptions" label="Enabled" />
+      <FormsBaseToggle v-model="store.product.shippingOptions" label="Enabled" />
     </header>
   </div>
 </template>

@@ -1,31 +1,14 @@
 <script setup>
-const props = defineProps({
-  product: {
-    type: Object,
-  },
-})
-const emit = defineEmits(['productMiscEmitted'])
-const productMisc = reactive({
-  thankYouPage: props.product.thankYouPage,
-  sortOrder: props.product.sortOrder,
-})
-
-watch(
-  () => productMisc,
-  (current) => {
-    // console.log(current)
-    emit('productMiscEmitted', current)
-  },
-  { deep: true }
-)
+import { useStore } from '~/store/useStore'
+const store = useStore()
 </script>
 
 <template>
   <div class="misc shadow-md" id="misc">
     <header class="admin-section-header">Misc</header>
     <div class="content">
-      <FormsBaseInput label="Thank You Page" placeholder="https://" v-model="productMisc.thankYouPage" />
-      <FormsBaseInput label="Sort Order" placeholder="Sort Order" v-model="productMisc.sortOrder" />
+      <FormsBaseInput label="Thank You Page" placeholder="https://" v-model="store.product.thankYouPage" />
+      <FormsBaseInput label="Sort Order" placeholder="Sort Order" v-model="store.product.sortOrder" />
     </div>
   </div>
 </template>

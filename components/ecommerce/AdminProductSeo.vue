@@ -1,33 +1,15 @@
 <script setup>
-const props = defineProps({
-  product: {
-    type: Object,
-  },
-})
-const emit = defineEmits(['productSeoEmitted'])
-const productSeo = reactive({
-  permalink: props.product.permalink,
-  seoTitle: props.product.seoTitle,
-  seoDescription: props.product.seoDescription,
-})
-
-watch(
-  () => productSeo,
-  (current) => {
-    // console.log(current)
-    emit('productSeoEmitted', current)
-  },
-  { deep: true }
-)
+import { useStore } from '~/store/useStore'
+const store = useStore()
 </script>
 
 <template>
   <div class="seo shadow-md" id="seo">
     <header class="admin-section-header">Seo</header>
     <div class="content">
-      <FormsBaseInput label="Custom Permalink" placeholder="Custom Permalink" v-model="productSeo.permalink" />
-      <FormsBaseInput label="SEO Title" placeholder="SEO Title" v-model="productSeo.seoTitle" />
-      <FormsBaseInput label="SEO Description" placeholder="SEO Description" v-model="productSeo.seoDescription" />
+      <FormsBaseInput label="Custom Permalink" placeholder="Custom Permalink" v-model="store.product.permalink" />
+      <FormsBaseInput label="SEO Title" placeholder="SEO Title" v-model="store.product.seoTitle" />
+      <FormsBaseInput label="SEO Description" placeholder="SEO Description" v-model="store.product.seoDescription" />
     </div>
   </div>
 </template>

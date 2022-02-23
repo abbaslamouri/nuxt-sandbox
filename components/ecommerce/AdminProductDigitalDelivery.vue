@@ -1,22 +1,6 @@
 <script setup>
-const props = defineProps({
-  product: {
-    type: Object,
-  },
-})
-const emit = defineEmits(['digitalDeliveryEmitted'])
-const digitalDelivery = reactive({
-  downloadable: props.product.downloadable,
-})
-
-watch(
-  () => digitalDelivery,
-  (current) => {
-    // console.log(current)
-    emit('digitalDeliveryEmitted', current)
-  },
-  { deep: true }
-)
+import { useStore } from '~/store/useStore'
+const store = useStore()
 </script>
 
 <template>
@@ -24,10 +8,10 @@ watch(
     <header class="admin-section-header">
       <div class="title">Digital Delivery</div>
       <div class="status">
-        <FormsBaseToggle v-model="digitalDelivery.downloadable" label="Enable" />
+        <FormsBaseToggle v-model="store.product.downloadable" label="Enable" />
       </div>
     </header>
-    <div class="conten" v-if="digitalDelivery.downloadable">file upload dropzone goes here</div>
+    <div class="conten" v-if="store.product.downloadable">file upload dropzone goes here</div>
   </div>
 </template>
 
