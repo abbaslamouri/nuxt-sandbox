@@ -3,6 +3,8 @@
 // const attState = inject('attState')
 // const attTermsState = inject('attTermsState')
 
+import { useStore } from '~/store/useStore'
+
 const props = defineProps({
   slideoutAttributes: {
     type: Array,
@@ -27,6 +29,8 @@ const props = defineProps({
 
 const emit = defineEmits(['cardAttributeUpdated', 'cardAttributeAttributeUpdated', 'attributeToDeleteSelected'])
 
+const store = useStore()
+
 const cardAttribute = ref({})
 const cardAttributeId = ref('')
 const cardDefaultTerm = ref({})
@@ -35,6 +39,9 @@ const termSelect = ref('')
 const termToDeleteId = ref(null)
 const showSingleTermAlert = ref(false)
 const showAllTermsAlert = ref(false)
+
+// cardAttributeId.value = store.product.attributes[props.index].attribute._id
+// cardDefaultTermId.value = store.product.attributes[props.index].defaultTerm._id
 
 // const attributeSelect = ref(props.prodAttr.attribute._id ? props.prodAttr.attribute._id : '')
 // const cardDefaultTerm = ref(props.prodAttr.defaultTerm._id ? props.prodAttr.defaultTerm._id : '')
@@ -55,12 +62,17 @@ const attributeTermsSelectOptions = () =>
     })
 
 const updateAttribute = () => {
-  const newAttr = props.attributes.find((a) => a._id == cardAttributeId.value)
-  cardAttribute.value.attribute = newAttr
-  cardAttribute.value.terms = []
-  const newAttrTerms = props.attributeTerms.filter((t) => t.parent._id == cardAttributeId.value)
-  cardAttribute.value.defaultTerm = newAttrTerms[0]
-  cardDefaultTermId.value = cardAttribute.value.defaultTerm._id
+  const newAttr = store.attributes.find((a) => a._id == cardAttributeId.value)
+  console.log(store.attributeTerms)
+  console.log('NEW', newAttr)
+  console.log('NEW', cardAttributeId.value)
+  store.product.attributes[props.index].attribute = newAttr
+  store.product.attributes[props.index].terms = []
+  const newAttrTerms = store.attributeTerms.filter((t) => t.parent._id == cardAttributeId.value)
+  console.log('NEWTERM', newAttrTerms)
+
+  store.product.attributes[props.index].defaultTerm = newAttrTerms[0]
+  // cardDefaultTermId.value = store.product.attributes[props.index].defaultTerm._id
 
   // for (const prop in prodState.selectedItem.attributes[props.i].terms) {
   //   removeVariantByTermId(prodState.selectedItem.attributes[props.i].terms[prop]._id)
@@ -242,17 +254,18 @@ watch(
 
 <template>
   <div class="admin-product-attribute shadow-md row">
-    <!-- {{ productAttribute }}===={{ cardAttribute }} -->
+    {{ store.product.attributes[index].attribute._id }}===={{ store.product.attributes[index].attribute._id }}
     <pre style="font-size: 1rem"></pre>
     <div class="attribute td">
       <div class="base-select">
-        <select v-model="cardAttributeId" @change="updateAttribute" class="centered">
+        <select @change="updateAttribute" class="centered">
           <option value="">Attribute</option>
           <option
             v-for="option in attributesSelectOptions()"
             :key="option.key"
             :value="option.key"
             :disabled="slideoutAttributes.find((a) => a.attribute._id == option.key)"
+            :selected="store.product.attributes[index].attribute._id == option.key"
           >
             {{ option.name }}
           </option>
@@ -261,22 +274,47 @@ watch(
     </div>
     <div class="default-term td">
       <div v-if="Object.keys(cardAttribute.attribute).length">
-        <FormsBaseSelect
+        <select @update:modelValue="setDefaultTerm">
+          <option value="Default Term"></option>
+          <option
+            v-for="option in store.attributeTerms
+              .filter((t) => t.parent._id == store.product.attributes[index].attribute._id)
+              .map((t) => {
+                return { key: t._id, name: t.name }
+              })"
+            :key="option.key"
+            :selected="store.product.attributes[index].defaultTerm._id == option.key"
+          >
+            {{ option.name }}
+          </option>
+        </select>
+        <!-- <FormsBaseSelect
           nullOption="Default Term"
-          v-model="cardDefaultTermId"
           @update:modelValue="setDefaultTerm"
-          :options="attributeTermsSelectOptions()"
-        />
+          :options="
+            store.attributeTerms
+              .filter((t) => t.parent._id == store.product.attributes[index].attribute._id)
+              .map((t) => {
+                return { key: t._id, name: t.name }
+              })
+          "
+        /> -->
       </div>
     </div>
     <div class="active td">
-      <FormsBaseToggle v-model="cardAttribute.active" v-if="Object.keys(cardAttribute.attribute).length" />
+      <FormsBaseToggle
+        v-model="store.product.attributes[index].active"
+        v-if="Object.keys(store.product.attributes[index].attribute).length"
+      />
     </div>
     <div class="variation td">
-      <FormsBaseToggle v-model="cardAttribute.variation" v-if="Object.keys(cardAttribute.attribute).length" />
+      <FormsBaseToggle
+        v-model="store.product.attributes[index].variation"
+        v-if="Object.keys(store.product.attributes[index].attribute).length"
+      />
     </div>
     <div class="terms td">
-      <div v-if="Object.keys(cardAttribute.attribute).length" class="terms-wrapper">
+      <div v-if="Object.keys(store.product.attributes[index].attribute).length" class="terms-wrapper">
         <div class="term-actions">
           <button class="btn" @click.prevent="addAllTerms()">Select All</button>
           <button class="btn" @click.prevent="showAllTermsAlert = true">Select None</button>
@@ -284,10 +322,15 @@ watch(
             <select v-model="termSelect" @change="addTerm" class="centered">
               <option value="">Add term</option>
               <option
-                v-for="term in attributeTerms.filter((t) => t.parent._id == cardAttribute.attribute._id)"
+                v-for="term in attributeTerms.filter(
+                  (t) => t.parent._id == store.product.attributes[index].attribute._id
+                )"
                 :key="term._id"
                 :value="term._id"
-                :disabled="cardAttribute.terms && cardAttribute.terms.find((t) => t._id == term._id)"
+                :disabled="
+                  store.product.attributes[index].terms &&
+                  store.product.attributes[index].terms.find((t) => t._id == term._id)
+                "
               >
                 {{ term.name }}
               </option>
@@ -295,11 +338,11 @@ watch(
           </div>
         </div>
         <div class="terms-list">
-          <div class="list" v-if="cardAttribute.terms.length">
+          <div class="list" v-if="store.product.attributes[index].terms.length">
             <div
-              v-if="cardAttribute.terms.length"
+              v-if="store.product.attributes[index].terms.length"
               class="term shadow-md"
-              v-for="(term, j) in cardAttribute.terms"
+              v-for="(term, j) in store.product.attributes[index].terms"
               :key="term._id"
             >
               <span>{{ term.name }}</span>

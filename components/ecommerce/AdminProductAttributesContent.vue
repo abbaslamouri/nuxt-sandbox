@@ -1,11 +1,9 @@
 <script setup>
-defineProps({
-  productAttributes: {
-    type: Array,
-  },
-})
+import { useStore } from '~/store/useStore'
 
 defineEmits(['slideoutEventEmitted'])
+
+const store = useStore()
 </script>
 
 <template>
@@ -13,21 +11,21 @@ defineEmits(['slideoutEventEmitted'])
     <header class="admin-section-header">
       <p class="title">Attributes</p>
       <button class="btn btn-heading" @click="$emit('slideoutEventEmitted', true)">
-        <span v-show="!productAttributes.length">Add</span>
-        <span v-show="productAttributes.length">Edit</span>
+        <span v-show="!store.product.attributes.length">Add</span>
+        <span v-show="store.product.attributes.length">Edit</span>
       </button>
     </header>
     <div class="content">
       <div>Different attributes for this product (e.g. size, color)</div>
       <div class="attributes">
-        <div class="attribute" v-for="attribute in productAttributes" :key="attribute.attribute._id">
+        <!-- <div class="attribute" v-for="attribute in store.product.attributes" :key="attribute.attribute._id">
           <p class="attribute-name">{{ attribute.attribute.name }}:</p>
           <div class="terms">
             <div class="term" v-for="term in attribute.terms" :key="term._id">
               <span class="term-name">{{ term.name }}</span>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </section>

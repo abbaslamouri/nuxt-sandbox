@@ -93,6 +93,7 @@ const fetchVariants = async () => {
     variantParams.value.product = product.value._id
     const response = await $fetch('/api/v1/variants', { params: variantParams.value })
     variants.value = response.docs
+    store.variants = response.docs
     // console.log('variants', variants.value)
   } catch (error) {
     appMessage.errorMsg = error.data
@@ -104,6 +105,7 @@ const fetchCategories = async () => {
   try {
     const response = await $fetch('/api/v1/categories', { params: categoryParams.value })
     categories.value = response.docs
+    store.categories = response.docs
     // console.log('Categories', categories.value)
   } catch (error) {
     appMessage.errorMsg = error.data
@@ -115,6 +117,7 @@ const fetchAttributes = async () => {
   try {
     const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
     attributes.value = response.docs
+    store.attributes = response.docs
     // console.log('Attributes', attributes.value)
   } catch (error) {
     appMessage.errorMsg = error.data
@@ -126,6 +129,7 @@ const fetchAttributeTerms = async () => {
   try {
     const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
     attributeTerms.value = response.docs
+    store.attributeTerms = response.docs
     // console.log('Terms', attributeTerms.value)
   } catch (error) {
     appMessage.errorMsg = error.data
@@ -444,7 +448,7 @@ const xxx = async (event) => {
     </NuxtLink>
 
     <h3 class="header">Edit Product</h3>
-    <pre style="font-size: 1rem">{{ store.variants}}</pre>
+    <pre style="font-size: 1rem">{{ store.variants }}</pre>
     <div class="columns">
       <div class="left shadow-md">
         <EcommerceAdminProductLeftSidebar :product="product" />

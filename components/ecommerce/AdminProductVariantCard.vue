@@ -1,4 +1,6 @@
 <script setup>
+import { useStore } from '~/store/useStore'
+
 const props = defineProps({
   productVariant: {
     type: Object,
@@ -21,6 +23,8 @@ const props = defineProps({
 })
 
 defineEmits(['mediaSelectorClicked', 'showVariantSlideout'])
+
+const store = useStore()
 
 // const props = defineProps({
 //   // variant: Object,
@@ -80,27 +84,27 @@ const updateVariant = (event) => {
 
 <template>
   <div class="admin-product-variant row">
-    <!-- <pre style="font-size: 1rem">{{ cardVariant }}</pre> -->
+    <!-- <pre style="font-size: 1rem">{{ index }}==={{ store.variants }}</pre> -->
     <div class="thumb td" @click="$emit('showVariantSlideout')">
-      <img v-if="cardVariant.gallery[1]" :src="cardVariant.gallery[1].path" alt="Variant Image" />
+      <img v-if="store.variants[index].gallery[1]" :src="store.variants[index].gallery[1].path" alt="Variant Image" />
       <img v-else src="/placeholder.png" alt="Variant Image" />
     </div>
     <div class="option td" @click="$emit('showVariantSlideout')">
-      <div v-for="term in cardVariant.attrTerms" :key="term" class="attribute-term">
+      <div v-for="term in store.variants[index].attrTerms" :key="term" class="attribute-term">
         <div class="attribute">
-          {{ attributes.find((a) => a._id == term.parent._id).name }}
+          <!-- {{ store.attributes.find((a) => a._id == term.parent._id).name }} -->
         </div>
         <div class="term">
-          {{ attributeTerms.find((t) => t._id == term._id).name }}
+          <!-- {{ store.attributeTerms.find((t) => t._id == term._id).name }} -->
         </div>
       </div>
     </div>
     <div class="stock-qty td">
-      <div v-if="!cardVariant.manageInventory">&infin;</div>
-      <div v-else>{{ cardVariant.stockQty }}</div>
+      <div v-if="!store.variants[index].manageInventory">&infin;</div>
+      <div v-else>{{ store.variants[index].stockQty }}</div>
     </div>
-    <div class="price td">{{ cardVariant.price }}</div>
-    <div class="sku td">{{ cardVariant.sku }}</div>
+    <div class="price td">{{ store.variants[index].price }}</div>
+    <div class="sku td">{{ store.variants[index].sku }}</div>
     <div class="actions td">
       <button class="btn" @click.prevent="showActions = !showActions"><IconsMoreHoriz /></button>
       <div class="menu shadow-md" v-show="showActions">
@@ -118,6 +122,7 @@ const updateVariant = (event) => {
     </Alert>
     <EcommerceAdminProductVariantEditSlideout
       v-if="showVariantEditSlideout"
+      :index="index"
       :attributes="productAttributes"
       :attributeTerms="attributeTerms"
       :productVariant="productVariant"

@@ -1,13 +1,16 @@
 <script setup>
+import cloneDeep from 'lodash.clonedeep'
+import { useStore } from '~/store/useStore'
+
 import { useMessage } from '~/store/useMessage'
 
 const props = defineProps({
   productVariant: {
     type: Object,
   },
-  // index: {
-  //   type: Number,
-  // },
+  index: {
+    type: Number,
+  },
   attributes: {
     type: Array,
   },
@@ -27,6 +30,8 @@ const emit = defineEmits([
   // 'deleteAllVariantsEventEmitted',
 ])
 
+const store = useStore()
+
 const appMessage = useMessage()
 const variantTermId = ref(null)
 const attributeTerms = ref([])
@@ -44,6 +49,11 @@ const showMediaSelector = ref(false) // media selector toggler
 
 const showActions = ref(false)
 const galleryIntro = ref('This image gallery contains all images associated with this variation.')
+
+const current = cloneDeep(store.variants[props.index])
+console.log('C', current)
+console.log('S', store.variants[props.index])
+console.log('=', current == store.variants[props.index])
 
 // editdVariant.value = JSON.parse(JSON.stringify(props.productVariant))
 editdVariant.value = { ...props.productVariant }
@@ -63,9 +73,9 @@ const selectMedia = async (event) => {
   // console.log(event)
   showMediaSelector.value = false
   for (const prop in event) {
-    const index = editdVariant.value.gallery.findIndex((m) => m._id === event[prop]._id)
-    if (index === -1) {
-      editdVariant.value.gallery.push(event[prop])
+    const i = store.variants[props.index].gallery.findIndex((m) => m._id === event[prop]._id)
+    if (i === -1) {
+      store.variants[props.index].gallery.push(event[prop])
     }
   }
 }
@@ -92,11 +102,8 @@ const closeSlideout = () => {
 }
 
 const setAttributeTerm = async (j, termId) => {
-  console.log(j, termId)
-  console.log(props.attributeTerms)
-  const term = props.attributeTerms.find((t) => t._id == termId)
-  console.log(term)
-  editdVariant.value.attrTerms[j] = term
+  const term = store.attributeTerms.find((t) => t._id == termId)
+  store.variants[props.index].attrTerms[j] = term
 
   // emit('slideoutVariantsUpdated', slideoutVariants.value)
   // emit('slideoutEventEmitted', false)
@@ -106,7 +113,7 @@ const setAttributeTerm = async (j, termId) => {
 
 const updateVariant = async () => {
   emit('variantEditSlideoutEventEmitted', false)
-  emit('saveVariant', editdVariant.value)
+  // emit('saveVariant', editdVariant.value)
 
   // emit('slideoutVariantsUpdated', slideoutVariants.value)
   // emit('slideoutEventEmitted', false)
@@ -115,7 +122,7 @@ const updateVariant = async () => {
 }
 
 const cancelVariant = () => {
-  editdVariant.value = JSON.parse(currentVariant)
+  store.variants[props.index] = current
   emit('variantEditSlideoutEventEmitted', false)
 }
 </script>
@@ -129,7 +136,7 @@ const cancelVariant = () => {
           <div class="slideout__header shadow-md">
             <div class="title">
               <span> Edit Variant: </span>
-              <span v-for="term in editdVariant.attrTerms" :key="term._id"
+              <span v-for="term in store.variants[index].attrTerms" :key="term._id"
                 >{{ term.parent.name }}: {{ term.name }},
               </span>
             </div>
@@ -137,12 +144,12 @@ const cancelVariant = () => {
           </div>
           <div class="slideout__main">
             <div class="variant-edit">
-              <!-- <pre style="font-size: 1rem">old{{ productVariant }}====NEW{{ editdVariant }}</pre> -->
+              <!-- <pre style="font-size: 1rem">old{{ productVariant }}====NEW{{ store.variants[index] }}</pre> -->
               <h3>Select options for your variant</h3>
               <div class="attribute-terms">
-                <div class="term" v-for="(term, j) in editdVariant.attrTerms" :key="term._id">
+                <div class="term" v-for="(term, j) in store.variants[index].attrTerms" :key="term._id">
                   <FormsBaseSelect
-                    :value="editdVariant.attrTerms[j]._id"
+                    :value="store.variants[index].attrTerms[j]._id"
                     :label="term.parent.name"
                     @update:modelValue="setAttributeTerm(j, $event)"
                     :options="getAttributeByVariantTermParent(term.parent._id)"
@@ -151,24 +158,28 @@ const cancelVariant = () => {
               </div>
               <h3>Variant Details</h3>
               <EcommerceAdminImageGallery
-                :gallery="editdVariant.gallery"
+                :gallery="store.variants[index].gallery"
                 :galleryIntro="galleryIntro"
                 galleryType="product"
                 @mediaSelectorClicked="showMediaSelector = true"
               />
               <div class="sku-stock">
                 <div class="sku">
-                  <FormsBaseInput label="SKU" placeholder="SKU" v-model="editdVariant.sku" />
+                  <FormsBaseInput label="SKU" placeholder="SKU" v-model="store.variants[index].sku" />
                 </div>
                 <div class="stock">
-                  <FormsBaseInput label="Stck Qty" placeholder="Stock Qty" v-model="editdVariant.stockQty" />
+                  <FormsBaseInput label="Stck Qty" placeholder="Stock Qty" v-model="store.variants[index].stockQty" />
                 </div>
               </div>
               <div class="price">
-                <FormsBaseInput label="Price" placeholder="Price" currency v-model="editdVariant.price" />
+                <FormsBaseInput label="Price" placeholder="Price" currency v-model="store.variants[index].price" />
               </div>
               <div class="description">
-                <FormsBaseInput label="Description" placeholder="Description" v-model="editdVariant.description" />
+                <FormsBaseInput
+                  label="Description"
+                  placeholder="Description"
+                  v-model="store.variants[index].description"
+                />
               </div>
             </div>
           </div>
