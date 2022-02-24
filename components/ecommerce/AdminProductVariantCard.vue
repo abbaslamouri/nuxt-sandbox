@@ -2,27 +2,27 @@
 import { useStore } from '~/store/useStore'
 
 const props = defineProps({
-  productVariant: {
-    type: Object,
-    required: true,
-  },
-  productAttributes: {
-    type: Array,
-    required: true,
-  },
+  // productVariant: {
+  //   type: Object,
+  //   required: true,
+  // },
+  // productAttributes: {
+  //   type: Array,
+  //   required: true,
+  // },
   index: {
     type: Number,
     required: true,
   },
-  attributes: {
-    type: Array,
-  },
-  attributeTerms: {
-    type: Array,
-  },
+  // attributes: {
+  //   type: Array,
+  // },
+  // attributeTerms: {
+  //   type: Array,
+  // },
 })
 
-defineEmits(['mediaSelectorClicked', 'showVariantSlideout'])
+defineEmits(['mediaSelectorClicked', 'showVariantSlideout', 'slideoutEventEmitted'])
 
 const store = useStore()
 
@@ -64,7 +64,6 @@ const removeProductVariant = () => {
 // }
 
 const openVariantEditSlideout = () => {
-  console.log(cardVariant.value)
   showActions.value = false
   showVariantEditSlideout.value = true
 
@@ -78,29 +77,25 @@ const updateVariant = (event) => {
 }
 </script>
 
-<!-- &&
-      prodState.selectedItem.variants[i].attrTerms &&
-      prodState.selectedItem.variants[i].attrTerms.length -->
-
 <template>
   <div class="admin-product-variant row">
     <!-- <pre style="font-size: 1rem">{{ index }}==={{ store.variants }}</pre> -->
-    <div class="thumb td" @click="$emit('showVariantSlideout')">
+    <div class="thumb td">
       <img v-if="store.variants[index].gallery[1]" :src="store.variants[index].gallery[1].path" alt="Variant Image" />
       <img v-else src="/placeholder.png" alt="Variant Image" />
     </div>
-    <div class="option td" @click="$emit('showVariantSlideout')">
+    <div class="option td">
       <div v-for="term in store.variants[index].attrTerms" :key="term" class="attribute-term">
         <div class="attribute">
-          <!-- {{ store.attributes.find((a) => a._id == term.parent._id).name }} -->
+          {{ store.attributes.find((a) => a._id == term.parent._id).name }}
         </div>
         <div class="term">
-          <!-- {{ store.attributeTerms.find((t) => t._id == term._id).name }} -->
+          {{ store.attributeTerms.find((t) => t._id == term._id).name }}
         </div>
       </div>
     </div>
     <div class="stock-qty td">
-      <div v-if="!store.variants[index].manageInventory">&infin;</div>
+      <div v-if="!store.product.manageInventory">&infin;</div>
       <div v-else>{{ store.variants[index].stockQty }}</div>
     </div>
     <div class="price td">{{ store.variants[index].price }}</div>
@@ -120,15 +115,12 @@ const updateVariant = (event) => {
       <h3>You have unsaved changes</h3>
       <p>Please save your changes before closing this window or click cancel to exit without saving</p>
     </Alert>
+    {{ index }}
     <EcommerceAdminProductVariantEditSlideout
       v-if="showVariantEditSlideout"
       :index="index"
-      :attributes="productAttributes"
-      :attributeTerms="attributeTerms"
-      :productVariant="productVariant"
       :showVariantEditSlideout="showVariantEditSlideout"
-      @variantEditSlideoutEventEmitted="showVariantEditSlideout = $event"
-      @saveVariant="updateVariant"
+      @slideoutEventEmitted="showVariantEditSlideout = false"
     />
   </div>
 </template>

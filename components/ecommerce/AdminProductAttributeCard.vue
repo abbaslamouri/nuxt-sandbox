@@ -6,22 +6,18 @@
 import { useStore } from '~/store/useStore'
 
 const props = defineProps({
-  slideoutAttributes: {
-    type: Array,
-    required: true,
-  },
-  attributes: {
-    type: Object,
-    required: true,
-  },
-  attributeTerms: {
-    type: Array,
-    required: true,
-  },
-  productAttribute: {
-    type: Object,
-    required: true,
-  },
+  // attributes: {
+  //   type: Object,
+  //   required: true,
+  // },
+  // attributeTerms: {
+  //   type: Array,
+  //   required: true,
+  // },
+  // productAttribute: {
+  //   type: Object,
+  //   required: true,
+  // },
   index: {
     type: Number,
   },
@@ -31,7 +27,7 @@ const emit = defineEmits(['cardAttributeUpdated', 'cardAttributeAttributeUpdated
 
 const store = useStore()
 
-const cardAttribute = ref({})
+// const cardAttribute = ref({})
 const attributeSelectId = ref('')
 const cardDefaultTerm = ref({})
 const cardDefaultTermId = ref(null)
@@ -48,19 +44,12 @@ const showDeleteAllTermsAlert = ref(false)
 // const attributeSelect = ref(props.prodAttr.attribute._id ? props.prodAttr.attribute._id : '')
 // const cardDefaultTerm = ref(props.prodAttr.defaultTerm._id ? props.prodAttr.defaultTerm._id : '')
 
-cardAttribute.value = { ...props.productAttribute }
+// cardAttribute.value = { ...props.productAttribute }
 
 const attributesSelectOptions = () =>
-  props.attributes.map((a) => {
+  store.attributes.map((a) => {
     return { key: a._id, name: a.name }
   })
-
-const attributeTermsSelectOptions = () =>
-  props.attributeTerms
-    .filter((t) => t.parent._id == cardAttribute.value.attribute._id)
-    .map((t) => {
-      return { key: t._id, name: t.name }
-    })
 
 const updateAttribute = (event) => {
   console.log('E', event.target.value)
@@ -133,6 +122,7 @@ const setDefaultTerm = (event) => {
 
 const deleteAttribute = () => {
   store.product.attributes.splice(props.index, 1)
+  showDeleteAttributeAlert.value = false
   // emit('attributeToDeleteSelected', props.index)
   // if (!confirm('Are you sure?')) return
   // // Remove all terms whose parent attarubute is to be deleted and mark all variants with empty eterms fro deletion
@@ -155,13 +145,13 @@ const deleteAttribute = () => {
 }
 
 const addAllTerms = () => {
-  store.product.attributes[props.index].terms = props.attributeTerms.filter(
+  store.product.attributes[props.index].terms = store.attributeTerms.filter(
     (t) => t.parent._id == store.product.attributes[props.index].attribute._id
   )
 }
 
 const addTerm = () => {
-  const term = props.attributeTerms.find((t) => t._id == termSelectId.value)
+  const term = store.attributeTerms.find((t) => t._id == termSelectId.value)
   if (term) {
     if (!store.product.attributes[props.index].terms) {
       store.product.attributes[props.index].terms = [term]
@@ -255,14 +245,14 @@ const removeAllTerms = () => {
 //   { deep: true }
 // )
 
-watch(
-  () => cardAttribute.value,
-  (current) => {
-    console.log(current)
-    emit('cardAttributeUpdated', { attr: current, index: props.index })
-  },
-  { deep: true }
-)
+// watch(
+//   () => cardAttribute.value,
+//   (current) => {
+//     console.log(current)
+//     emit('cardAttributeUpdated', { attr: current, index: props.index })
+//   },
+//   { deep: true }
+// )
 </script>
 
 <template>
@@ -274,7 +264,7 @@ watch(
         <select @change="updateAttribute" class="centered">
           <option value="">Attribute</option>
           <option
-            v-for="option in props.attributes.map((a) => {
+            v-for="option in store.attributes.map((a) => {
               return { key: a._id, name: a.name }
             })"
             :key="option.key"
@@ -327,7 +317,7 @@ watch(
             <select v-model="termSelectId" @change="addTerm" class="centered">
               <option value="">Add term</option>
               <option
-                v-for="term in attributeTerms.filter(
+                v-for="term in store.attributeTerms.filter(
                   (t) => t.parent._id == store.product.attributes[index].attribute._id
                 )"
                 :key="term._id"

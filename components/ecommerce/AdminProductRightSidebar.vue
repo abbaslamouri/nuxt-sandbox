@@ -1,12 +1,6 @@
 <script setup>
-const props = defineProps({
-  product: {
-    type: Object,
-  },
-  categories: {
-    type: Object,
-  },
-})
+import { useStore } from '~/store/useStore'
+
 defineEmits(['saveProduct', 'productCategoriesUpdated', 'productStatusUpdated'])
 
 // const prodState = inject('prodState')
@@ -14,16 +8,20 @@ defineEmits(['saveProduct', 'productCategoriesUpdated', 'productStatusUpdated'])
 // const catState = inject('catState')
 
 const router = useRouter()
+const store = useStore()
 
-const selectedCategories = ref([])
+const selectedCategoryIds = ref([])
 const nameInputRef = ref(null)
 const priceInputRef = ref(null)
 const productCategories = ref([])
 const productStatus = ref(true)
 
-selectedCategories.value = props.product.categories.map((c) => {
-  return c._id
-})
+selectedCategoryIds.value = [
+  ...store.product.categories.map((c) => {
+    return c._id
+  }),
+]
+
 const setProductCategories = () => {
   // prodState.selectedItem.categories = []
   // // console.log(selectedCategories.value)
@@ -31,27 +29,34 @@ const setProductCategories = () => {
   //   prodState.selectedItem.categories.push(catState.items.find((c) => c._id == selectedCategories.value[prop]))
   // }
 }
+
+// Update product categories
+const updateProductCategories = (event) => {
+  store.product.categories = []
+  for (const prop in selectedCategoryIds.value) {
+    const category = store.categories.find((c) => c._id == selectedCategoryIds.value[prop])
+    store.product.categories.push(category)
+  }
+}
 </script>
 
 <template>
   <div class="admin-right-nav">
+    <!-- {{ selectedCategoryIds }}==={{ store.product.categories }} -->
     <div class="save-changes shadow-md">
       <button class="btn btn-primary" @click.prevent="$emit('saveProduct')">Save Changes</button>
-      <FormsBaseToggle
-        v-model="productStatus"
-        label="Active"
-        @update:modelValue="$emit('productStatusUpdated', productStatus)"
-      />
+      <FormsBaseToggle v-model="productStatus" label="Active" @update:modelValue="$emit('saveProduct')" />
     </div>
     <div class="categories shadow-md">
       <header class="admin-section-header">Categories</header>
       <div class="category-list">
         <FormsBaseSelectMultiple
-          v-model="selectedCategories"
-          @update:modelValue="$emit('productCategoriesUpdated', selectedCategories)"
-          label="Select Categories"
+          v-model="selectedCategoryIds"
+          @update:modelValue="updateProductCategories"
+          label="Select
+        Categories"
           :options="
-            categories.map((c) => {
+            store.categories.map((c) => {
               return { key: c._id, name: c.name }
             })
           "

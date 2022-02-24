@@ -13,11 +13,11 @@ defineEmits(['saveCategory', 'parentCategorySelected'])
 const categoryParent = props.category.parent ? ref(props.category.parent._id) : ''
 
 const parentCategoryOptions = computed(() => {
-  // return props.categories
-  //   .filter((c) => c._id != props.category._id && (!c.parent || (c.parent && c.parent._id != props.category._id)))
-  //   .map((el) => {
-  //     return { key: el._id, name: el.name }
-  //   })
+  return props.categories
+    .filter((c) => c._id != props.category._id && (!c.parent || (c.parent && c.parent._id != props.category._id)))
+    .map((el) => {
+      return { key: el._id, name: el.name }
+    })
 })
 </script>
 

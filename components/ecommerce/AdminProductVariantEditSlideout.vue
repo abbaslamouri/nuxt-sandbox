@@ -1,34 +1,27 @@
 <script setup>
-import cloneDeep from 'lodash.clonedeep'
 import { useStore } from '~/store/useStore'
 
 import { useMessage } from '~/store/useMessage'
 
 const props = defineProps({
-  productVariant: {
-    type: Object,
-  },
+  // productVariant: {
+  //   type: Object,
+  // },
   index: {
     type: Number,
   },
-  attributes: {
-    type: Array,
-  },
+  // attributes: {
+  //   type: Array,
+  // },
   showVariantEditSlideout: {
     type: Boolean,
   },
-  attributeTerms: {
-    type: Array,
-  },
+  // attributeTerms: {
+  //   type: Array,
+  // },
 })
 
-const emit = defineEmits([
-  'saveVariant',
-  // 'saveVariants',
-  'variantEditSlideoutEventEmitted',
-  // 'slideoutVariantsUpdated',
-  // 'deleteAllVariantsEventEmitted',
-])
+const emit = defineEmits(['slideoutEventEmitted'])
 
 const store = useStore()
 
@@ -44,24 +37,18 @@ const showRegularPricesInput = ref(false)
 const salePrices = ref(null)
 const showSalePricesInput = ref(false)
 const editdVariant = ref({})
-// const editdVariantAttribute = ref({})
 const showMediaSelector = ref(false) // media selector toggler
+const current = JSON.stringify(store.variants[props.index])
 
 const showActions = ref(false)
 const galleryIntro = ref('This image gallery contains all images associated with this variation.')
 
-const current = cloneDeep(store.variants[props.index])
-console.log('C', current)
-console.log('S', store.variants[props.index])
-console.log('=', current == store.variants[props.index])
-
-// editdVariant.value = JSON.parse(JSON.stringify(props.productVariant))
-editdVariant.value = { ...props.productVariant }
+// editdVariant.value = { ...props.productVariant }
 
 const currentVariant = JSON.stringify(editdVariant.value)
 
 const getAttributeByVariantTermParent = (parentId) => {
-  return props.attributes
+  return store.product.attributes
     .find((a) => a.attribute._id == parentId)
     .terms.map((t) => {
       return { key: t._id, name: t.name }
@@ -89,9 +76,11 @@ const selectMedia = async (event) => {
 
 const closeSlideout = () => {
   showAlert.value = true
-  console.log('COMPARE', currentVariant === JSON.stringify(editdVariant.value))
-  if (currentVariant !== JSON.stringify(editdVariant.value)) return (showAlert.value = true)
-  emit('variantEditSlideoutEventEmitted', false)
+  console.log('COMPARE', current === JSON.stringify(store.variants[props.index]))
+  if (current !== JSON.stringify(store.variants[props.index])) return (showAlert.value = true)
+  emit('slideoutEventEmitted', false)
+  // emit('variantEditSlideoutEventEmitted', false)
+
   // const newAttributes = []
   // for (const prop in props.productVariants) {
   //   if (Object.values(props.productVariants[prop].attribute).length)
@@ -112,9 +101,8 @@ const setAttributeTerm = async (j, termId) => {
 }
 
 const updateVariant = async () => {
-  emit('variantEditSlideoutEventEmitted', false)
+  emit('variantUpdated', props.index)
   // emit('saveVariant', editdVariant.value)
-
   // emit('slideoutVariantsUpdated', slideoutVariants.value)
   // emit('slideoutEventEmitted', false)
   // showVariantsSlideout.value = false
@@ -122,8 +110,9 @@ const updateVariant = async () => {
 }
 
 const cancelVariant = () => {
-  store.variants[props.index] = current
-  emit('variantEditSlideoutEventEmitted', false)
+  store.variants[props.index] = JSON.parse(current)
+  console.log(store.variants[props.index])
+  emit('slideoutEventEmitted', false)
 }
 </script>
 
@@ -144,7 +133,7 @@ const cancelVariant = () => {
           </div>
           <div class="slideout__main">
             <div class="variant-edit">
-              <!-- <pre style="font-size: 1rem">old{{ productVariant }}====NEW{{ store.variants[index] }}</pre> -->
+              <pre style="font-size: 1rem">{{ index }}</pre>
               <h3>Select options for your variant</h3>
               <div class="attribute-terms">
                 <div class="term" v-for="(term, j) in store.variants[index].attrTerms" :key="term._id">
@@ -185,7 +174,9 @@ const cancelVariant = () => {
           </div>
           <div class="slideout__footer actions shadow-md">
             <button class="btn btn-secondary cancel" @click.prevent="cancelVariant">Cancel</button>
-            <button class="btn btn-primary save" @click.prevent="updateVariant">Save Changes</button>
+            <button class="btn btn-primary save" @click.prevent="$emit('slideoutEventEmitted', false)">
+              Save Changes
+            </button>
           </div>
           <!-- </section> -->
         </div>
