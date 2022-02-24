@@ -189,7 +189,7 @@ const updateVariants = async (event) => {
           <div class="slideout__main">
             <div class="attributes-details">
               <div v-if="!store.product._id">
-                <EcommerceAdminProductEmptyVariantMsg
+                <EcommerceAdminProductEmptyVariantsMsg
                   :productId="productId"
                   @slideoutEventEmitted="$emit('slideoutEventEmitted', $event)"
                 />

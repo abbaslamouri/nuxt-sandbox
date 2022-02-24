@@ -26,6 +26,8 @@ const mediaReference = ref({}) // sets which media to update once a selection is
 const galleryIntro = ref('This image gallery contains all images associated with this product including its variants.')
 const slug = route.params.slug === ' ' ? null : route.params.slug
 
+console.log('SL', slug)
+
 // Set query params
 const productParams = computed(() => {
   return {
@@ -66,7 +68,6 @@ const fetchCategories = async () => {
     const response = await $fetch('/api/v1/categories', { params: categoryParams.value })
     categories.value = response.docs
     store.categories = response.docs
-    // console.log('Categories', categories.value)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
@@ -355,7 +356,7 @@ const xxx = async (event) => {
             @attributesUpdated="updateAttributes"
           />
         </section>
-        <section class="variants" id="variants">
+        <section class="variants" id="variants" v-if="store.product.attributes.length">
           <EcommerceAdminProductVariantsContent
             :productVariants="variants"
             @slideoutEventEmitted="store.showVariantsSlideout = $event"

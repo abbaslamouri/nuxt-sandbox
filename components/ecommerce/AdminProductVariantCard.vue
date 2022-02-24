@@ -34,7 +34,7 @@ const cardVariant = ref({})
 
 const showActions = ref(false)
 const showVariantSlideout = ref(false)
-const showRemoveVariantAlert = ref(false)
+const showDeleteVariantAlert = ref(false)
 const showVariantEditSlideout = ref(false)
 
 cardVariant.value = { ...props.productVariant }
@@ -48,9 +48,10 @@ const getTerms = (attributeId) => {
   // return terms
 }
 
-const removeProductVariant = () => {
-  // if (!confirm('Are you sure?')) return
-  // prodState.selectedItem.variants.splice(props.i, 1)
+const deleteProductVariant = () => {
+  store.variants.splice(props.index, 1)
+  showDeleteVariantAlert.value = false
+  showActions.value = false
 }
 
 // const updateVariant = (attribute, termId) => {
@@ -75,6 +76,14 @@ const updateVariant = (event) => {
   console.log(event)
   cardVariant.value = event
 }
+
+const getVariantAttribute = (term, j) => {
+  if (Object.values(term).length) {
+    return store.attributes.find((a) => a._id == term.parent._id)
+  } else {
+    return store.product.attributes[j].attribute
+  }
+}
 </script>
 
 <template>
@@ -85,12 +94,12 @@ const updateVariant = (event) => {
       <img v-else src="/placeholder.png" alt="Variant Image" />
     </div>
     <div class="option td">
-      <div v-for="term in store.variants[index].attrTerms" :key="term" class="attribute-term">
+      <div v-for="(term, j) in store.variants[index].attrTerms" :key="term" class="attribute-term">
         <div class="attribute">
-          {{ store.attributes.find((a) => a._id == term.parent._id).name }}
+          {{ getVariantAttribute(term, j).name }}
         </div>
         <div class="term">
-          {{ store.attributeTerms.find((t) => t._id == term._id).name }}
+          {{ term.name }}
         </div>
       </div>
     </div>
@@ -106,16 +115,15 @@ const updateVariant = (event) => {
         <a href="#" class="link" @click.prevent="openVariantEditSlideout">
           <div class="edit">Edit</div>
         </a>
-        <a href="#" class="link" @click.prevent="showRemoveVariantAlert = true">
+        <a href="#" class="link" @click.prevent="showDeleteVariantAlert = true">
           <div class="cancel">Delete</div>
         </a>
       </div>
     </div>
-    <Alert v-if="showRemoveVariantAlert" @ok="removeProductVariant = false" @cancel="showRemoveVariantAlert = false">
-      <h3>You have unsaved changes</h3>
-      <p>Please save your changes before closing this window or click cancel to exit without saving</p>
+    <Alert v-if="showDeleteVariantAlert" @ok="deleteProductVariant" @cancel="showDeleteVariantAlert = false">
+      <h3>Are you sure you want to delete this product variation.</h3>
+      <!-- <p>Please save your changes before closing this window or click cancel to exit without saving</p> -->
     </Alert>
-    {{ index }}
     <EcommerceAdminProductVariantEditSlideout
       v-if="showVariantEditSlideout"
       :index="index"

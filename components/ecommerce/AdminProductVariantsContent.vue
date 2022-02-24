@@ -1,11 +1,7 @@
 <script setup>
-defineProps({
-  productVariants: {
-    type: Array,
-  },
-})
-
+import { useStore } from '~/store/useStore'
 defineEmits(['slideoutEventEmitted'])
+const store = useStore()
 </script>
 
 <template>
@@ -13,21 +9,13 @@ defineEmits(['slideoutEventEmitted'])
     <header class="admin-section-header">
       <p class="title">Variant</p>
       <button class="btn btn-heading" @click="$emit('slideoutEventEmitted', true)">
-        <span v-show="!productVariants.length">Add</span>
-        <span v-show="productVariants.length">Edit</span>
+        <span v-show="!store.variants.length">Add</span>
+        <span v-show="store.variants.length">Edit</span>
       </button>
     </header>
     <div class="content">
       <div>Different types of this product (e.g. size, color)</div>
       <div class="variants">
-        <!-- <div class="variant" v-for="variant in productVariants" :key="variant._id">
-          <p class="variant-name">{{ attribute.attribute.name }}:</p>
-          <div class="terms">
-            <div class="term" v-for="term in attribute.terms" :key="term._id">
-              <span class="term-name">{{ term.name }}</span>
-            </div>
-          </div>
-        </div> -->
       </div>
     </div>
   </section>
@@ -70,7 +58,6 @@ defineEmits(['slideoutEventEmitted'])
           display: flex;
           align-items: center;
           gap: 2rem;
-          // border: 1px solid red;
 
           .term {
             background-color: $slate-500;

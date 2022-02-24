@@ -90,18 +90,13 @@ const fetchVariants = async () => {
   try {
     variantParams.value.product = store.product._id
     const response = await $fetch('/api/v1/variants', { params: variantParams.value })
-    console.log('variants', response)
-
     store.variants = response.docs
-    console.log('variants', response)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
 }
 
 await fetchVariants()
-
-console.log('VAR', store.variants)
 
 const getCombinations = (options) => {
   let combinations = [[]]
@@ -121,10 +116,7 @@ const bulkAddVariants = () => {
   let terms = []
   if (!store.product.attributes.length)
     return (appMessage.errorMsg = 'I do not know how you got here but you need to create attributes first')
-
   terms = store.product.attributes.map((el) => [...el.terms])
-
-  // Add term combinations if any to variants
   if (getCombinations(terms)[0].length)
     store.variants = [...getCombinations(terms)].map((el) => {
       return {
@@ -140,6 +132,27 @@ const bulkAddVariants = () => {
         gallery: [],
       }
     })
+}
+
+const addSingleVariant = () => {
+  // const attributes = store.product.attributes.filter((a) => a.terms && a.terms.length > 0)
+  const variant = {
+    product: store.product._id,
+    attrTerms: [],
+    enabled: true,
+    shipping: {
+      dimensions: {},
+    },
+    stockQty: 0,
+    price: store.product.price,
+    sku: '',
+    gallery: [],
+  }
+  for (const prop in store.product.attributes) {
+    variant.attrTerms[prop] = {}
+  }
+  store.variants.unshift(variant)
+  console.log(store.variants)
 }
 
 const insertEmptyAttribute = () => {
@@ -282,12 +295,12 @@ const cancelVariants = () => {
 const handleVariantsAction = () => {
   if (!variantsActionSelect.value) return (appMessage.errorMsg = 'Please select an action')
   switch (variantsActionSelect.value) {
-    //   case 'create-all':
-    //     bulkAddVariants()
-    //     break
-    //   case 'add-variant':
-    //     addSingleVariant()
-    //     break
+    case 'create-all':
+      bulkAddVariants()
+      break
+    case 'add-variant':
+      addSingleVariant()
+      break
     case 'delete-all':
       showDeleteAllVariantsAlert.value = true
       break
@@ -323,9 +336,9 @@ const handleVariantsAction = () => {
               <button class="btn close"><IconsClose @click.prevent="closeSlideout" /></button>
             </div>
             <div class="main">
-              <!-- <pre style="font-size: 1rem">{{ store.variants }}</pre> -->
+              <pre style="font-size: 1rem">{{ store.product.attributes }}======={{ store.variants }}</pre>
               <div v-if="!store.product._id">
-                <EcommerceAdminProductEmptyVariantMsg
+                <EcommerceAdminProductEmptyAttributesMsg
                   :productId="store.product._id"
                   @slideoutEventEmitted="$emit('slideoutEventEmitted', $event)"
                 />

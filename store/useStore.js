@@ -10,8 +10,7 @@ export const useStore = defineStore('store', {
       attributeTerms: [],
       showAttributesSlideout: false,
       showVariantsSlideout: false,
-      showVariantEditSlideout: false,
-      
+      // showVariantEditSlideout: false,
     }
   },
 })

@@ -1,9 +1,6 @@
 <script setup>
-// defineProps({
-//   productId: {
-//     type: Object,
-//   },
-// })
+import { useStore } from '~/store/useStore'
+const store = useStore()
 
 defineEmits(['slideoutEventEmitted'])
 </script>
@@ -20,7 +17,7 @@ defineEmits(['slideoutEventEmitted'])
         can make within that group (e.g. blue).
       </p>
       <p class="sub-message"><IconsInfo />Using this feature requires you to save the product first.</p>
-      <button class="btn btn-primary" @click="$emit('slideoutEventEmitted', false)">Cancel</button>
+      <button class="btn btn-primary" @click="store.showAttributesSlideout = false">Cancel</button>
     </div>
   </div>
 </template>
@@ -30,8 +27,6 @@ defineEmits(['slideoutEventEmitted'])
 
 .empty-variant-message {
   margin-top: 20rem;
-  // border: 1px solid red;
-  // min-height: 100vh;
   font-size: 1.4rem;
   display: flex;
   align-items: center;
@@ -69,6 +64,5 @@ defineEmits(['slideoutEventEmitted'])
       align-self: flex-end;
     }
   }
-  // max-width: 36rem;
 }
 </style>

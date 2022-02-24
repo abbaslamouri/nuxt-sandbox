@@ -166,7 +166,7 @@ const updateVariants = async (event) => {
               </div>
               <div class="main">
                 <div v-if="!product._id">
-                  <EcommerceAdminProductEmptyVariantMsg :product="product" @hideSlideout="showSlideout = false" />
+                  <EcommerceAdminProductEmptyVariantsMsg :product="product" @hideSlideout="showSlideout = false" />
                 </div>
                 <div v-else class="attributes-variants">
                   <h3>Please select attributes to use for variants</h3>
