@@ -20,7 +20,7 @@ const props = defineProps({
   // },
 })
 
-const emit = defineEmits(['slideoutEventEmitted'])
+const emit = defineEmits(['slideoutEventEmitted', 'saveProduct'])
 
 const store = useStore()
 const router = useRouter()
@@ -31,65 +31,84 @@ const showAlert = ref(false)
 const showDeleteAllVariantsAlert = ref(false)
 const slideoutVariants = ref([])
 const variantsActionSelect = ref('')
-const regularPrices = ref(null)
-const showRegularPricesInput = ref(false)
-const salePrices = ref(null)
-const showSalePricesInput = ref(false)
+const regularPrice = ref(null)
+const showRegularPriceInput = ref(false)
+const salePrice = ref(null)
+const showSalePriceInput = ref(false)
 
 // for (const prop in store.productVariants) {
 //   store.variants.push(store.productVariants[prop])
 // }
-const currentVariants = JSON.stringify(store.variants)
 
-// console.log('COMPARE', currentVariants === JSON.stringify(store.variants))
+// console.log('COMPARE', current === JSON.stringify(store.variants))
 
-const variantActions = ref([
-  { key: 'create-all', name: 'Create variations form all attribute', disable: false },
+const variantActions = computed(() => [
+  { key: 'create-all', name: 'Create variations form all attribute', disabled: false },
   { key: 'add-variant', name: 'Add Variation', disabled: false },
   {
     key: 'delete-all',
     name: 'Delete all variants',
     disabled: false,
-    disabledIf: !store.variants.length,
+    disabledIf: store.variants.length ? false : true,
   },
   { key: 'disabled-action', name: 'Status', disabled: true },
   {
     key: 'toggle-enabled',
     name: 'Toggle Enabled',
     disabled: false,
-    disabledIf: !store.variants.length,
-  },
-  {
-    key: 'toggle-downloadable',
-    name: 'Toggle Downloadable',
-    disabled: false,
-    disabledIf: !store.variants.length,
+    disabledIf: store.variants.length ? false : true,
   },
   { key: 'disabled-action', name: 'Pricing', disabled: true },
   {
     key: 'set-regular-prices',
     name: 'Set Regular Prices',
     disabled: false,
-    disabledIf: !store.variants.length,
+    disabledIf: store.variants.length ? false : true,
   },
   {
     key: 'set-sale-prices',
     name: 'Set Sale Prices',
     disabled: false,
-    disabledIf: !store.variants.length,
+    disabledIf: store.variants.length ? false : true,
   },
 ])
+
+const variantBase = (terms = []) => {
+  return {
+    product: store.product._id,
+    attrTerms: terms,
+    enabled: true,
+    shipping: {
+      dimensions: {},
+    },
+    stockQty: 0,
+    price: store.product.price,
+    salePrice: store.product.salePrice,
+    sku: '',
+    gallery: [],
+  }
+}
 
 const variantParams = computed(() => {
   return {
     fields: 'product, attrTerms, gallery, price, salePrice, sku, stockQty, enabled',
   }
 })
+
+const getVariantAttribute = (term, j) => {
+  if (Object.values(term).length) {
+    return store.attributes.find((a) => a._id == term.parent._id)
+  } else {
+    return store.product.attributes[j].attribute
+  }
+}
+
 const fetchVariants = async () => {
   appMessage.errorMsg = null
   try {
     variantParams.value.product = store.product._id
     const response = await $fetch('/api/v1/variants', { params: variantParams.value })
+    console.log(response)
     store.variants = response.docs
   } catch (error) {
     appMessage.errorMsg = error.data
@@ -97,6 +116,7 @@ const fetchVariants = async () => {
 }
 
 await fetchVariants()
+const current = JSON.stringify(store.variants)
 
 const getCombinations = (options) => {
   let combinations = [[]]
@@ -119,54 +139,62 @@ const bulkAddVariants = () => {
   terms = store.product.attributes.map((el) => [...el.terms])
   if (getCombinations(terms)[0].length)
     store.variants = [...getCombinations(terms)].map((el) => {
-      return {
-        product: store.product._id,
-        attrTerms: [...el],
-        enabled: true,
-        shipping: {
-          dimensions: {},
-        },
-        stockQty: 0,
-        price: store.product.price,
-        sku: '',
-        gallery: [],
-      }
+      return variantBase([...el])
+      // return {
+      //   product: store.product._id,
+      //   attrTerms: [...el],
+      //   enabled: true,
+      //   shipping: {
+      //     dimensions: {},
+      //   },
+      //   stockQty: 0,
+      //   price: store.product.price,
+      //   salePrice: store.product.salePrice,
+      //   sku: '',
+      //   gallery: [],
+      // }
     })
 }
 
 const addSingleVariant = () => {
   // const attributes = store.product.attributes.filter((a) => a.terms && a.terms.length > 0)
-  const variant = {
-    product: store.product._id,
-    attrTerms: [],
-    enabled: true,
-    shipping: {
-      dimensions: {},
-    },
-    stockQty: 0,
-    price: store.product.price,
-    sku: '',
-    gallery: [],
-  }
+  const terms = []
   for (const prop in store.product.attributes) {
-    variant.attrTerms[prop] = {}
+    terms[prop] = {}
   }
-  store.variants.unshift(variant)
-  console.log(store.variants)
+  store.variants.unshift(variantBase([...terms]))
+  // const variant = {
+  //   product: store.product._id,
+  //   attrTerms: [],
+  //   enabled: true,
+  //   shipping: {
+  //     dimensions: {},
+  //   },
+  //   stockQty: 0,
+  //   price: store.product.price,
+  //   salePrice: store.product.salePrice,
+  //   sku: '',
+  //   gallery: [],
+  // }
+  // for (const prop in store.product.attributes) {
+  //   variant.attrTerms[prop] = {}
+  // }
+  // store.variants.unshift(variant)
+  // console.log(store.variants)
 }
 
-const insertEmptyAttribute = () => {
-  // console.log(store.variants.length == attributes.value.length)
-  if (store.variants.length == attributes.value.length)
-    return (appMessage.errorMsg = 'You have used all available attributes')
-  store.variants.push({
-    attribute: {},
-    terms: [],
-    defaultTerm: '',
-    active: true,
-    variation: false,
-  })
-}
+// const insertEmptyAttribute = () => {
+//   // console.log(store.variants.length == attributes.value.length)
+//   if (store.variants.length == attributes.value.length)
+//     return (appMessage.errorMsg = 'You have used all available attributes')
+//   store.variants.push({
+//     attribute: {},
+//     terms: [],
+//     defaultTerm: '',
+//     active: true,
+//     variation: false,
+//   })
+// }
 
 const updateCompAttribute = (event) => {
   // console.log('MNMNMNM')
@@ -187,8 +215,7 @@ const removeVariant = () => {
   // prodState.selectedItem.variants.splice(props.index, 1)
 }
 
-const updateVariants = async () => {
-  console.log('Save')
+const deleteDbVariants = async () => {
   appMessage.errorMsg = null
   try {
     const response = await $fetch('/api/v1/variants/delete-many', {
@@ -196,9 +223,16 @@ const updateVariants = async () => {
       params: { id: store.product._id },
     })
     console.log('deletedCount', response.deletedCount)
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+const saveDbVariants = async () => {
+  appMessage.errorMsg = null
+  try {
     let message = ''
     let error = ''
-    // const newVariants = []
     await Promise.all(
       store.variants.map(async (variant) => {
         try {
@@ -213,29 +247,93 @@ const updateVariants = async () => {
         }
       })
     )
+    appMessage.successMsg = 'Product variants saved succesfully'
     emit('slideoutEventEmitted', false)
     console.log('saved', store.variants)
-
-    router.push({ name: 'admin-ecommerce-products-slug', params: { slug: response.slug } })
+    // router.push({ name: 'admin-ecommerce-products-slug', params: { slug: response.slug } })
   } catch (error) {
     appMessage.errorMsg = error.data
+  }
+}
+
+const updateVariants = async () => {
+  console.log('Save', store.variants)
+  let errorMsg = ''
+  for (const vprop in store.variants) {
+    for (const prop in store.variants[vprop].attrTerms) {
+      if (!Object.keys(store.variants[vprop].attrTerms[prop]).length)
+        errorMsg += `Terms missing for attribute ${
+          getVariantAttribute(store.variants[vprop].attrTerms[prop], prop).name
+        }<br>`
+    }
+  }
+  if (errorMsg) {
+    appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`
+  } else {
+    await deleteDbVariants()
+    await saveDbVariants()
+    emit('saveProduct')
   }
 }
 
 const deleteAllVariants = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/variants/delete-many', {
-      method: 'POST',
-      params: { id: store.product._id },
-    })
-    // console.log('deletedCount', response.deletedCount)
-    if (response.deletedCount) appMessage.successMsg = 'All variants deleted succesfuluy'
-    store.variants = []
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
+  store.variants = []
+  showDeleteAllVariantsAlert.value = false
 }
+
+const toggleEnabled = () => {
+  for (const prop in store.variants) {
+    store.variants[prop].enabled = !store.variants[prop].enabled
+  }
+  appMessage.successMsg = `Status updated for all variants`
+}
+
+const setRegularPrices = () => {
+  for (const prop in store.variants) {
+    store.variants[prop].price = regularPrice.value
+  }
+  appMessage.successMsg = `Regular prices updated for all variants`
+  showRegularPriceInput.value = false
+}
+
+const setSalePrices = () => {
+  for (const prop in store.variants) {
+    store.variants[prop].salePrice = salePrice.value
+  }
+  appMessage.successMsg = `Sale  prices updated for all variants`
+  showSalePriceInput.value = false
+}
+
+const toggleVirtual = () => {
+  // let j = 0
+  // while (j < prodState.selectedItem.variants.length) {
+  //   prodState.selectedItem.variants[j].virtual = !prodState.selectedItem.variants[j].virtual
+  //   j++
+  // }
+}
+
+const toggleDownloadable = () => {
+  // let k = 0
+  // while (k < prodState.selectedItem.variants.length) {
+  //   prodState.selectedItem.variants[k].downloadable = !prodState.selectedItem.variants[k].downloadable
+  //   k++
+  // }
+}
+
+// const deleteAllVariants = async () => {
+//   appMessage.errorMsg = null
+//   try {
+//     const response = await $fetch('/api/v1/variants/delete-many', {
+//       method: 'POST',
+//       params: { id: store.product._id },
+//     })
+//     // console.log('deletedCount', response.deletedCount)
+//     if (response.deletedCount) appMessage.successMsg = 'All variants deleted succesfuluy'
+//     store.variants = []
+//   } catch (error) {
+//     appMessage.errorMsg = error.data
+//   }
+// }
 
 // const updateVariant = (event) => {
 //   console.log('I', index)
@@ -249,7 +347,7 @@ const deleteAllVariants = async () => {
 // }
 
 const closeSlideout = () => {
-  if (currentVariants !== JSON.stringify(store.variants)) return (showAlert.value = true)
+  if (current !== JSON.stringify(store.variants)) return (showAlert.value = true)
   emit('slideoutEventEmitted', false)
 }
 
@@ -274,7 +372,7 @@ const updatesVariants = async () => {
 }
 
 const cancelVariants = () => {
-  store.variants = JSON.parse(currentVariants)
+  store.variants = JSON.parse(current)
   emit('slideoutEventEmitted', false)
 }
 
@@ -304,23 +402,20 @@ const handleVariantsAction = () => {
     case 'delete-all':
       showDeleteAllVariantsAlert.value = true
       break
-    //   case 'toggle-enabled':
-    //     toggleEnabled()
-    //     break
-    //   case 'toggle-virtual':
-    //     toggleVirtual()
-    //     break
-    //   case 'toggle-downloadable':
-    //     toggleDownloadable()
-    //     break
-    //   case 'set-regular-prices':
-    //     showRegularPricesInput.value = true
-    //     break
-    //   case 'set-sale-prices':
-    //     showSalePricesInput.value = true
-    //     break
+    case 'toggle-enabled':
+      toggleEnabled()
+      break
+    case 'set-regular-prices':
+      showRegularPriceInput.value = true
+      break
+    case 'set-sale-prices':
+      showSalePriceInput.value = true
+      break
   }
-  variantsActionSelect.value = ''
+  console.log('hererereer')
+  setTimeout(() => {
+    variantsActionSelect.value = ''
+  }, 10)
 }
 </script>
 
@@ -336,7 +431,7 @@ const handleVariantsAction = () => {
               <button class="btn close"><IconsClose @click.prevent="closeSlideout" /></button>
             </div>
             <div class="main">
-              <pre style="font-size: 1rem">{{ store.product.attributes }}======={{ store.variants }}</pre>
+              <!-- <pre style="font-size: 1rem">{{ JSON.parse(current) }}======={{ store.variants }}</pre> -->
               <div v-if="!store.product._id">
                 <EcommerceAdminProductEmptyAttributesMsg
                   :productId="store.product._id"
@@ -351,31 +446,43 @@ const handleVariantsAction = () => {
                       v-model="variantsActionSelect"
                       nullOption="Select Action"
                       :options="variantActions"
+                      @update:modelValue="handleVariantsAction"
                     />
-                    <div class="actions">
-                      <form v-if="showRegularPricesInput" @submit.prevent="setRegularPrices">
-                        <label>Regular Price</label>
-                        <input type="text" class="bg-gray-300" v-model="regularPrices" />
-                        <button class="btn">submit</button>
+                    <div class="price-actions">
+                      <form v-if="showRegularPriceInput" @submit.prevent="setRegularPrices">
+                        <div class="regular-price">
+                          <div class="base-input">
+                            <label>Regular Price</label>
+                            <input type="text" class="bg-gray-300" v-model="regularPrice" />
+                          </div>
+                          <button class="btn btn-secondary">submit</button>
+                        </div>
                       </form>
-                      <form v-if="showSalePricesInput" @submit.prevent="setSalePrices">
-                        <label>Sale Price</label>
-                        <input type="text" class="bg-gray-300" v-model="salePrices" />
-                        <button class="btn">submit</button>
+                      <form v-if="showSalePriceInput" @submit.prevent="setSalePrices">
+                        <div class="sale-price">
+                          <div class="base-input">
+                            <label>Sale Price</label>
+                            <input type="text" class="bg-gray-300" v-model="salePrice" />
+                          </div>
+                          <button class="btn btn-secondary">submit</button>
+                        </div>
                       </form>
-                      <button class="btn btn-primary" @click="handleVariantsAction">Go</button>
-                      <button class="btn btn-primary" @click="bulkAddVariants">Bulk Add</button>
+                      <!-- <button class="btn btn-primary" @click="handleVariantsAction">Go</button> -->
                     </div>
+                    <button class="btn btn-primary" @click="bulkAddVariants">Bulk Add</button>
                   </div>
                 </header>
                 <main>
-                  <div class="table admin-product-variants">
+                  <div class="table admin-product-variants" v-if="store.variants.length">
                     <div class="table__header">
                       <div class="row">
+                        <div class="th">ID</div>
                         <div class="th">Image</div>
                         <div class="th">Variation</div>
+                        <div class="th">Enabled</div>
                         <div class="th">Stock Qty.</div>
                         <div class="th">Price</div>
+                        <div class="th">Sale Price</div>
                         <div class="th">SKU</div>
                         <div class="th">Actions</div>
                       </div>
@@ -442,6 +549,7 @@ const handleVariantsAction = () => {
     // border: 1px solid red;
     overflow: scroll;
     padding: 2rem;
+
     header {
       display: flex;
       align-items: center;
@@ -452,9 +560,19 @@ const handleVariantsAction = () => {
       .actions {
         display: flex;
         align-items: center;
-        gap: 2rem;
+        gap: 4rem;
+
         .base-select {
           width: 30rem;
+        }
+
+        .price-actions {
+          .regular-price,
+          .sale-price {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+          }
         }
       }
     }

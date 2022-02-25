@@ -2,8 +2,10 @@
 // const prodState = inject('prodState')
 // const attState = inject('attState')
 // const attTermsState = inject('attTermsState')
-
+import uniq from 'lodash.uniq'
+import isEqual from 'lodash.isequal'
 import { useStore } from '~/store/useStore'
+import { useMessage } from '~/store/useMessage'
 
 const props = defineProps({
   // attributes: {
@@ -26,6 +28,7 @@ const props = defineProps({
 const emit = defineEmits(['cardAttributeUpdated', 'cardAttributeAttributeUpdated', 'attributeToDeleteSelected'])
 
 const store = useStore()
+const appMessage = useMessage()
 
 // const cardAttribute = ref({})
 const attributeSelectId = ref('')
@@ -112,6 +115,67 @@ const removeDuplicateVariants = () => {
   // )
 }
 
+const deleteDbVariants = async () => {
+  appMessage.errorMsg = null
+  try {
+    const response = await $fetch('/api/v1/variants/delete-many', {
+      method: 'POST',
+      params: { id: store.product._id },
+    })
+    console.log('deletedCount', response.deletedCount)
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+const saveDbVariants = async () => {
+  appMessage.errorMsg = null
+  try {
+    let message = ''
+    let error = ''
+    await Promise.all(
+      store.variants.map(async (variant) => {
+        try {
+          const response = await $fetch(`/api/v1/variants`, {
+            method: 'POST',
+            body: variant,
+          })
+          message += ` deleted.<br>`
+        } catch (err) {
+          console.error('MyERROR', err)
+          error += `${err.data}.<br>`
+        }
+      })
+    )
+    appMessage.successMsg = 'Product variants saved succesfully'
+    emit('slideoutEventEmitted', false)
+    console.log('saved', store.variants)
+    // router.push({ name: 'admin-ecommerce-products-slug', params: { slug: response.slug } })
+  } catch (error) {
+    appMessage.errorMsg = error.data
+  }
+}
+
+const updateVariants = async () => {
+  console.log('Save', store.variants)
+  let errorMsg = ''
+  for (const vprop in store.variants) {
+    for (const prop in store.variants[vprop].attrTerms) {
+      if (!Object.keys(store.variants[vprop].attrTerms[prop]).length)
+        errorMsg += `Terms missing for attribute ${
+          getVariantAttribute(store.variants[vprop].attrTerms[prop], prop).name
+        }<br>`
+    }
+  }
+  if (errorMsg) {
+    appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`
+  } else {
+    await deleteDbVariants()
+    await saveDbVariants()
+    emit('saveProduct')
+  }
+}
+
 const setDefaultTerm = (event) => {
   console.log('E', event.target.value)
   const term = store.attributeTerms.find((t) => t._id == event.target.value)
@@ -121,8 +185,41 @@ const setDefaultTerm = (event) => {
 }
 
 const deleteAttribute = () => {
+  console.log('var before', store.product.attributes[props.index].attribute._id)
+  const attributeId = store.product.attributes[props.index].attribute._id
+  console.log(attributeId)
+  for (const prop in store.variants) {
+    const i = store.variants[prop].attrTerms.findIndex((t) => t.parent._id == attributeId)
+    if (i !== -1) store.variants[prop].attrTerms.splice(i, 1)
+  }
   store.product.attributes.splice(props.index, 1)
+
+  for (const prop in store.variants) {
+    let i = prop
+    while (i < store.variants.length - 1) {
+      i++
+      console.log(
+        isEqual(
+          store.variants[prop].attrTerms.map((t) => t._id),
+          store.variants[i].attrTerms.map((t) => t._id)
+        )
+      )
+      if (
+        isEqual(
+          store.variants[prop].attrTerms.map((t) => t._id),
+          store.variants[i].attrTerms.map((t) => t._id)
+        )
+      ) {
+        store.variants[prop].delete = true
+      }
+    }
+  }
+  store.variants = store.variants.filter((v) => !v.delete)
+  console.log('XXXXX', store.variants)
+  updateVariants()
+
   showDeleteAttributeAlert.value = false
+  showActions.value = false
   // emit('attributeToDeleteSelected', props.index)
   // if (!confirm('Are you sure?')) return
   // // Remove all terms whose parent attarubute is to be deleted and mark all variants with empty eterms fro deletion
@@ -258,7 +355,7 @@ const removeAllTerms = () => {
 <template>
   <div class="admin-product-attribute shadow-md row">
     <!-- {{ store.product.attributes[index].attribute._id }}===={{ store.product.attributes[index].defaultTerm.name }} -->
-    <pre style="font-size: 1rem"></pre>
+    <pre style="font-size: 1rem">{{ store.product.attributes[index].attribute._id }}</pre>
     <div class="attribute td">
       <div class="base-select">
         <select @change="updateAttribute" class="centered">

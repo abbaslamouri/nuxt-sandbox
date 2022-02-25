@@ -1,5 +1,7 @@
 <script setup>
 import { useStore } from '~/store/useStore'
+import { useMessage } from '~/store/useMessage'
+import isEqual from 'lodash.isequal'
 
 const props = defineProps({
   index: {
@@ -13,18 +15,34 @@ const props = defineProps({
 const emit = defineEmits(['slideoutEventEmitted'])
 
 const store = useStore()
-
+const appMessage = useMessage()
 const showAlert = ref(false)
 const showMediaSelector = ref(false) // media selector toggler
 const current = JSON.stringify(store.variants[props.index])
-const galleryIntro = ref('This image gallery contains all images associated with this variation.')
+const showProductGallery = ref(false)
 
-const selectMedia = async (event) => {
+const getVariantAttribute = (term, j) => {
+  if (Object.values(term).length) {
+    return store.attributes.find((a) => a._id == term.parent._id)
+  } else {
+    return store.product.attributes[j].attribute
+  }
+}
+
+const getVariantAttributeTerm = (term, j) => {
+  const attributes = store.product.attributes.find((a) => a.attribute._id == getVariantAttribute(term, j)._id)
+  return attributes.terms.map((t) => {
+    return { key: t._id, name: t.name }
+  })
+}
+
+const updateVariantMedia = async (event) => {
   showMediaSelector.value = false
   for (const prop in event) {
     const i = store.variants[props.index].gallery.findIndex((m) => m._id === event[prop]._id)
     if (i === -1) {
       store.variants[props.index].gallery.push(event[prop])
+      store.product.gallery.push(event[prop])
     }
   }
 }
@@ -42,8 +60,32 @@ const setAttributeTerm = async (j, termId) => {
 
 const cancelVariant = () => {
   store.variants[props.index] = JSON.parse(current)
-  console.log(store.variants[props.index])
   emit('slideoutEventEmitted', false)
+}
+
+const checkVariant = () => {
+  for (const prop in store.variants) {
+    if (
+      prop * 1 !== props.index * 1 &&
+      isEqual(
+        store.variants[prop].attrTerms.map((t) => t._id),
+        store.variants[props.index].attrTerms.map((t) => t._id)
+      )
+    ) {
+      appMessage.errorMsg = `Duplicate variants not allowed.  You new variant is identical to ${prop * 1 + 1} variant`
+      return
+    }
+  }
+
+  let errorMsg = ''
+  for (const prop in store.variants[props.index].attrTerms) {
+    if (!Object.keys(store.variants[props.index].attrTerms[prop]).length)
+      errorMsg += `Terms missing for attribute ${
+        getVariantAttribute(store.variants[props.index].attrTerms[prop], prop).name
+      }<br>`
+  }
+  if (errorMsg) appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`
+  else emit('slideoutEventEmitted', false)
 }
 </script>
 
@@ -54,41 +96,45 @@ const cancelVariant = () => {
       <transition name="slideout">
         <div class="slideout__content variant" v-show="showVariantEditSlideout">
           <div class="slideout__header shadow-md">
-            <!-- <div class="title">
-              <span> Edit Variant: </span>
-              <span v-for="term in store.variants[index].attrTerms" :key="term._id"
-                >{{ term.parent.name }}: {{ term.name }},
-              </span>
-            </div> -->
+            <div class="title">
+              <div>Edit Variant:</div>
+              <div class="attribute-terms" v-for="(term, j) in store.variants[index].attrTerms" :key="`term-${j}`">
+                <span class="attribute">{{ getVariantAttribute(term, j).name }}:</span>
+                <span class="term" v-if="Object.keys(term).length">{{ term.name }}</span>
+              </div>
+            </div>
             <button class="btn close"><IconsClose @click.prevent="closeSlideout" /></button>
           </div>
           <div class="slideout__main">
             <div class="variant-edit">
-              <pre style="font-size: 1rem">{{ store.variants[index] }}</pre>
-              <h3>Select options for your variant</h3>
+              <!-- <pre style="font-size: 1rem">{{ store.variants[index] }}</pre> -->
+              <h3>Variant Options</h3>
               <div class="attribute-terms">
                 <div class="term" v-for="(term, j) in store.variants[index].attrTerms" :key="term._id">
-                  <!-- <FormsBaseSelect
+                  <FormsBaseSelect
                     :value="store.variants[index].attrTerms[j]._id"
-                    :label="term.parent.name"
+                    :label="getVariantAttribute(term, j).name"
                     @update:modelValue="setAttributeTerm(j, $event)"
-                    :options="
-                      store.product.attributes
-                        .find((a) => a.attribute._id == term.parent._id)
-                        .terms.map((t) => {
-                          return { key: t._id, name: t.name }
-                        })
-                    "
-                  /> -->
+                    :options="getVariantAttributeTerm(term, j)"
+                  />
                 </div>
               </div>
-              <h3>Variant Details</h3>
+              <div class="enabled">
+                <FormsBaseToggle v-model="store.variants[index].enabled" label="Enabled" />
+              </div>
               <EcommerceAdminImageGallery
                 :gallery="store.variants[index].gallery"
-                :galleryIntro="galleryIntro"
-                galleryType="product"
+                galleryType="variant"
                 @mediaSelectorClicked="showMediaSelector = true"
+                @selectFromProductImages="showProductGallery = true"
               />
+
+              <EcommerceAdminImageGallerySelect
+                :index="index"
+                :showProductGallery="showProductGallery"
+                @productGalleryEventEmitted="showProductGallery = $event"
+              />
+
               <div class="sku-stock">
                 <div class="sku">
                   <FormsBaseInput label="SKU" placeholder="SKU" v-model="store.variants[index].sku" />
@@ -99,6 +145,12 @@ const cancelVariant = () => {
               </div>
               <div class="price">
                 <FormsBaseInput label="Price" placeholder="Price" currency v-model="store.variants[index].price" />
+                <FormsBaseInput
+                  label="Sale Price"
+                  placeholder="Sale Price"
+                  currency
+                  v-model="store.variants[index].salePrice"
+                />
               </div>
               <div class="description">
                 <FormsBaseInput
@@ -111,16 +163,14 @@ const cancelVariant = () => {
           </div>
           <div class="slideout__footer actions shadow-md">
             <button class="btn btn-secondary cancel" @click.prevent="cancelVariant">Cancel</button>
-            <button class="btn btn-primary save" @click.prevent="$emit('slideoutEventEmitted', false)">
-              Save Changes
-            </button>
+            <button class="btn btn-primary save" @click.prevent="checkVariant">Save Changes</button>
           </div>
         </div>
       </transition>
     </div>
     <div class="media-selector" v-if="showMediaSelector">
       <LazyMediaUploader
-        @mediaSelected="selectMedia"
+        @mediaSelected="updateVariantMedia"
         @mediaSelectCancel="showMediaSelector = false"
         v-if="showMediaSelector"
       />
@@ -135,6 +185,15 @@ const cancelVariant = () => {
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
 .variant {
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .attribute-terms {
+    font-size: 1.4rem;
+    font-weight: 400;
+  }
   .variant-edit {
     width: 100%;
     display: flex;
@@ -163,6 +222,12 @@ const cancelVariant = () => {
       .stock {
         flex: 1;
       }
+    }
+
+    .price {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
     }
 
     .actions {

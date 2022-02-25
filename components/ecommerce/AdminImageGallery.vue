@@ -12,7 +12,7 @@ const props = defineProps({
   },
 })
 
-defineEmits(['mediaSelectorClicked'])
+defineEmits(['mediaSelectorClicked', 'selectFromProductImages'])
 const draggableElements = ref([])
 const pickIndex = ref(null)
 
@@ -56,7 +56,7 @@ const setFeaturedImage = (event) => {
   <section class="admin-image-gallery shadow-md" id="image-gallery">
     <header class="admin-section-header">Image Gallery</header>
     <div class="content">
-      <div class="intro">
+      <div class="intro" v-if="galleryIntro">
         <IconsInfo />
         <p>{{ galleryIntro }}</p>
       </div>
@@ -64,7 +64,7 @@ const setFeaturedImage = (event) => {
         <div class="thumbs" v-if="gallery.length">
           <div
             class="thumb shadow-md relative"
-            :class="{ product: galleryType === 'product' }"
+            :class="{ product: galleryType === 'product' || galleryType == 'variant' }"
             v-for="(image, index) in gallery"
             :key="image._id"
             @dragover="handleDragover($event, index)"
@@ -91,10 +91,21 @@ const setFeaturedImage = (event) => {
           </div>
         </div>
       </div>
-      <button class="btn btn-image-select" @click.prevent="$emit('mediaSelectorClicked')">
-        <IconsImage />
-        <span> Select Images </span>
-      </button>
+      <div class="image-select-actions">
+        <button class="btn btn-image-select" @click.prevent="$emit('mediaSelectorClicked')">
+          <IconsImage />
+          <span> Select New Images </span>
+        </button>
+        <button
+          v-if="galleryType == 'variant'"
+          class="btn btn-image-select"
+          @click.prevent="$emit('selectFromProductImages')"
+        >
+          <IconsImage />
+          <span> Select From Product Images </span>
+        </button>
+      </div>
+
       <p>PNG, JPG, and GIF Accepted</p>
     </div>
   </section>
@@ -320,6 +331,11 @@ const setFeaturedImage = (event) => {
           }
         }
       }
+    }
+
+    .image-select-actions {
+      display: flex;
+      gap: 3rem;
     }
   }
 

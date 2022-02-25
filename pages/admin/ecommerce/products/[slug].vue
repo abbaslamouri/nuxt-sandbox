@@ -31,7 +31,7 @@ console.log('SL', slug)
 // Set query params
 const productParams = computed(() => {
   return {
-    fields: 'name, slug, price, permalink, categories, description, attributes, gallery, manageInventory',
+    fields: 'name, slug, price, salePrice, permalink, categories, description, attributes, gallery, manageInventory',
     slug,
     indexPage: false,
   }
@@ -201,7 +201,6 @@ const saveProduct = async () => {
   try {
     if (!store.product.name || !store.product.price)
       return (appMessage.errorMsg = 'Product name and price are required')
-    if (current === JSON.stringify(store.product)) return (appMessage.errorMsg = 'All is good')
     store.product.slug = slugify(store.product.name, { lower: true })
     if (!store.product.permalink) store.product.permalink = slugify(store.product.name, { lower: true })
 
@@ -364,6 +363,7 @@ const xxx = async (event) => {
           <EcommerceAdminProductVariantsSlideout
             v-show="store.showVariantsSlideout"
             @slideoutEventEmitted="store.showVariantsSlideout = $event"
+            @saveProduct="saveProduct"
           />
         </section>
         <!-- <LazyEcommerceAdminProductAttributes

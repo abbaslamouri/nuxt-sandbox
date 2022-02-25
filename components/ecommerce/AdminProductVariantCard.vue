@@ -72,11 +72,6 @@ const openVariantEditSlideout = () => {
   // prodState.selectedItem.variants.splice(props.i, 1)
 }
 
-const updateVariant = (event) => {
-  console.log(event)
-  cardVariant.value = event
-}
-
 const getVariantAttribute = (term, j) => {
   if (Object.values(term).length) {
     return store.attributes.find((a) => a._id == term.parent._id)
@@ -89,6 +84,9 @@ const getVariantAttribute = (term, j) => {
 <template>
   <div class="admin-product-variant row">
     <!-- <pre style="font-size: 1rem">{{ index }}==={{ store.variants }}</pre> -->
+    <div class="id td">
+      {{ index + 1 }}
+    </div>
     <div class="thumb td">
       <img v-if="store.variants[index].gallery[1]" :src="store.variants[index].gallery[1].path" alt="Variant Image" />
       <img v-else src="/placeholder.png" alt="Variant Image" />
@@ -103,11 +101,13 @@ const getVariantAttribute = (term, j) => {
         </div>
       </div>
     </div>
+    <div class="enabled td">{{ store.variants[index].enabled ? 'Enabled' : 'Disabled' }}</div>
     <div class="stock-qty td">
       <div v-if="!store.product.manageInventory">&infin;</div>
       <div v-else>{{ store.variants[index].stockQty }}</div>
     </div>
     <div class="price td">{{ store.variants[index].price }}</div>
+    <div class="sale-price td">{{ store.variants[index].salePrice }}</div>
     <div class="sku td">{{ store.variants[index].sku }}</div>
     <div class="actions td">
       <button class="btn" @click.prevent="showActions = !showActions"><IconsMoreHoriz /></button>
@@ -142,6 +142,13 @@ const getVariantAttribute = (term, j) => {
   .td {
     display: flex;
     align-items: center;
+  }
+
+  .id {
+    background-color: $slate-400;
+    color: $slate-50;
+    border-radius: 3px;
+    font-size: 1.5rem;
   }
 
   .thumb {

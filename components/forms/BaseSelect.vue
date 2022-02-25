@@ -39,6 +39,7 @@ export default {
 
 <template>
   <div class="base-select">
+    <!-- {{options}} -->
     <!-- <div class="custom-select"> -->
     <select
       :class="{ centered: !label }"
