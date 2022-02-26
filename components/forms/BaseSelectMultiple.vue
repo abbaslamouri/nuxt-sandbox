@@ -112,6 +112,7 @@ export default {
     border: 2px solid $slate-500;
     border-radius: 5px 5px 0 0;
     cursor: pointer;
+    border: 1px solid red;
 
     .label {
       grid-row: 1 / 2;

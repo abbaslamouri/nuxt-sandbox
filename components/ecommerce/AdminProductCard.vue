@@ -1,32 +1,29 @@
 <script setup>
-const props = defineProps({
+defineProps({
   product: {
     type: Object,
     required: true,
   },
 })
 defineEmits(['itemToDeleteEmitted'])
-// const deleteById = inject('deleteById')
-const router = useRouter()
+
 const showActions = ref(false)
 const showAlert = ref(false)
-const itemToDeleteId = ref(null)
 
-const deleteProduct = async () => {
-  // await store.deleteById(itemToDeleteId.value)
-  // if (!store.errorMsg) {
-  //   console.log('DEL')
-  //   router.go()
-  // }
+const handleDeleteBtnClick = async () => {
+  showActions.value = false
+  showAlert.value = true
 }
 </script>
 
 <template>
   <div class="product row shadow-md">
     <div class="thumb-title td">
-      <!-- {{ itemToDeleteId }} -->
       <div class="thumb">
-        <img v-if="product.gallery && product.gallery[1] && product.gallery[1].path" :src="`${product.gallery[1].path}`" />
+        <img
+          v-if="product.gallery && product.gallery[1] && product.gallery[1].path"
+          :src="`${product.gallery[1].path}`"
+        />
         <img v-else class="thumb" :src="`/placeholder.png`" />
       </div>
       <h3 class="title">{{ product.name }}</h3>
@@ -40,7 +37,7 @@ const deleteProduct = async () => {
         <NuxtLink class="link" :to="{ name: 'admin-ecommerce-products-slug', params: { slug: product.slug } }">
           <span>Edit</span>
         </NuxtLink>
-        <a href="#" class="link" @click.prevent="showAlert = true">
+        <a href="#" class="link" @click.prevent="handleDeleteBtnClick">
           <div class="cancel">Delete</div>
         </a>
       </div>

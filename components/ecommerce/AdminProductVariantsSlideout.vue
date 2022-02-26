@@ -417,6 +417,37 @@ const handleVariantsAction = () => {
     variantsActionSelect.value = ''
   }, 10)
 }
+
+const removeVariantByTermId = (termId) => {
+  // let j = 0
+  // while (j < prodState.selectedItem.variants.length) {
+  //   const k = prodState.selectedItem.variants[j].attrTerms.findIndex((t) => t._id == termId)
+  //   const countBefore = prodState.selectedItem.variants[j].attrTerms.length
+  //   // console.log('Before', countBefore)
+  //   if (k !== -1) prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
+  //   const countAfter = prodState.selectedItem.variants[j].attrTerms.length
+  //   // console.log('After', countAfter)
+  //   if (countBefore != countAfter) prodState.selectedItem.variants[j].discard = true
+  //   j++
+  // }
+  // prodState.selectedItem.variants = prodState.selectedItem.variants.filter((el) => !el.discard)
+  // if (!prodState.selectedItem.variants.length) prodState.selectedItem.variants = []
+}
+
+const removeDuplicateVariants = () => {
+  // prodState.selectedItem.variants = Array.from(
+  //   prodState.selectedItem.variants
+  //     .reduce((map, obj) => {
+  //       let id = ''
+  //       for (const prop in obj.attrTerms) {
+  //         id = `${id}_${obj.attrTerms[prop]._id}`
+  //       }
+  //       // console.log(id)
+  //       return map.set(id, obj)
+  //     }, new Map())
+  //     .values()
+  // )
+}
 </script>
 
 <template>

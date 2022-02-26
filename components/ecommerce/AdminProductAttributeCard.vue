@@ -1,25 +1,9 @@
 <script setup>
-// const prodState = inject('prodState')
-// const attState = inject('attState')
-// const attTermsState = inject('attTermsState')
-import uniq from 'lodash.uniq'
 import isEqual from 'lodash.isequal'
 import { useStore } from '~/store/useStore'
 import { useMessage } from '~/store/useMessage'
 
 const props = defineProps({
-  // attributes: {
-  //   type: Object,
-  //   required: true,
-  // },
-  // attributeTerms: {
-  //   type: Array,
-  //   required: true,
-  // },
-  // productAttribute: {
-  //   type: Object,
-  //   required: true,
-  // },
   index: {
     type: Number,
   },
@@ -29,11 +13,6 @@ const emit = defineEmits(['cardAttributeUpdated', 'cardAttributeAttributeUpdated
 
 const store = useStore()
 const appMessage = useMessage()
-
-// const cardAttribute = ref({})
-const attributeSelectId = ref('')
-const cardDefaultTerm = ref({})
-const cardDefaultTermId = ref(null)
 const termSelectId = ref('')
 const termToDeleteId = ref(null)
 const showActions = ref(false)
@@ -41,47 +20,77 @@ const showDeleteAttributeAlert = ref(false)
 const showDeleteTermAlert = ref(false)
 const showDeleteAllTermsAlert = ref(false)
 
-// attributeSelectId.value = store.product.attributes[props.index].attribute._id
-// cardDefaultTermId.value = store.product.attributes[props.index].defaultTerm._id
-
-// const attributeSelect = ref(props.prodAttr.attribute._id ? props.prodAttr.attribute._id : '')
-// const cardDefaultTerm = ref(props.prodAttr.defaultTerm._id ? props.prodAttr.defaultTerm._id : '')
-
-// cardAttribute.value = { ...props.productAttribute }
-
-const attributesSelectOptions = () =>
-  store.attributes.map((a) => {
-    return { key: a._id, name: a.name }
-  })
-
 const updateAttribute = (event) => {
-  console.log('E', event.target.value)
-  const newAttr = store.attributes.find((a) => a._id == event.target.value)
-  console.log('ID', event.target.value)
-  console.log(store.attributeTerms)
-  console.log('NEW', newAttr)
-  console.log('NEW', event.target.value)
-  store.product.attributes[props.index].attribute = newAttr
+  store.product.attributes[props.index].attribute = store.attributes.find((a) => a._id == event.target.value)
   store.product.attributes[props.index].terms = []
-  const newAttrTerms = store.attributeTerms.filter((t) => t.parent._id == event.target.value)
-  console.log('NEWTERM', newAttrTerms)
+  store.product.attributes[props.index].defaultTerm = store.attributeTerms.filter(
+    (t) => t.parent._id == event.target.value
+  )[0]
+}
 
-  store.product.attributes[props.index].defaultTerm = newAttrTerms[0]
-  // cardDefaultTermId.value = store.product.attributes[props.index].defaultTerm._id
+const setDefaultTerm = (event) => {
+  console.log('E', event.target.value)
+  const term = store.attributeTerms.find((t) => t._id == event.target.value)
+  console.log('T', term)
 
-  // for (const prop in prodState.selectedItem.attributes[props.i].terms) {
-  //   removeVariantByTermId(prodState.selectedItem.attributes[props.i].terms[prop]._id)
-  // }
-  // prodState.selectedItem.attributes[props.i].terms = []
-  // prodState.selectedItem.attributes[props.i].attribute = attributes.find((a) => a._id == attributeSelect.value)
-  // prodState.selectedItem.attributes[props.i].defaultTerm = attTermsState.items.find(
-  //   (t) => t.parent == attributeSelect.value
-  // )
+  if (term) store.product.attributes[props.index].defaultTerm = term
+}
+
+const addAllTerms = () => {
+  store.product.attributes[props.index].terms = store.attributeTerms.filter(
+    (t) => t.parent._id == store.product.attributes[props.index].attribute._id
+  )
+}
+const removeAllTerms = () => {
+  store.product.attributes[props.index].terms = []
+  showDeleteAllTermsAlert.value = false
+}
+
+const addTerm = () => {
+  const term = store.attributeTerms.find((t) => t._id == termSelectId.value)
+  if (term) {
+    if (!store.product.attributes[props.index].terms) {
+      store.product.attributes[props.index].terms = [term]
+    } else {
+      const index = store.product.attributes[props.index].terms.findIndex((t) => t._id == termSelectId.value)
+      if (index == -1) store.product.attributes[props.index].terms.push(term)
+    }
+  }
+  termSelectId.value = ''
 }
 
 const setTermToDelete = (termId) => {
   termToDeleteId.value = termId
   showDeleteTermAlert.value = true
+}
+
+const removeTerm = () => {
+  const index = store.product.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
+  if (index !== -1) store.product.attributes[props.index].terms.splice(index, 1)
+  showDeleteTermAlert.value = false
+}
+
+const deleteAttribute = () => {
+  console.log('var before', store.product.attributes[props.index].attribute._id)
+  const attributeId = store.product.attributes[props.index].attribute._id
+  console.log(attributeId)
+  for (const prop in store.variants) {
+    const i = store.variants[prop].attrTerms.findIndex((t) => t.parent._id == attributeId)
+    if (i !== -1) store.variants[prop].attrTerms.splice(i, 1)
+  }
+  store.product.attributes.splice(props.index, 1)
+  showDeleteAttributeAlert.value = false
+  showActions.value = false
+}
+
+const cancelDeleteAttribute = () => {
+  showDeleteAttributeAlert.value = false
+  showActions.value = false
+}
+
+const handleDeleteAttributeBtnClick = () => {
+  showDeleteAttributeAlert.value = true
+  showActions.value = false
 }
 
 const removeVariantByTermId = (termId) => {
@@ -176,15 +185,7 @@ const updateVariants = async () => {
   }
 }
 
-const setDefaultTerm = (event) => {
-  console.log('E', event.target.value)
-  const term = store.attributeTerms.find((t) => t._id == event.target.value)
-  console.log('T', term)
-
-  if (term) store.product.attributes[props.index].defaultTerm = term
-}
-
-const deleteAttribute = () => {
+const hastodowithduplicatevariants = () => {
   console.log('var before', store.product.attributes[props.index].attribute._id)
   const attributeId = store.product.attributes[props.index].attribute._id
   console.log(attributeId)
@@ -240,126 +241,17 @@ const deleteAttribute = () => {
   // // console.log(xx)
   // // [...new Set(prodState.selectedItem.variants.map((el) => el))]
 }
-
-const addAllTerms = () => {
-  store.product.attributes[props.index].terms = store.attributeTerms.filter(
-    (t) => t.parent._id == store.product.attributes[props.index].attribute._id
-  )
-}
-
-const addTerm = () => {
-  const term = store.attributeTerms.find((t) => t._id == termSelectId.value)
-  if (term) {
-    if (!store.product.attributes[props.index].terms) {
-      store.product.attributes[props.index].terms = [term]
-    } else {
-      const index = store.product.attributes[props.index].terms.findIndex((t) => t._id == termSelectId.value)
-      if (index == -1) store.product.attributes[props.index].terms.push(term)
-    }
-  }
-  termSelectId.value = ''
-}
-
-const cancelDeleteAttribute = () => {
-  showDeleteAttributeAlert.value = false
-  showActions.value = false
-}
-
-const removeTerm = () => {
-  // console.log('HHHHHHH')
-  const index = store.product.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
-  if (index !== -1) store.product.attributes[props.index].terms.splice(index, 1)
-  showDeleteTermAlert.value = false
-
-  // if (!confirm('Are you sure?')) return
-  // prodState.selectedItem.attributes[props.i].terms.splice(j, 1)
-  // removeVariantByTermId(termId)
-  // let j = 0
-  // prodState.selectedItem.attributes[props.i].terms.splice(i, 1)
-  // while (j < prodState.selectedItem.variants.length) {
-  //   const k = prodState.selectedItem.variants[j].attrTerms.findIndex((t) => t._id == termId)
-  //   if (k !== -1) prodState.selectedItem.variants[j].discard = true
-  //   j++
-  // }
-  // prodState.selectedItem.variants = prodState.selectedItem.variants.filter((el) => !el.discard)
-  // if (prodState.selectedItem.variants.length < 2) prodState.selectedItem.variants = []
-  // if (!prodState.selectedItem.attributes[props.i].terms.length)
-  // delete prodState.selectedItem.attributes[props.i].terms
-  // if (prodState.selectedItem.attributes[props.i].terms.length < 2) {
-  //   while (j < prodState.selectedItem.variants.length) {
-  //     const k = prodState.selectedItem.variants[j].attrTerms.findIndex(
-  //       (t) => t._id == prodState.selectedItem.attributes[props.i].terms[0]._id
-  //     )
-  //     if (k !== -1) {
-  //       // prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
-  //       // if (prodState.selectedItem.variants[j].attrTerms.length < 2)
-  //       prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
-  //     }
-  //     j++
-  //   }
-  // }
-  // prodState.selectedItem.variants = prodState.selectedItem.variants.filter((el) => !el.delete)
-  // prodState.selectedItem.attributes[props.i].terms.splice(0, 1)
-  // if (prodState.selectedItem.attributes[props.i].terms.length < 2) {
-  //   prodState.selectedItem.variants.filter((v) => {
-  //     return v.attrTerms.filter((a) => a.parent != prodState.selectedItem.attributes[props.i].item._id)
-  //   })
-  // }
-  // j = 0
-  // while (j < prodState.selectedItem.variants.length) {
-  //   const k = prodState.selectedItem.variants[j].attrTerms.findIndex((t) => t._id == termId)
-  //   if (k !== -1) {
-  //     prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
-  //     if (prodState.selectedItem.variants[j].attrTerms.length < 2) prodState.selectedItem.variants[j].delete = true
-  //   }
-  //   j++
-  // }
-}
-
-const removeAllTerms = () => {
-  store.product.attributes[props.index].terms = []
-  showDeleteAllTermsAlert.value = false
-
-  // // Remove all terms from ttribute
-  // if (!confirm('Are you sure?')) return
-  // for (const prop in prodState.selectedItem.attributes[props.i].terms) {
-  //   removeVariantByTermId(prodState.selectedItem.attributes[props.i].terms[prop]._id)
-  // }
-  // prodState.selectedItem.attributes[props.i].terms = []
-  // const index = prodState.selectedItem.attributes.findIndex(
-  //   (a) => a._id == prodState.selectedItem.attributes[props.i]._id
-  // )
-  // console.log(index)
-  // if (index !== -1) prodState.selectedItem.attributes[props.i].terms = []
-}
-
-// watch(
-//   () => prodState.selectedItem.attributes[props.i],
-//   (current, old) => {
-//     console.log('C', current)
-//     console.log('O', old)
-//   },
-//   { deep: true }
-// )
-
-// watch(
-//   () => cardAttribute.value,
-//   (current) => {
-//     console.log(current)
-//     emit('cardAttributeUpdated', { attr: current, index: props.index })
-//   },
-//   { deep: true }
-// )
 </script>
 
 <template>
   <div class="admin-product-attribute shadow-md row">
     <!-- {{ store.product.attributes[index].attribute._id }}===={{ store.product.attributes[index].defaultTerm.name }} -->
-    <pre style="font-size: 1rem">{{ store.product.attributes[index].attribute._id }}</pre>
+    <!-- <pre style="font-size: 1rem">{{ store.product.attributes[index] }}</pre> -->
+    <div class="id">{{ index * 1 + 1 }}</div>
     <div class="attribute td">
       <div class="base-select">
         <select @change="updateAttribute" class="centered">
-          <option value="">Attribute</option>
+          <option value="">Select Attribute</option>
           <option
             v-for="option in store.attributes.map((a) => {
               return { key: a._id, name: a.name }
@@ -377,7 +269,7 @@ const removeAllTerms = () => {
     <div class="default-term td">
       <div class="base-select" v-if="Object.keys(store.product.attributes[index].attribute).length">
         <select @change="setDefaultTerm">
-          <option value="">Default Term</option>
+          <option value="">Select Default Term</option>
           <option
             v-for="option in store.attributeTerms
               .filter((t) => t.parent._id == store.product.attributes[index].attribute._id)
@@ -446,7 +338,7 @@ const removeAllTerms = () => {
     <div class="actions td">
       <button class="btn" @click.prevent="showActions = !showActions"><IconsMoreHoriz /></button>
       <div class="menu shadow-md" v-show="showActions">
-        <a href="#" class="link" @click.prevent="showDeleteAttributeAlert = true">
+        <a href="#" class="link" @click.prevent="handleDeleteAttributeBtnClick">
           <div class="cancel">Delete</div>
         </a>
       </div>
@@ -456,7 +348,7 @@ const removeAllTerms = () => {
       <p>All variants associated with this attribute will also be removed.</p>
     </Alert>
     <Alert v-if="showDeleteTermAlert" @ok="removeTerm" @cancel="showDeleteTermAlert = false">
-      <h3>Are you sure you want to remove this term?</h3>
+      <h3>Are you sure you want to remove this attribute term?</h3>
       <p>All variants associated with this term will also be removed.</p>
     </Alert>
     <Alert v-if="showDeleteAllTermsAlert" @ok="removeAllTerms" @cancel="showDeleteAllTermsAlert = false">
@@ -475,19 +367,11 @@ const removeAllTerms = () => {
   padding: 1rem;
 
   .attribute {
-    // width: 20rem;
+    width: 18rem;
   }
 
-  // border: 1px solid red;
-
-  .attribute-default-term {
-    width: 20rem;
-    // .base-select {
-    //   select {
-    //     padding: 1rem 2rem !important;
-    //   }
-    // }
-    // border: 1px solid red;
+  .default-term {
+    width: 18rem;
   }
 
   .terms {
@@ -496,12 +380,10 @@ const removeAllTerms = () => {
       border: 1px solid $slate-300;
 
       display: flex;
-      // align-items: stretch;
       gap: 1rem;
       font-size: 1.2rem;
       padding: 1rem;
       .term-actions {
-        // border: 1px solid teal;
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
@@ -521,22 +403,16 @@ const removeAllTerms = () => {
       }
 
       .terms-list {
-        // display: flex;
-        // align-items: center;
         padding: 0.7rem 2rem;
         width: 100%;
         min-height: 100%;
         border: 1px solid $slate-300;
 
         .list {
-          // flex: 1;
-          // border: 1px solid $slate-300;
-
           display: flex;
           flex-wrap: wrap;
           align-items: center;
           gap: 1rem;
-          // height: 100%;
           width: 100%;
         }
 
@@ -563,32 +439,5 @@ const removeAllTerms = () => {
       }
     }
   }
-
-  // .attribute-actions {
-  //   // border: 1px solid red;
-  //   position: relative;
-  //   justify-self: flex-end;
-
-  //   .btn {
-  //     // border: none;
-  //     padding: 0.5rem;
-  //     border-radius: 5px;
-  //   }
-
-  //   .menu {
-  //     position: absolute;
-  //     top: -40%;
-  //     right: 100%;
-  //     border: 1px solid $slate-300;
-  //     padding: 1rem 2rem;
-  //     background-color: white;
-  //     z-index: 9;
-  //     font-size: 1.4rem;
-
-  //     .cancel {
-  //       color: $red-500;
-  //     }
-  //   }
-  // }
 }
 </style>

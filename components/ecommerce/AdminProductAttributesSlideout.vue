@@ -63,7 +63,6 @@ for (const prop in props.productAttributes) {
 await Promise.all([fetchAttributes(), fetchAttributeTerms()])
 
 const insertEmptyAttribute = () => {
-  // console.log(slideoutAttributes.value.length == attributes.value.length)
   if (store.product.attributes.length == attributes.value.length)
     return (appMessage.errorMsg = 'You have used all available attributes')
   store.product.attributes.push({
@@ -71,43 +70,43 @@ const insertEmptyAttribute = () => {
     terms: [],
     defaultTerm: {},
     active: true,
-    variation: false,
+    variation: true,
   })
 }
 
-const updateAttribute = (event) => {
-  // console.log('MNMNMNM')
-  slideoutAttributes.value[event.index] = event.attr
-}
+// const updateAttribute = (event) => {
+//   // console.log('MNMNMNM')
+//   slideoutAttributes.value[event.index] = event.attr
+// }
 
-const deleteAttribute = (event) => {
-  slideoutAttributes.value.splice(event, 1)
-  // console.log(event)
-}
+// const deleteAttribute = (event) => {
+//   slideoutAttributes.value.splice(event, 1)
+//   // console.log(event)
+// }
 
-const getAttribute = (attributeId) => {
-  // return prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].item
-}
+// const getAttribute = (attributeId) => {
+//   // return prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].item
+// }
 
-const getTerms = (attributeId) => {
-  // const terms = prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].terms
-  // return terms
-}
+// const getTerms = (attributeId) => {
+//   // const terms = prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].terms
+//   // return terms
+// }
 
-const removeVariant = () => {
-  // if (!confirm('Are you sure?')) return
-  // prodState.selectedItem.variants.splice(props.index, 1)
-}
+// const removeVariant = () => {
+//   // if (!confirm('Are you sure?')) return
+//   // prodState.selectedItem.variants.splice(props.index, 1)
+// }
 
-const updateVariant = (attribute, termId) => {
-  // console.log('AT', attribute)
-  // console.log(value)
-  // const term = attribute.terms.find((t) => t._id == termId)
-  // console.log('T', term)
-  // if (!prodState.selectedItem.variants[props.index].attrTerms.length) {
-  // prodState.selectedItem.variants[props.index].attrTerms.push(term)
-  // }
-}
+// const updateVariant = (attribute, termId) => {
+//   // console.log('AT', attribute)
+//   // console.log(value)
+//   // const term = attribute.terms.find((t) => t._id == termId)
+//   // console.log('T', term)
+//   // if (!prodState.selectedItem.variants[props.index].attrTerms.length) {
+//   // prodState.selectedItem.variants[props.index].attrTerms.push(term)
+//   // }
+// }
 
 const closeSlideout = () => {
   // console.log('Before', JSON.parse(currentAttributes))
@@ -139,17 +138,21 @@ const closeSlideout = () => {
 
 const updateAttributes = async () => {
   const newAttributes = []
+  const errorMsg = ''
   for (const prop in store.product.attributes) {
-    if (Object.values(store.product.attributes[prop].attribute).length)
+    if (Object.values(store.product.attributes[prop].attribute).length) {
       newAttributes.push(store.product.attributes[prop])
+    } else {
+      errorMsg = `You must select attribute terms.  Please select a value for attribute ${prop * 1 + 1} `
+      break
+    }
   }
-  store.product.attributes = newAttributes
-  // console.log('CCCC', store.product.attributes)
-  emit('attributesUpdated', store.product.attributes)
-  store.showAttributesSlideout = false
-
-  // store.product.showAttributesSlideout.value = false
-  // emit('productAttributesUpdated', newAttributes)
+  if (errorMsg) {
+  } else {
+    store.product.attributes = newAttributes
+    emit('attributesUpdated', store.product.attributes)
+    store.showAttributesSlideout = false
+  }
 }
 
 const cancelAttributes = () => {
@@ -157,23 +160,14 @@ const cancelAttributes = () => {
   store.showAttributesSlideout = false
 }
 
-const updateVariants = async (event) => {
-  // console.log('ECV', event)
-  // await deleteVariants()
-  // variants.value = event
-  // await createVariants()
-  // store.product.showAttributesSlideout.value = false
-  // emit('saveVariants')
-}
-
-// watch(
-//   () => slideoutAttributes.value,
-//   (current) => {
-//     console.log(current)
-//     emit('attributesUpdated', slideoutAttributes.value)
-//   },
-//   { deep: true }
-// )
+// const updateVariants = async (event) => {
+//   // console.log('ECV', event)
+//   // await deleteVariants()
+//   // variants.value = event
+//   // await createVariants()
+//   // store.product.showAttributesSlideout.value = false
+//   // emit('saveVariants')
+// }
 </script>
 
 <template>
@@ -195,17 +189,18 @@ const updateVariants = async (event) => {
                 />
               </div>
               <div v-else class="attributes-table">
-                <!-- <pre style="font-size: 1rem">{{ slideoutAttributes }}======={{ productAttributes }}</pre> -->
+                <pre style="font-size: 1rem">{{ store.product.attributes }}</pre>
 
                 <h4>Please select attributes for your product</h4>
                 <header>
                   <h2>Attributes</h2>
                   <button class="btn btn-primary" @click="insertEmptyAttribute">Add New</button>
                 </header>
-                <main>
+                <main v-if="store.product.attributes.length">
                   <div class="table admin-product-attributes">
                     <div class="table__header">
                       <div class="row">
+                        <div class="th">ID</div>
                         <div class="th">Attribute</div>
                         <div class="th">Default Term</div>
                         <div class="th">Enable</div>

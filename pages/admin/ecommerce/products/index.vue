@@ -8,7 +8,8 @@ definePageMeta({
   layout: 'admin',
 })
 
-const route = useRoute()
+const { state, fetchAll, deleteSingle } = useProduct()
+
 const appMessage = useMessage()
 const products = ref([])
 const count = ref(null) // item count taking into account params
@@ -18,7 +19,6 @@ const page = ref(1)
 const perPage = ref(6)
 const sortField = ref('createdAt')
 const sortOrder = ref('-')
-// console.log(route)
 
 const pages = computed(() =>
   count.value % perPage.value ? parseInt(count.value / perPage.value) + 1 : parseInt(count.value / perPage.value)
@@ -27,7 +27,6 @@ const pages = computed(() =>
 // Set query params
 const params = computed(() => {
   return {
-    fields: 'name, slug, permalink, stockQty, orders, sales',
     page: page.value,
     limit: perPage.value,
     sort: `${sortOrder.value}${sortField.value}`,
@@ -36,53 +35,43 @@ const params = computed(() => {
   }
 })
 
-const fetchAll = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/products', { params: params.value })
-    console.log(response)
-
+// Fetch all
+const updateProducts = async () => {
+  const response = await fetchAll(params.value)
+  if (state.errorMsg) {
+    appMessage.errorMsg = state.errorMsg
+  } else {
     products.value = response.docs
     count.value = response.count
     totalCount.value = response.totalCount
-  } catch (error) {
-    appMessage.errorMsg = error.data
   }
 }
-
-// Fetch all
-await fetchAll()
-// console.log('P', products.value)
 
 // Search
 const handleSearch = async (event) => {
   keyword.value = event
   page.value = 1
-  await fetchAll()
+  await updateProducts()
 }
 
 // Set current page
 const setPage = async (currentPage) => {
   page.value = currentPage
-  await fetchAll()
+  await updateProducts()
 }
 
-const deleteProduct = async (event) => {
-  appMessage.errorMsg = null
-  try {
-    await $fetch('/api/v1/products', { method: 'DELETE', params: { id: event } })
-    appMessage.successMsg = 'Product deleted'
-    await fetchAll()
-  } catch (error) {
-    appMessage.errorMsg = error.data
+// Delete product
+const deleteProduct = async (id) => {
+  await deleteSingle(id)
+  if (state.errorMsg) {
+    appMessage.errorMsg = state.errorMsg
+  } else {
+    appMessage.successMsg = 'Product deleted succesfully'
+    await updateProducts()
   }
 }
-</script>
 
-<script>
-export default {
-  layout: 'admin',
-}
+await updateProducts()
 </script>
 
 <template>
@@ -112,9 +101,9 @@ export default {
             </div>
             <div class="table__body">
               <EcommerceAdminProductCard
-                :product="product"
                 v-for="product in products"
                 :key="product._id"
+                :product="product"
                 @itemToDeleteEmitted="deleteProduct"
               />
             </div>
