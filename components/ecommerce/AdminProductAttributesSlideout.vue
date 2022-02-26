@@ -2,68 +2,18 @@
 import { useStore } from '~/store/useStore'
 import { useMessage } from '~/store/useMessage'
 
-const props = defineProps({
-  productAttributes: {
-    type: Array,
-  },
-  productId: {
-    type: String,
-  },
-})
+defineEmits(['saveVariants', 'slideoutEventEmitted'])
 
-const emit = defineEmits(['saveVariants', 'slideoutEventEmitted', 'attributesUpdated'])
+const saveProduct = inject('saveProduct')
+const { state, fetchAttributes, fetchAttributeTerms } = useProduct()
 
 const store = useStore()
 const appMessage = useMessage()
-const attributes = ref([])
-const attributeTerms = ref([])
 const showAlert = ref(false)
-const slideoutAttributes = ref([])
-const current = JSON.stringify(store.product.attributes)
-
-const attributeParams = computed(() => {
-  return {
-    fields: 'name, slug',
-  }
-})
-const attributeTermsParams = computed(() => {
-  return {
-    fields: 'name, slug, parent',
-  }
-})
-
-const fetchAttributes = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
-    attributes.value = response.docs
-    store.attributes = response.docs
-    // console.log('Attributes', attributes.value)
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
-const fetchAttributeTerms = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
-    attributeTerms.value = response.docs
-    store.attributeTerms = response.docs
-    // console.log('Terms', attributeTerms.value)
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
-for (const prop in props.productAttributes) {
-  slideoutAttributes.value.push(props.productAttributes[prop])
-}
-
-await Promise.all([fetchAttributes(), fetchAttributeTerms()])
+let response = null
 
 const insertEmptyAttribute = () => {
-  if (store.product.attributes.length == attributes.value.length)
+  if (store.product.attributes.length == store.attributes.length)
     return (appMessage.errorMsg = 'You have used all available attributes')
   store.product.attributes.push({
     attribute: {},
@@ -74,71 +24,18 @@ const insertEmptyAttribute = () => {
   })
 }
 
-// const updateAttribute = (event) => {
-//   // console.log('MNMNMNM')
-//   slideoutAttributes.value[event.index] = event.attr
-// }
-
-// const deleteAttribute = (event) => {
-//   slideoutAttributes.value.splice(event, 1)
-//   // console.log(event)
-// }
-
-// const getAttribute = (attributeId) => {
-//   // return prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].item
-// }
-
-// const getTerms = (attributeId) => {
-//   // const terms = prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].terms
-//   // return terms
-// }
-
-// const removeVariant = () => {
-//   // if (!confirm('Are you sure?')) return
-//   // prodState.selectedItem.variants.splice(props.index, 1)
-// }
-
-// const updateVariant = (attribute, termId) => {
-//   // console.log('AT', attribute)
-//   // console.log(value)
-//   // const term = attribute.terms.find((t) => t._id == termId)
-//   // console.log('T', term)
-//   // if (!prodState.selectedItem.variants[props.index].attrTerms.length) {
-//   // prodState.selectedItem.variants[props.index].attrTerms.push(term)
-//   // }
-// }
-
 const closeSlideout = () => {
-  // console.log('Before', JSON.parse(currentAttributes))
-  console.log('COMPARE', current === JSON.stringify(store.product.attributes))
   if (current !== JSON.stringify(store.product.attributes)) return (showAlert.value = true)
   store.showAttributesSlideout = false
-  // const newAttributes = []
-  // for (const prop in props.productAttributes) {
-  //   if (Object.values(props.productAttributes[prop].attribute).length)
-  //     newAttributes.push(props.productAttributes[prop])
-  // }
-  // props.productAttributes = newAttributes
-  // console.log('After', props.productAttributes)
 }
 
-// const saveslideoutAttributes = () => {
-//   const newAttributes = []
-//   for (const prop in slideoutAttributes.value) {
-//     if (Object.values(slideoutAttributes.value[prop].attribute).length)
-//       newAttributes.push(slideoutAttributes.value[prop])
-//   }
-//   slideoutAttributes.value = newAttributes
-//   // console.log('CCCC', slideoutAttributes.value)
-//   emit('attributesUpdated', slideoutAttributes.value)
-
-//   // store.product.showAttributesSlideout.value = false
-//   // emit('productAttributesUpdated', newAttributes)
-// }
-
 const updateAttributes = async () => {
+  if (current == JSON.stringify(store.product.attributes)) {
+    store.showAttributesSlideout = false
+    return
+  }
   const newAttributes = []
-  const errorMsg = ''
+  let errorMsg = ''
   for (const prop in store.product.attributes) {
     if (Object.values(store.product.attributes[prop].attribute).length) {
       newAttributes.push(store.product.attributes[prop])
@@ -148,11 +45,12 @@ const updateAttributes = async () => {
     }
   }
   if (errorMsg) {
-  } else {
-    store.product.attributes = newAttributes
-    emit('attributesUpdated', store.product.attributes)
-    store.showAttributesSlideout = false
+    appMessage.errorMsg = errorMsg
+    return
   }
+  store.product.attributes = newAttributes
+  saveProduct(store.product)
+  store.showAttributesSlideout = false
 }
 
 const cancelAttributes = () => {
@@ -160,18 +58,27 @@ const cancelAttributes = () => {
   store.showAttributesSlideout = false
 }
 
-// const updateVariants = async (event) => {
-//   // console.log('ECV', event)
-//   // await deleteVariants()
-//   // variants.value = event
-//   // await createVariants()
-//   // store.product.showAttributesSlideout.value = false
-//   // emit('saveVariants')
-// }
+response = await fetchAttributes()
+if (state.errorMsg) {
+  appMessage.errorMsg = state.errorMsg
+  store.attributes = []
+} else {
+  store.attributes = response.docs
+}
+
+response = await fetchAttributeTerms()
+if (state.errorMsg) {
+  appMessage.errorMsg = state.errorMsg
+  store.attributeTerms = []
+} else {
+  store.attributeTerms = response.docs
+}
+
+const current = JSON.stringify(store.product.attributes)
 </script>
 
 <template>
-  <section class="slideout">
+  <section class="slideout attributes">
     <div class="overlay"></div>
     <div class="slideout__wrapper" @click.self="closeSlideout">
       <transition name="slideout">
@@ -184,14 +91,12 @@ const cancelAttributes = () => {
             <div class="attributes-details">
               <div v-if="!store.product._id">
                 <EcommerceAdminProductEmptyVariantsMsg
-                  :productId="productId"
+                  :productId="store.$attrsproduct._id"
                   @slideoutEventEmitted="$emit('slideoutEventEmitted', $event)"
                 />
               </div>
               <div v-else class="attributes-table">
-                <pre style="font-size: 1rem">{{ store.product.attributes }}</pre>
-
-                <h4>Please select attributes for your product</h4>
+                <!-- <pre style="font-size: 1rem">{{ store.product.attributes }}</pre> -->
                 <header>
                   <h2>Attributes</h2>
                   <button class="btn btn-primary" @click="insertEmptyAttribute">Add New</button>
@@ -222,7 +127,13 @@ const cancelAttributes = () => {
           </div>
           <div class="slideout__footer actions shadow-md">
             <button class="btn btn-secondary cancel" @click.prevent="cancelAttributes">Cancel</button>
-            <button class="btn btn-primary save" @click.prevent="updateAttributes">Save Changes</button>
+            <button
+              class="btn btn-primary save"
+              @click.prevent="updateAttributes"
+              :disabled="current == JSON.stringify(store.product.attributes)"
+            >
+              Save Changes
+            </button>
           </div>
         </div>
       </transition>
@@ -238,59 +149,28 @@ const cancelAttributes = () => {
 @import '@/assets/scss/variables';
 
 .attributes {
-  .attributes-details {
-    .attributes-table {
-      // width: 100%;
+  .attributes-table {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    overflow: scroll;
+    padding: 2rem;
+
+    header {
       display: flex;
-      flex-direction: column;
-      gap: 2rem;
-      // height: 100%;
-      overflow: scroll;
+      align-items: center;
+      justify-content: space-between;
       padding: 2rem;
-
-      header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 2rem;
-        background-color: $slate-300;
-      }
-
-      .main {
-        // height: 100%;
-        // // border: 1px solid red;
-        // overflow: scroll;
-        // padding: 2rem;
-
-        // .attributes-table {
-        // 	display: flex;
-        // 	flex-direction: column;
-        // 	gap: 2rem;
-
-        // 	header {
-        // 		display: flex;
-        // 		align-items: center;
-        // 		justify-content: space-between;
-        // 	}
-        // }
-      }
-      // .footer {
-      // 	display: flex;
-      // 	align-items: center;
-      // 	justify-content: flex-end;
-      // 	gap: 2rem;
-      // 	padding: 2rem;
-      // 	background-color: $slate-300;
-      // }
+      background-color: $slate-300;
     }
+  }
 
-    .actions {
-      // display: flex;
-      // align-items: center;
-      // gap: 2rem;
-      // .base-select {
-      // 	width: 30rem;
-      // }
+  .actions {
+    .save {
+      &:disabled {
+        background-color: $slate-400;
+        cursor: not-allowed;
+      }
     }
   }
 }

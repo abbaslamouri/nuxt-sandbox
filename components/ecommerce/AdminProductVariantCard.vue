@@ -2,75 +2,19 @@
 import { useStore } from '~/store/useStore'
 
 const props = defineProps({
-  // productVariant: {
-  //   type: Object,
-  //   required: true,
-  // },
-  // productAttributes: {
-  //   type: Array,
-  //   required: true,
-  // },
   index: {
     type: Number,
     required: true,
   },
-  // attributes: {
-  //   type: Array,
-  // },
-  // attributeTerms: {
-  //   type: Array,
-  // },
 })
 
 defineEmits(['mediaSelectorClicked', 'showVariantSlideout', 'slideoutEventEmitted'])
 
 const store = useStore()
 
-// const props = defineProps({
-//   // variant: Object,
-//   index: Number,
-// })
-const cardVariant = ref({})
-
 const showActions = ref(false)
-const showVariantSlideout = ref(false)
 const showDeleteVariantAlert = ref(false)
 const showVariantEditSlideout = ref(false)
-
-cardVariant.value = { ...props.productVariant }
-
-const getAttribute = (attributeId) => {
-  // return prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].item
-}
-
-const getTerms = (attributeId) => {
-  // const terms = prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].terms
-  // return terms
-}
-
-const deleteProductVariant = () => {
-  store.variants.splice(props.index, 1)
-  showDeleteVariantAlert.value = false
-  showActions.value = false
-}
-
-// const updateVariant = (attribute, termId) => {
-// console.log('AT', attribute)
-// console.log(value)
-// const term = attribute.terms.find((t) => t._id == termId)
-// console.log('T', term)
-// if (!prodState.selectedItem.variants[props.i].attrTerms.length) {
-// prodState.selectedItem.variants[props.i].attrTerms.push(term)
-// }
-// }
-
-const openVariantEditSlideout = () => {
-  showActions.value = false
-  showVariantEditSlideout.value = true
-
-  // if (!confirm('Are you sure?')) return
-  // prodState.selectedItem.variants.splice(props.i, 1)
-}
 
 const getVariantAttribute = (term, j) => {
   if (Object.values(term).length) {
@@ -79,11 +23,25 @@ const getVariantAttribute = (term, j) => {
     return store.product.attributes[j].attribute
   }
 }
+
+const handleDeleteVariantBtnClick = () => {
+  showDeleteVariantAlert.value = true
+  showActions.value = false
+}
+const deleteProductVariant = () => {
+  store.variants.splice(props.index, 1)
+  showDeleteVariantAlert.value = false
+}
+
+const openVariantEditSlideout = () => {
+  showActions.value = false
+  showVariantEditSlideout.value = true
+}
 </script>
 
 <template>
   <div class="admin-product-variant row">
-    <!-- <pre style="font-size: 1rem">{{ index }}==={{ store.variants }}</pre> -->
+    <!-- <pre style="font-size: 1rem">{{ index }}==={{ store.variants[index] }}</pre> -->
     <div class="id td">
       {{ index + 1 }}
     </div>
@@ -115,7 +73,7 @@ const getVariantAttribute = (term, j) => {
         <a href="#" class="link" @click.prevent="openVariantEditSlideout">
           <div class="edit">Edit</div>
         </a>
-        <a href="#" class="link" @click.prevent="showDeleteVariantAlert = true">
+        <a href="#" class="link" @click.prevent="handleDeleteVariantBtnClick">
           <div class="cancel">Delete</div>
         </a>
       </div>
@@ -139,16 +97,12 @@ const getVariantAttribute = (term, j) => {
 .admin-product-variant {
   cursor: pointer;
 
-  .td {
-    display: flex;
-    align-items: center;
-  }
-
   .id {
     background-color: $slate-400;
     color: $slate-50;
     border-radius: 3px;
     font-size: 1.5rem;
+    padding: 1rem;
   }
 
   .thumb {

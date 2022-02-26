@@ -2,45 +2,19 @@
 import { useMessage } from '~/store/useMessage'
 import { useStore } from '~/store/useStore'
 
-const props = defineProps({
-  // product: {
-  //   type: Object,
-  // },
-  // productVariants: {
-  //   type: Array,
-  // },
-  // product.attributes: {
-  // 	type: Array,
-  // },
-  // productId: {
-  //   type: String,
-  // },
-  // showVariantsSlideout: {
-  //   type: Boolean,
-  // },
-})
-
 const emit = defineEmits(['slideoutEventEmitted', 'saveProduct'])
 
+const { state, fetchVariants } = useProduct()
+
 const store = useStore()
-const router = useRouter()
 const appMessage = useMessage()
-const attributes = ref([])
-const attributeTerms = ref([])
 const showAlert = ref(false)
 const showDeleteAllVariantsAlert = ref(false)
-const slideoutVariants = ref([])
 const variantsActionSelect = ref('')
 const regularPrice = ref(null)
 const showRegularPriceInput = ref(false)
 const salePrice = ref(null)
 const showSalePriceInput = ref(false)
-
-// for (const prop in store.productVariants) {
-//   store.variants.push(store.productVariants[prop])
-// }
-
-// console.log('COMPARE', current === JSON.stringify(store.variants))
 
 const variantActions = computed(() => [
   { key: 'create-all', name: 'Create variations form all attribute', disabled: false },
@@ -89,12 +63,6 @@ const variantBase = (terms = []) => {
   }
 }
 
-const variantParams = computed(() => {
-  return {
-    fields: 'product, attrTerms, gallery, price, salePrice, sku, stockQty, enabled',
-  }
-})
-
 const getVariantAttribute = (term, j) => {
   if (Object.values(term).length) {
     return store.attributes.find((a) => a._id == term.parent._id)
@@ -102,21 +70,6 @@ const getVariantAttribute = (term, j) => {
     return store.product.attributes[j].attribute
   }
 }
-
-const fetchVariants = async () => {
-  appMessage.errorMsg = null
-  try {
-    variantParams.value.product = store.product._id
-    const response = await $fetch('/api/v1/variants', { params: variantParams.value })
-    console.log(response)
-    store.variants = response.docs
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
-await fetchVariants()
-const current = JSON.stringify(store.variants)
 
 const getCombinations = (options) => {
   let combinations = [[]]
@@ -140,61 +93,16 @@ const bulkAddVariants = () => {
   if (getCombinations(terms)[0].length)
     store.variants = [...getCombinations(terms)].map((el) => {
       return variantBase([...el])
-      // return {
-      //   product: store.product._id,
-      //   attrTerms: [...el],
-      //   enabled: true,
-      //   shipping: {
-      //     dimensions: {},
-      //   },
-      //   stockQty: 0,
-      //   price: store.product.price,
-      //   salePrice: store.product.salePrice,
-      //   sku: '',
-      //   gallery: [],
-      // }
     })
 }
 
 const addSingleVariant = () => {
-  // const attributes = store.product.attributes.filter((a) => a.terms && a.terms.length > 0)
   const terms = []
   for (const prop in store.product.attributes) {
     terms[prop] = {}
   }
   store.variants.unshift(variantBase([...terms]))
-  // const variant = {
-  //   product: store.product._id,
-  //   attrTerms: [],
-  //   enabled: true,
-  //   shipping: {
-  //     dimensions: {},
-  //   },
-  //   stockQty: 0,
-  //   price: store.product.price,
-  //   salePrice: store.product.salePrice,
-  //   sku: '',
-  //   gallery: [],
-  // }
-  // for (const prop in store.product.attributes) {
-  //   variant.attrTerms[prop] = {}
-  // }
-  // store.variants.unshift(variant)
-  // console.log(store.variants)
 }
-
-// const insertEmptyAttribute = () => {
-//   // console.log(store.variants.length == attributes.value.length)
-//   if (store.variants.length == attributes.value.length)
-//     return (appMessage.errorMsg = 'You have used all available attributes')
-//   store.variants.push({
-//     attribute: {},
-//     terms: [],
-//     defaultTerm: '',
-//     active: true,
-//     variation: false,
-//   })
-// }
 
 const updateCompAttribute = (event) => {
   // console.log('MNMNMNM')
@@ -304,21 +212,7 @@ const setSalePrices = () => {
   showSalePriceInput.value = false
 }
 
-const toggleVirtual = () => {
-  // let j = 0
-  // while (j < prodState.selectedItem.variants.length) {
-  //   prodState.selectedItem.variants[j].virtual = !prodState.selectedItem.variants[j].virtual
-  //   j++
-  // }
-}
 
-const toggleDownloadable = () => {
-  // let k = 0
-  // while (k < prodState.selectedItem.variants.length) {
-  //   prodState.selectedItem.variants[k].downloadable = !prodState.selectedItem.variants[k].downloadable
-  //   k++
-  // }
-}
 
 // const deleteAllVariants = async () => {
 //   appMessage.errorMsg = null
@@ -448,6 +342,15 @@ const removeDuplicateVariants = () => {
   //     .values()
   // )
 }
+
+const response = await fetchVariants(store.product._id)
+if (state.errorMsg) {
+  appMessage.errorMsg = state.errorMsg
+  store.variants = []
+} else {
+  store.variants = response.docs
+}
+const current = JSON.stringify(store.variants)
 </script>
 
 <template>
@@ -531,7 +434,13 @@ const removeDuplicateVariants = () => {
             </div>
             <div class="footer actions shadow-md">
               <button class="btn btn-secondary cancel" @click.prevent="cancelVariants">Cancel</button>
-              <button class="btn btn-primary save" @click.prevent="updateVariants">Save Changes</button>
+              <button
+                class="btn btn-primary save"
+                @click.prevent="updateVariants"
+                :disabled="current == JSON.stringify(store.variants)"
+              >
+                Save Changes
+              </button>
             </div>
           </section>
         </div>
@@ -640,6 +549,13 @@ const removeDuplicateVariants = () => {
     gap: 2rem;
     padding: 2rem;
     background-color: $slate-300;
+  }
+
+  .save {
+    &:disabled {
+      background-color: $slate-400;
+      cursor: not-allowed;
+    }
   }
 }
 </style>

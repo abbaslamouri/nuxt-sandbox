@@ -13,6 +13,17 @@ const useFactory = () => {
     categoryParams: {
       fields: 'name, slug, permalink, description, parent, gallery',
     },
+    attributeParams: {
+      fields: 'name, slug',
+    },
+
+    attributeTermsParams: {
+      fields: 'name, slug, parent',
+    },
+    variantParams: {
+      fields: 'product, attrTerms, gallery, price, salePrice, sku, stockQty, enabled',
+    },
+
     errorMsg: '',
   })
 
@@ -95,7 +106,57 @@ const useFactory = () => {
     state.errorMsg = null
     try {
       const response = await $fetch('/api/v1/categories', { params: state.categoryParams })
-      return response.docs
+      return {
+        docs: response.docs,
+        count: response.count,
+        totalCount: response.totalCount,
+      }
+    } catch (error) {
+      state.errorMsg = error.data
+      return false
+    }
+  }
+
+  const fetchAttributes = async () => {
+    state.errorMsg = null
+    try {
+      const response = await $fetch('/api/v1/attributes', { params: state.attributeParams })
+      return {
+        docs: response.docs,
+        count: response.count,
+        totalCount: response.totalCount,
+      }
+    } catch (error) {
+      state.errorMsg = error.data
+      return false
+    }
+  }
+
+  const fetchAttributeTerms = async () => {
+    state.errorMsg = null
+    try {
+      const response = await $fetch('/api/v1/attributeterms', { params: state.attributeTermsParams })
+      return {
+        docs: response.docs,
+        count: response.count,
+        totalCount: response.totalCount,
+      }
+    } catch (error) {
+      state.errorMsg = error.data
+      return false
+    }
+  }
+
+  const fetchVariants = async (productId) => {
+    state.errorMsg = null
+    try {
+      state.variantParams.product = productId
+      const response = await $fetch('/api/v1/variants', { params: state.variantParams })
+      return {
+        docs: response.docs,
+        count: response.count,
+        totalCount: response.totalCount,
+      }
     } catch (error) {
       state.errorMsg = error.data
       return false
@@ -152,7 +213,17 @@ const useFactory = () => {
   //   }
   // }
 
-  return { state, fetchAll, fetchSingle, fetchCategories, save, deleteSingle }
+  return {
+    state,
+    fetchAll,
+    fetchSingle,
+    save,
+    deleteSingle,
+    fetchCategories,
+    fetchAttributes,
+    fetchAttributeTerms,
+    fetchVariants,
+  }
 }
 
 export default useFactory

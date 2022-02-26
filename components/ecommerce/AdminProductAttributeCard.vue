@@ -366,6 +366,12 @@ const hastodowithduplicatevariants = () => {
   border-radius: 3px;
   padding: 1rem;
 
+  .id {
+    background-color: $slate-300;
+    padding: 1rem;
+    border-radius: 3px;
+  }
+
   .attribute {
     width: 18rem;
   }

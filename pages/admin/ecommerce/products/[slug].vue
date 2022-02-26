@@ -23,12 +23,19 @@ const showMediaSelector = ref(false) // media selector toggler
 const galleryIntro = ref('This image gallery contains all images associated with this product including its variants.')
 const slug = route.params.slug === ' ' ? null : route.params.slug
 
-store.product = await fetchSingle(slug)
-store.categories = await fetchCategories()
-
-const updateAttributes = async (event) => {
-  store.product.attributes = event
-  await saveProduct()
+let response = await fetchSingle(slug)
+if (state.errorMsg) {
+  appMessage.errorMsg = state.errorMsg
+  store.product = []
+} else {
+  store.product = response
+  response = await fetchCategories()
+  if (state.errorMsg) {
+    appMessage.errorMsg = state.errorMsg
+    store.categories = []
+  } else {
+    store.categories = response.docs
+  }
 }
 
 // Set category gallery
@@ -53,6 +60,8 @@ const saveProduct = async () => {
     router.push({ name: 'admin-ecommerce-products-slug', params: { slug: store.product.slug } })
   }
 }
+
+provide('saveProduct', saveProduct)
 </script>
 
 <template>
@@ -89,7 +98,6 @@ const saveProduct = async () => {
             :productId="product._id"
             :showAttributesSlideout="showAttributesSlideout"
             @slideoutEventEmitted="showAttributesSlideout = $event"
-            @attributesUpdated="updateAttributes"
           />
         </section>
         <section class="variants" id="variants" v-if="store.product.attributes.length">
@@ -185,7 +193,3 @@ const saveProduct = async () => {
   }
 }
 </style>
-
-
-
-
