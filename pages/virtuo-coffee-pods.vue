@@ -1,10 +1,6 @@
 <script setup>
-import ListTiled from '~~/components/icons/ListTiled.vue'
 const { state, fetchAll } = useProduct()
-
-const products = ref([])
 const route = useRoute()
-const listType = ref('tile')
 const page = ref(1)
 const perPage = ref(10)
 const selectedCategories = ref('')
@@ -23,7 +19,6 @@ const heroBgImage = computed(() =>
 )
 
 const response = await fetchAll()
-products.value = response.docs
 console.log(response)
 // const pages = computed(() =>
 // 	state.totalItemCount % perPage.value
@@ -77,15 +72,14 @@ const handleSearch = async () => {
 //   },
 //   { deep: true }
 // )
-
-// provide('products', products.value)
 </script>
 
 <template>
   <div class="oroginal-coffee-pods">
     <section class="offers-carousel">
-      <Carousel :slides="slides" indicators controls interval="5" height="10" />
+      <!-- <Carousel :slides="slides" indicators controls interval="5" height="10" /> -->
     </section>
+
     <section class="hero" :style="{ backgroundImage: `url(${heroBgImage})` }">
       <div class="links">
         <NuxtLink class="link" :to="{ name: 'original-coffee-pods', params: { slug: ' ' } }">
@@ -111,32 +105,18 @@ const handleSearch = async () => {
         </NuxtLink>
       </div>
     </section>
-    <section class="filters-views">
-      <div class="filter"><span>Filter</span> <IconsFilter /></div>
-      <div class="view">
-        <span>View</span>
-        <div class="icons">
-          <ListTiled @click="listType = 'tile'" :class="{ selected: listType === 'tile' }" />
-          <IconsListBulleted @click="listType = 'list'" :class="{ selected: listType === 'list' }" />
-        </div>
-      </div>
-    </section>
-    <div v-if="products.length" class="products">
-      <div class="header" :style="{ backgroundImage: `url('assets/barista-creations-coffee-capsules-desktop2.webp')` }">
-        <h3 class="title">ISPIRAZIONE ITALIANA</h3>
-        <h4 class="sub-title">
-          Unique flavors inspired by Italian roasting traditions passed down through generations
-        </h4>
-        <NuxtLink class="link" :to="{ name: 'original-coffee-pods', params: { slug: ' ' } }">
+    <div v-if="state.items.length" class="main">
+      <header>
+        <h3 class="title">Products</h3>
+        <NuxtLink class="link" :to="{ name: 'admin-products-slug', params: { slug: ' ' } }">
           <button class="btn btn-primary">
-            <span>Discover the range</span>
-            <IconsChevronRight />
+            <IconsPlus />
+            <span>Add</span>
           </button>
         </NuxtLink>
-      </div>
-      <div class="main">
-        <!-- <Search v-model="state.query.keyword" @handleSubmit="handleSearch" /> -->
-        <EcommerceProductList v-for="product in products" :key="product._id" :product="product" :listType="listType" />
+      </header>
+      <div class="content shadow-md">
+        <Search v-model="state.query.keyword" @handleSubmit="handleSearch" /> <ProductsAdminProductList />
         <!-- <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" /> -->
       </div>
     </div>
@@ -144,7 +124,7 @@ const handleSearch = async () => {
       <div class="inner">
         <h3 class="">Add your first physical or digital product</h3>
         <div class="">Add your roduct and variants. Products must have at least a name and a price</div>
-        <NuxtLink class="link" :to="{ name: 'original-coffee-pods', params: { slug: ' ' } }">
+        <NuxtLink class="link" :to="{ name: 'admin-products-slug', params: { slug: ' ' } }">
           <button class="btn btn-primary">
             <IconsPlus />
             <span>Add</span>
@@ -168,7 +148,6 @@ const handleSearch = async () => {
     width: 996px;
     background-color: white;
   }
-
   .hero {
     position: relative;
     width: 100%;
@@ -230,93 +209,22 @@ const handleSearch = async () => {
     }
     // background-image: url('assets/');
   }
-
-  .filters-views {
+  // padding: 3rem 2rem;
+  .main {
     border: 1px solid teal;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 2rem;
-    width: 100%;
-    max-width: 996px;
-
-    .filter {
+    flex-direction: column;
+    gap: 3rem;
+    header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+    }
+    .content {
+      display: flex;
+      flex-direction: column;
       gap: 3rem;
-      color: $slate-600;
-      border: 1px solid $slate-400;
-      padding: 1rem 3rem;
-    }
-
-    .view {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      align-items: center;
-
-      .icons {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        cursor: pointer;
-
-        svg {
-          width: 3rem;
-          height: 3rem;
-          fill: $slate-400;
-
-          &.selected {
-            fill: $slate-800;
-          }
-        }
-      }
-    }
-  }
-
-  .products {
-    width: 100%;
-    border: 1px solid red;
-    width: 100%;
-    max-width: 996px;
-
-    .header {
-      background-repeat: no-repeat;
-      background-size: cover;
-      color: $slate-50;
       padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      align-items: center;
-      h3 {
-        // font-weight: 400;
-        font-size: 2rem;
-        letter-spacing: 0.5rem;
-      }
-      h4 {
-        font-weight: 400;
-        letter-spacing: 0.1rem;
-      }
-
-      .btn {
-        display: flex;
-        gap: 1rem;
-        background-color: transparent;
-        border: none;
-
-        svg {
-          border: 1px solid $slate-50;
-          border-radius: 50%;
-        }
-      }
-    }
-
-    .main {
-        display: flex;
-        justify-content: space-evenly;
-        border: 1px solid green;
-      
     }
   }
   .no-products {
