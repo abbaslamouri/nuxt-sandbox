@@ -1,7 +1,5 @@
 <script setup>
-import isEqual from 'lodash.isequal'
 import { useStore } from '~/store/useStore'
-import { useMessage } from '~/store/useMessage'
 
 const props = defineProps({
   index: {
@@ -9,21 +7,17 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['deleteTermsUpdated'])
+const emit = defineEmits(['termToDeleteUpdated', 'termsToDeleteUpdated'])
 
-// const saveProduct = inject('saveProduct')
+const saveProduct = inject('saveProduct')
 
 const store = useStore()
-const appMessage = useMessage()
 const termSelectId = ref('')
 const termToDeleteId = ref(null)
-// const deletedTerms = ref([])
 const showActions = ref(false)
 const showDeleteAttributeAlert = ref(false)
 const showDeleteTermAlert = ref(false)
 const showDeleteAllTermsAlert = ref(false)
-
-
 
 const updateAttribute = (event) => {
   store.product.attributes[props.index].attribute = store.attributes.find((a) => a._id == event.target.value)
@@ -47,17 +41,28 @@ const addAllTerms = () => {
   )
 }
 
+const setTermToDelete = (termId) => {
+  termToDeleteId.value = termId
+  showDeleteTermAlert.value = true
+}
+
 const removeTerm = () => {
   const index = store.product.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
   if (index !== -1) store.product.attributes[props.index].terms.splice(index, 1)
-  // deletedTerms.value.push(termToDeleteId.value)
   showDeleteTermAlert.value = false
-  emit('deleteTermsUpdated', termToDeleteId.value)
+  emit('termToDeleteUpdated', termToDeleteId.value)
+  termToDeleteId.value = null
 }
 
 const removeAllTerms = () => {
   store.product.attributes[props.index].terms = []
   showDeleteAllTermsAlert.value = false
+  const termsToDelete = store.product.attributes[props.index].terms.map((t) => {
+    return t._id
+  })
+  for (const prop in termsToDelete) {
+    emit('termToDeleteUpdated', termsToDelete[prop])
+  }
 }
 
 const addTerm = () => {
@@ -73,20 +78,15 @@ const addTerm = () => {
   termSelectId.value = ''
 }
 
-const setTermToDelete = (termId) => {
-  termToDeleteId.value = termId
-  showDeleteTermAlert.value = true
-}
-
 const deleteAttribute = () => {
-  console.log('var before', store.product.attributes[props.index].attribute._id)
   const attributeId = store.product.attributes[props.index].attribute._id
-  console.log(attributeId)
   for (const prop in store.variants) {
     const i = store.variants[prop].attrTerms.findIndex((t) => t.parent._id == attributeId)
     if (i !== -1) store.variants[prop].attrTerms.splice(i, 1)
   }
   store.product.attributes.splice(props.index, 1)
+  store.variants = []
+  saveProduct(store.product)
   showDeleteAttributeAlert.value = false
   showActions.value = false
 }
@@ -101,86 +101,12 @@ const handleDeleteAttributeBtnClick = () => {
   showActions.value = false
 }
 
-// const updateVariants = async () => {
-//   console.log('Save', store.variants)
-//   let errorMsg = ''
-//   for (const vprop in store.variants) {
-//     for (const prop in store.variants[vprop].attrTerms) {
-//       if (!Object.keys(store.variants[vprop].attrTerms[prop]).length)
-//         errorMsg += `Terms missing for attribute ${
-//           getVariantAttribute(store.variants[vprop].attrTerms[prop], prop).name
-//         }<br>`
-//     }
-//   }
-//   if (errorMsg) return (appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`)
-//   console.log(deletedTerms.value)
-//   // removeVariantByTermId(termToDeleteId.value)
-//   // console.log(store.variants)
-//   // saveProduct(store.product)
-// }
 
-// const hastodowithduplicatevariants = () => {
-//   console.log('var before', store.product.attributes[props.index].attribute._id)
-//   const attributeId = store.product.attributes[props.index].attribute._id
-//   console.log(attributeId)
-//   for (const prop in store.variants) {
-//     const i = store.variants[prop].attrTerms.findIndex((t) => t.parent._id == attributeId)
-//     if (i !== -1) store.variants[prop].attrTerms.splice(i, 1)
-//   }
-//   store.product.attributes.splice(props.index, 1)
-
-//   for (const prop in store.variants) {
-//     let i = prop
-//     while (i < store.variants.length - 1) {
-//       i++
-//       console.log(
-//         isEqual(
-//           store.variants[prop].attrTerms.map((t) => t._id),
-//           store.variants[i].attrTerms.map((t) => t._id)
-//         )
-//       )
-//       if (
-//         isEqual(
-//           store.variants[prop].attrTerms.map((t) => t._id),
-//           store.variants[i].attrTerms.map((t) => t._id)
-//         )
-//       ) {
-//         store.variants[prop].delete = true
-//       }
-//     }
-//   }
-//   store.variants = store.variants.filter((v) => !v.delete)
-//   console.log('XXXXX', store.variants)
-//   updateVariants()
-
-//   showDeleteAttributeAlert.value = false
-//   showActions.value = false
-//   // emit('attributesToDeleteSelected', props.index)
-//   // if (!confirm('Are you sure?')) return
-//   // // Remove all terms whose parent attarubute is to be deleted and mark all variants with empty eterms fro deletion
-//   // let j = 0
-//   // while (j < prodState.selectedItem.variants.length) {
-//   //   const k = prodState.selectedItem.variants[j].attrTerms.findIndex(
-//   //     (t) => t.parent == prodState.selectedItem.attributes[props.i].attribute._id
-//   //   )
-//   //   if (k !== -1) prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
-//   //   if (!prodState.selectedItem.variants[j].attrTerms.length) prodState.selectedItem.variants[j].delete = true
-//   //   j++
-//   // }
-//   // // Delete all marked variations
-//   // prodState.selectedItem.variants = prodState.selectedItem.variants.filter((el) => !el.delete)
-//   // // Delete attribute
-//   // prodState.selectedItem.attributes.splice(props.i, 1)
-//   // removeDuplicateVariants()
-//   // // console.log(xx)
-//   // // [...new Set(prodState.selectedItem.variants.map((el) => el))]
-// }
 </script>
 
 <template>
   <div class="admin-product-attribute shadow-md row">
-    <!-- {{ store.product.attributes[index].attribute._id }}===={{ store.product.attributes[index].defaultTerm.name }} -->
-    <!-- <pre style="font-size: 1rem">{{ store.product.attributes[index] }}</pre> -->
+    {{}}
     <div class="id td">{{ index * 1 + 1 }}</div>
     <div class="attribute td">
       <div class="base-select">
@@ -305,14 +231,6 @@ const handleDeleteAttributeBtnClick = () => {
     background-color: $slate-300;
     padding: 1rem;
     border-radius: 3px;
-  }
-
-  .attribute {
-    // width: 18rem;
-  }
-
-  .default-term {
-    // width: 18rem;
   }
 
   .terms {

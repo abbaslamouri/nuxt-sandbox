@@ -90,28 +90,12 @@ const updateAttributes = async () => {
   }
   if (errorMsg) return (appMessage.errorMsg = errorMsg)
   store.product.attributes = newAttributes
+  for (const prop in deletedTerms.value) {
+    removeVariantByTermId(deletedTerms.value[prop])
+  }
   saveProduct(store.product)
   current.value = JSON.stringify(store.product.attributes)
   store.showAttributesSlideout = false
-}
-
-const updateVariants = async (termIds) => {
-  console.log(termIds)
-  //   console.log('Save', store.variants)
-  //   let errorMsg = ''
-  //   for (const vprop in store.variants) {
-  //     for (const prop in store.variants[vprop].attrTerms) {
-  //       if (!Object.keys(store.variants[vprop].attrTerms[prop]).length)
-  //         errorMsg += `Terms missing for attribute ${
-  //           getVariantAttribute(store.variants[vprop].attrTerms[prop], prop).name
-  //         }<br>`
-  //     }
-  //   }
-  //   if (errorMsg) return (appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`)
-  //   console.log(deletedTerms.value)
-  //   // removeVariantByTermId(termToDeleteId.value)
-  //   // console.log(store.variants)
-  //   // saveProduct(store.product)
 }
 
 const cancelAttributesUpdate = () => {
@@ -123,6 +107,7 @@ const deleteAllAttributes = () => {
   store.product.attributes = []
   showDeleteAllAttributesAlert.value = false
 }
+
 </script>
 
 <template>
@@ -174,7 +159,7 @@ const deleteAllAttributes = () => {
                       <EcommerceAdminProductAttributeCard
                         v-for="(attribute, index) in store.product.attributes"
                         :index="index"
-                        @deleteTermsUpdated="deletedTerms.push($event)"
+                        @termToDeleteUpdated="deletedTerms.push($event)"
                       />
                     </div>
                   </div>
