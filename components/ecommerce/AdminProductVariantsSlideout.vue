@@ -2,9 +2,9 @@
 import { useMessage } from '~/store/useMessage'
 import { useStore } from '~/store/useStore'
 
-const emit = defineEmits(['slideoutEventEmitted', 'saveProduct'])
+const emit = defineEmits(['slideoutEventEmitted'])
 
-const { state, fetchVariants } = useProduct()
+const { state, save, fetchVariants, saveVariants, deleteVariants } = useProduct()
 
 const store = useStore()
 const appMessage = useMessage()
@@ -104,66 +104,6 @@ const addSingleVariant = () => {
   store.variants.unshift(variantBase([...terms]))
 }
 
-const updateCompAttribute = (event) => {
-  // console.log('MNMNMNM')
-  store.variants[event.index] = event.attr
-}
-
-const getAttribute = (attributeId) => {
-  // return prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].item
-}
-
-const getTerms = (attributeId) => {
-  // const terms = prodState.selectedItem.attributes.filter((el) => el.item._id == attributeId)[0].terms
-  // return terms
-}
-
-const removeVariant = () => {
-  // if (!confirm('Are you sure?')) return
-  // prodState.selectedItem.variants.splice(props.index, 1)
-}
-
-const deleteDbVariants = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/variants/delete-many', {
-      method: 'POST',
-      params: { id: store.product._id },
-    })
-    console.log('deletedCount', response.deletedCount)
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
-const saveDbVariants = async () => {
-  appMessage.errorMsg = null
-  try {
-    let message = ''
-    let error = ''
-    await Promise.all(
-      store.variants.map(async (variant) => {
-        try {
-          const response = await $fetch(`/api/v1/variants`, {
-            method: 'POST',
-            body: variant,
-          })
-          message += ` deleted.<br>`
-        } catch (err) {
-          console.error('MyERROR', err)
-          error += `${err.data}.<br>`
-        }
-      })
-    )
-    appMessage.successMsg = 'Product variants saved succesfully'
-    emit('slideoutEventEmitted', false)
-    console.log('saved', store.variants)
-    // router.push({ name: 'admin-ecommerce-products-slug', params: { slug: response.slug } })
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
 const updateVariants = async () => {
   console.log('Save', store.variants)
   let errorMsg = ''
@@ -178,9 +118,9 @@ const updateVariants = async () => {
   if (errorMsg) {
     appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`
   } else {
-    await deleteDbVariants()
-    await saveDbVariants()
-    emit('saveProduct')
+    await deleteVariants(store.variants)
+    await saveVariants(store.variants)
+    await save(store.product)
   }
 }
 
@@ -213,76 +153,16 @@ const setSalePrices = () => {
 }
 
 
-
-// const deleteAllVariants = async () => {
-//   appMessage.errorMsg = null
-//   try {
-//     const response = await $fetch('/api/v1/variants/delete-many', {
-//       method: 'POST',
-//       params: { id: store.product._id },
-//     })
-//     // console.log('deletedCount', response.deletedCount)
-//     if (response.deletedCount) appMessage.successMsg = 'All variants deleted succesfuluy'
-//     store.variants = []
-//   } catch (error) {
-//     appMessage.errorMsg = error.data
-//   }
-// }
-
-// const updateVariant = (event) => {
-//   console.log('I', index)
-//   // console.log('AT', attribute)
-//   // console.log(value)
-//   // const term = attribute.terms.find((t) => t._id == termId)
-//   // console.log('T', term)
-//   // if (!prodState.selectedItem.variants[props.index].attrTerms.length) {
-//   // prodState.selectedItem.variants[props.index].attrTerms.push(term)
-//   // }
-// }
-
 const closeSlideout = () => {
   if (current !== JSON.stringify(store.variants)) return (showAlert.value = true)
   emit('slideoutEventEmitted', false)
 }
 
-const saveslideoutVariants = () => {
-  const newAttributes = []
-  for (const prop in store.variants) {
-    if (Object.values(store.variants[prop].attribute).length) newAttributes.push(store.variants[prop])
-  }
-  store.variants = newAttributes
-  // console.log('CCCC', store.variants)
-  // emit('slideoutVariantsUpdated', store.variants)
-
-  // showVariantsSlideout.value = false
-  // emit('productVariantsUpdated', newAttributes)
-}
-
-const updatesVariants = async () => {
-  // emit('slideoutVariantsUpdated', store.variants)
-  // emit('slideoutEventEmitted', false)
-  // showVariantsSlideout.value = false
-  // emit('productVariantsUpdated', newAttributes)
-}
 
 const cancelVariants = () => {
   store.variants = JSON.parse(current)
   emit('slideoutEventEmitted', false)
 }
-
-// const deleteAllVariants = () => {
-//   emit('deleteAllVariantsEventEmitted')
-//   showDeleteAllVariantsAlert.value = false
-// }
-
-// watch(
-//   () => store.variants,
-//   (current) => {
-//     console.log(current)
-//     emit('slideoutVariantsUpdated', store.variants)
-//   },
-//   { deep: true }
-// )
 
 const handleVariantsAction = () => {
   if (!variantsActionSelect.value) return (appMessage.errorMsg = 'Please select an action')
@@ -312,36 +192,7 @@ const handleVariantsAction = () => {
   }, 10)
 }
 
-const removeVariantByTermId = (termId) => {
-  // let j = 0
-  // while (j < prodState.selectedItem.variants.length) {
-  //   const k = prodState.selectedItem.variants[j].attrTerms.findIndex((t) => t._id == termId)
-  //   const countBefore = prodState.selectedItem.variants[j].attrTerms.length
-  //   // console.log('Before', countBefore)
-  //   if (k !== -1) prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
-  //   const countAfter = prodState.selectedItem.variants[j].attrTerms.length
-  //   // console.log('After', countAfter)
-  //   if (countBefore != countAfter) prodState.selectedItem.variants[j].discard = true
-  //   j++
-  // }
-  // prodState.selectedItem.variants = prodState.selectedItem.variants.filter((el) => !el.discard)
-  // if (!prodState.selectedItem.variants.length) prodState.selectedItem.variants = []
-}
 
-const removeDuplicateVariants = () => {
-  // prodState.selectedItem.variants = Array.from(
-  //   prodState.selectedItem.variants
-  //     .reduce((map, obj) => {
-  //       let id = ''
-  //       for (const prop in obj.attrTerms) {
-  //         id = `${id}_${obj.attrTerms[prop]._id}`
-  //       }
-  //       // console.log(id)
-  //       return map.set(id, obj)
-  //     }, new Map())
-  //     .values()
-  // )
-}
 
 const response = await fetchVariants(store.product._id)
 if (state.errorMsg) {
@@ -422,11 +273,7 @@ const current = JSON.stringify(store.variants)
                       </div>
                     </div>
                     <div class="table__body" v-show="store.variants.length">
-                      <EcommerceAdminProductVariantCard
-                        v-for="(variant, index) in store.variants"
-                        :index="index"
-                        @variantUpdated="updateVariants"
-                      />
+                      <EcommerceAdminProductVariantCard v-for="(variant, index) in store.variants" :index="index" />
                     </div>
                   </div>
                 </main>

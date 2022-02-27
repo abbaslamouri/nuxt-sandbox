@@ -37,7 +37,7 @@ export default async (req, res) => {
 
   if (req.method === 'POST' && req.url.includes('/delete-many')) {
     // console.log('VVVVVV', params.id)
-    const docs = await Model.deleteMany({ product: params.id })
+    const docs = await Model.deleteMany({ product: params.productId })
     // console.log('VVVVVDDDDDD', docs)
     return docs
   }

@@ -75,6 +75,22 @@ if (state.errorMsg) {
 }
 
 const current = JSON.stringify(store.product.attributes)
+
+const removeVariantByTermId = (termId) => {
+  // let j = 0
+  // while (j < prodState.selectedItem.variants.length) {
+  //   const k = prodState.selectedItem.variants[j].attrTerms.findIndex((t) => t._id == termId)
+  //   const countBefore = prodState.selectedItem.variants[j].attrTerms.length
+  //   // console.log('Before', countBefore)
+  //   if (k !== -1) prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
+  //   const countAfter = prodState.selectedItem.variants[j].attrTerms.length
+  //   // console.log('After', countAfter)
+  //   if (countBefore != countAfter) prodState.selectedItem.variants[j].discard = true
+  //   j++
+  // }
+  // prodState.selectedItem.variants = prodState.selectedItem.variants.filter((el) => !el.discard)
+  // if (!prodState.selectedItem.variants.length) prodState.selectedItem.variants = []
+}
 </script>
 
 <template>

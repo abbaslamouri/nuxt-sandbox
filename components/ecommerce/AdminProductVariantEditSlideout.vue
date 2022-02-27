@@ -18,8 +18,8 @@ const store = useStore()
 const appMessage = useMessage()
 const showAlert = ref(false)
 const showMediaSelector = ref(false) // media selector toggler
-const current = JSON.stringify(store.variants[props.index])
 const showProductGallery = ref(false)
+const current = JSON.stringify(store.variants[props.index])
 
 const getVariantAttribute = (term, j) => {
   if (Object.values(term).length) {
@@ -63,7 +63,8 @@ const cancelVariant = () => {
   emit('slideoutEventEmitted', false)
 }
 
-const checkVariant = () => {
+const updateVariant = () => {
+  //  Check for duplicate variants
   for (const prop in store.variants) {
     if (
       prop * 1 !== props.index * 1 &&
@@ -72,7 +73,9 @@ const checkVariant = () => {
         store.variants[props.index].attrTerms.map((t) => t._id)
       )
     ) {
-      appMessage.errorMsg = `Duplicate variants not allowed.  You new variant is identical to ${prop * 1 + 1} variant`
+      appMessage.errorMsg = `Duplicate variants not allowed.  You new variant uses the same attributes and attribute terms as ${
+        prop * 1 + 1
+      } variant`
       return
     }
   }
@@ -140,7 +143,16 @@ const checkVariant = () => {
                   <FormsBaseInput label="SKU" placeholder="SKU" v-model="store.variants[index].sku" />
                 </div>
                 <div class="stock">
-                  <FormsBaseInput label="Stck Qty" placeholder="Stock Qty" v-model="store.variants[index].stockQty" />
+                  <FormsBaseInput
+                    label="Stck Qty"
+                    placeholder="Stock Qty"
+                    v-model="store.variants[index].stockQty"
+                    v-if="store.product.manageInventory"
+                  />
+                  <div class="base-input" v-else>
+                    <input type="text" placeholder="stock Qty." disabled />
+                    <label>Enable product manageInventory to set Stock Qty.</label>
+                  </div>
                 </div>
               </div>
               <div class="price">
@@ -163,7 +175,13 @@ const checkVariant = () => {
           </div>
           <div class="slideout__footer actions shadow-md">
             <button class="btn btn-secondary cancel" @click.prevent="cancelVariant">Cancel</button>
-            <button class="btn btn-primary save" @click.prevent="checkVariant">Save Changes</button>
+            <button
+              class="btn btn-primary save"
+              @click.prevent="updateVariant"
+              :disabled="current == JSON.stringify(store.variants[index])"
+            >
+              Save Changes
+            </button>
           </div>
         </div>
       </transition>
@@ -229,13 +247,16 @@ const checkVariant = () => {
       align-items: center;
       gap: 2rem;
     }
+  }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      .base-select {
-        width: 30rem;
+    .save {
+      &:disabled {
+        background-color: $slate-400;
+        cursor: not-allowed;
       }
     }
   }

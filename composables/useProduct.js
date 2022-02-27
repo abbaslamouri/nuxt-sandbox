@@ -1,10 +1,3 @@
-// const apiFetch = $fetch.create({ baseURL: '/api/v1' })
-// import { useMessage } from '~/store/useMessage'
-// import { useStore } from '~/store/useStore'
-
-// const store = useStore()
-// const appMessage = useMessage()
-
 const useFactory = () => {
   const state = reactive({
     params: {
@@ -163,55 +156,42 @@ const useFactory = () => {
     }
   }
 
-  // const fetchCount = async (params) => {
-  //   state.errorMsg = ''
-  //   const { data, error } = await useFetch(`/v1/${collection}/count`, {
-  //     baseURL: state.baseURL,
-  //     method: 'get',
-  //     params: params,
-  //   })
-  //   if (error.value) {
-  //     state.errorMsg = 'Error while fetching docs count'
-  //     // appError.setSnackbar(true, state.errorMsg)
-  //     return false
-  //   } else {
-  //     state.totalItemCount = data.value
-  //     return data.value
-  //   }
-  // }
+  const saveVariants = async (variants) => {
+    state.errorMsg = null
+    let error = ''
+    await Promise.all(
+      variants.map(async (variant) => {
+        try {
+          await $fetch(`/api/v1/variants`, {
+            method: 'POST',
+            body: variant,
+          })
+        } catch (err) {
+          error += `${err.data}.<br>`
+        }
+      })
+    )
+    if (!error) {
+      return true
+    } else {
+      state.errorMsg = error
+      return false
+    }
+  }
 
-  // const fetchBySlug = async (slug, params) => {
-  //   state.errorMsg = ''
-  //   const { data, error } = await useFetch(`/v1/${collection}/`, {
-  //     baseURL: state.baseURL,
-  //     method: 'get',
-  //     params: { ...params, slug },
-  //     lazy: true,
-  //   })
-  //   if (error.value) {
-  //     state.errorMsg = 'Error while fetching docs'
-  //     // appError.setSnackbar(true, state.errorMsg)
-  //     return false
-  //   } else {
-  //     state.selectedItem = data.value[0]
-  //     return data.value
-  //   }
-  // }
-
-  // const deleteById = async (id) => {
-  //   state.errorMsg = ''
-  //   try {
-  //     await http.delete(`v1/${collection}/${id}`)
-  //     const index = state.items.findIndex((el) => el._id == id)
-  //     if (index !== -1) state.items.splice(index, 1)
-  //     return true
-  //   } catch (err) {
-  //     // console.log('MyERROR', err.response)
-  //     state.errorMsg = err.response.data.message || err.response.data.statusMessage
-  //     // appError.setSnackbar(true, state.errorMsg)
-  //     return false
-  //   }
-  // }
+  const deleteVariants = async (productId) => {
+    state.errorMsg = null
+    try {
+      await $fetch('/api/v1/variants/delete-many', {
+        method: 'POST',
+        params: { productId },
+      })
+      return true
+    } catch (error) {
+      state.errorMsg = error.data
+      return false
+    }
+  }
 
   return {
     state,
@@ -223,6 +203,8 @@ const useFactory = () => {
     fetchAttributes,
     fetchAttributeTerms,
     fetchVariants,
+    saveVariants,
+    deleteVariants,
   }
 }
 
