@@ -9,16 +9,21 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['cardAttributeUpdated', 'cardAttributeAttributeUpdated', 'attributeToDeleteSelected'])
+const emit = defineEmits(['deleteTermsUpdated'])
+
+// const saveProduct = inject('saveProduct')
 
 const store = useStore()
 const appMessage = useMessage()
 const termSelectId = ref('')
 const termToDeleteId = ref(null)
+// const deletedTerms = ref([])
 const showActions = ref(false)
 const showDeleteAttributeAlert = ref(false)
 const showDeleteTermAlert = ref(false)
 const showDeleteAllTermsAlert = ref(false)
+
+
 
 const updateAttribute = (event) => {
   store.product.attributes[props.index].attribute = store.attributes.find((a) => a._id == event.target.value)
@@ -41,6 +46,15 @@ const addAllTerms = () => {
     (t) => t.parent._id == store.product.attributes[props.index].attribute._id
   )
 }
+
+const removeTerm = () => {
+  const index = store.product.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
+  if (index !== -1) store.product.attributes[props.index].terms.splice(index, 1)
+  // deletedTerms.value.push(termToDeleteId.value)
+  showDeleteTermAlert.value = false
+  emit('deleteTermsUpdated', termToDeleteId.value)
+}
+
 const removeAllTerms = () => {
   store.product.attributes[props.index].terms = []
   showDeleteAllTermsAlert.value = false
@@ -62,12 +76,6 @@ const addTerm = () => {
 const setTermToDelete = (termId) => {
   termToDeleteId.value = termId
   showDeleteTermAlert.value = true
-}
-
-const removeTerm = () => {
-  const index = store.product.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
-  if (index !== -1) store.product.attributes[props.index].terms.splice(index, 1)
-  showDeleteTermAlert.value = false
 }
 
 const deleteAttribute = () => {
@@ -93,161 +101,87 @@ const handleDeleteAttributeBtnClick = () => {
   showActions.value = false
 }
 
-const removeVariantByTermId = (termId) => {
-  // let j = 0
-  // while (j < prodState.selectedItem.variants.length) {
-  //   const k = prodState.selectedItem.variants[j].attrTerms.findIndex((t) => t._id == termId)
-  //   const countBefore = prodState.selectedItem.variants[j].attrTerms.length
-  //   // console.log('Before', countBefore)
-  //   if (k !== -1) prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
-  //   const countAfter = prodState.selectedItem.variants[j].attrTerms.length
-  //   // console.log('After', countAfter)
-  //   if (countBefore != countAfter) prodState.selectedItem.variants[j].discard = true
-  //   j++
-  // }
-  // prodState.selectedItem.variants = prodState.selectedItem.variants.filter((el) => !el.discard)
-  // if (!prodState.selectedItem.variants.length) prodState.selectedItem.variants = []
-}
+// const updateVariants = async () => {
+//   console.log('Save', store.variants)
+//   let errorMsg = ''
+//   for (const vprop in store.variants) {
+//     for (const prop in store.variants[vprop].attrTerms) {
+//       if (!Object.keys(store.variants[vprop].attrTerms[prop]).length)
+//         errorMsg += `Terms missing for attribute ${
+//           getVariantAttribute(store.variants[vprop].attrTerms[prop], prop).name
+//         }<br>`
+//     }
+//   }
+//   if (errorMsg) return (appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`)
+//   console.log(deletedTerms.value)
+//   // removeVariantByTermId(termToDeleteId.value)
+//   // console.log(store.variants)
+//   // saveProduct(store.product)
+// }
 
-const removeDuplicateVariants = () => {
-  // prodState.selectedItem.variants = Array.from(
-  //   prodState.selectedItem.variants
-  //     .reduce((map, obj) => {
-  //       let id = ''
-  //       for (const prop in obj.attrTerms) {
-  //         id = `${id}_${obj.attrTerms[prop]._id}`
-  //       }
-  //       // console.log(id)
-  //       return map.set(id, obj)
-  //     }, new Map())
-  //     .values()
-  // )
-}
+// const hastodowithduplicatevariants = () => {
+//   console.log('var before', store.product.attributes[props.index].attribute._id)
+//   const attributeId = store.product.attributes[props.index].attribute._id
+//   console.log(attributeId)
+//   for (const prop in store.variants) {
+//     const i = store.variants[prop].attrTerms.findIndex((t) => t.parent._id == attributeId)
+//     if (i !== -1) store.variants[prop].attrTerms.splice(i, 1)
+//   }
+//   store.product.attributes.splice(props.index, 1)
 
-const deleteDbVariants = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/variants/delete-many', {
-      method: 'POST',
-      params: { id: store.product._id },
-    })
-    console.log('deletedCount', response.deletedCount)
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
+//   for (const prop in store.variants) {
+//     let i = prop
+//     while (i < store.variants.length - 1) {
+//       i++
+//       console.log(
+//         isEqual(
+//           store.variants[prop].attrTerms.map((t) => t._id),
+//           store.variants[i].attrTerms.map((t) => t._id)
+//         )
+//       )
+//       if (
+//         isEqual(
+//           store.variants[prop].attrTerms.map((t) => t._id),
+//           store.variants[i].attrTerms.map((t) => t._id)
+//         )
+//       ) {
+//         store.variants[prop].delete = true
+//       }
+//     }
+//   }
+//   store.variants = store.variants.filter((v) => !v.delete)
+//   console.log('XXXXX', store.variants)
+//   updateVariants()
 
-const saveDbVariants = async () => {
-  appMessage.errorMsg = null
-  try {
-    let message = ''
-    let error = ''
-    await Promise.all(
-      store.variants.map(async (variant) => {
-        try {
-          const response = await $fetch(`/api/v1/variants`, {
-            method: 'POST',
-            body: variant,
-          })
-          message += ` deleted.<br>`
-        } catch (err) {
-          console.error('MyERROR', err)
-          error += `${err.data}.<br>`
-        }
-      })
-    )
-    appMessage.successMsg = 'Product variants saved succesfully'
-    emit('slideoutEventEmitted', false)
-    console.log('saved', store.variants)
-    // router.push({ name: 'admin-ecommerce-products-slug', params: { slug: response.slug } })
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-}
-
-const updateVariants = async () => {
-  console.log('Save', store.variants)
-  let errorMsg = ''
-  for (const vprop in store.variants) {
-    for (const prop in store.variants[vprop].attrTerms) {
-      if (!Object.keys(store.variants[vprop].attrTerms[prop]).length)
-        errorMsg += `Terms missing for attribute ${
-          getVariantAttribute(store.variants[vprop].attrTerms[prop], prop).name
-        }<br>`
-    }
-  }
-  if (errorMsg) {
-    appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`
-  } else {
-    await deleteDbVariants()
-    await saveDbVariants()
-    emit('saveProduct')
-  }
-}
-
-const hastodowithduplicatevariants = () => {
-  console.log('var before', store.product.attributes[props.index].attribute._id)
-  const attributeId = store.product.attributes[props.index].attribute._id
-  console.log(attributeId)
-  for (const prop in store.variants) {
-    const i = store.variants[prop].attrTerms.findIndex((t) => t.parent._id == attributeId)
-    if (i !== -1) store.variants[prop].attrTerms.splice(i, 1)
-  }
-  store.product.attributes.splice(props.index, 1)
-
-  for (const prop in store.variants) {
-    let i = prop
-    while (i < store.variants.length - 1) {
-      i++
-      console.log(
-        isEqual(
-          store.variants[prop].attrTerms.map((t) => t._id),
-          store.variants[i].attrTerms.map((t) => t._id)
-        )
-      )
-      if (
-        isEqual(
-          store.variants[prop].attrTerms.map((t) => t._id),
-          store.variants[i].attrTerms.map((t) => t._id)
-        )
-      ) {
-        store.variants[prop].delete = true
-      }
-    }
-  }
-  store.variants = store.variants.filter((v) => !v.delete)
-  console.log('XXXXX', store.variants)
-  updateVariants()
-
-  showDeleteAttributeAlert.value = false
-  showActions.value = false
-  // emit('attributeToDeleteSelected', props.index)
-  // if (!confirm('Are you sure?')) return
-  // // Remove all terms whose parent attarubute is to be deleted and mark all variants with empty eterms fro deletion
-  // let j = 0
-  // while (j < prodState.selectedItem.variants.length) {
-  //   const k = prodState.selectedItem.variants[j].attrTerms.findIndex(
-  //     (t) => t.parent == prodState.selectedItem.attributes[props.i].attribute._id
-  //   )
-  //   if (k !== -1) prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
-  //   if (!prodState.selectedItem.variants[j].attrTerms.length) prodState.selectedItem.variants[j].delete = true
-  //   j++
-  // }
-  // // Delete all marked variations
-  // prodState.selectedItem.variants = prodState.selectedItem.variants.filter((el) => !el.delete)
-  // // Delete attribute
-  // prodState.selectedItem.attributes.splice(props.i, 1)
-  // removeDuplicateVariants()
-  // // console.log(xx)
-  // // [...new Set(prodState.selectedItem.variants.map((el) => el))]
-}
+//   showDeleteAttributeAlert.value = false
+//   showActions.value = false
+//   // emit('attributesToDeleteSelected', props.index)
+//   // if (!confirm('Are you sure?')) return
+//   // // Remove all terms whose parent attarubute is to be deleted and mark all variants with empty eterms fro deletion
+//   // let j = 0
+//   // while (j < prodState.selectedItem.variants.length) {
+//   //   const k = prodState.selectedItem.variants[j].attrTerms.findIndex(
+//   //     (t) => t.parent == prodState.selectedItem.attributes[props.i].attribute._id
+//   //   )
+//   //   if (k !== -1) prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
+//   //   if (!prodState.selectedItem.variants[j].attrTerms.length) prodState.selectedItem.variants[j].delete = true
+//   //   j++
+//   // }
+//   // // Delete all marked variations
+//   // prodState.selectedItem.variants = prodState.selectedItem.variants.filter((el) => !el.delete)
+//   // // Delete attribute
+//   // prodState.selectedItem.attributes.splice(props.i, 1)
+//   // removeDuplicateVariants()
+//   // // console.log(xx)
+//   // // [...new Set(prodState.selectedItem.variants.map((el) => el))]
+// }
 </script>
 
 <template>
   <div class="admin-product-attribute shadow-md row">
     <!-- {{ store.product.attributes[index].attribute._id }}===={{ store.product.attributes[index].defaultTerm.name }} -->
     <!-- <pre style="font-size: 1rem">{{ store.product.attributes[index] }}</pre> -->
-    <div class="id">{{ index * 1 + 1 }}</div>
+    <div class="id td">{{ index * 1 + 1 }}</div>
     <div class="attribute td">
       <div class="base-select">
         <select @change="updateAttribute" class="centered">
@@ -266,9 +200,21 @@ const hastodowithduplicatevariants = () => {
         </select>
       </div>
     </div>
+    <div class="active td">
+      <FormsBaseToggle
+        v-model="store.product.attributes[index].enabled"
+        v-if="Object.keys(store.product.attributes[index].attribute).length"
+      />
+    </div>
+    <div class="variation td">
+      <FormsBaseToggle
+        v-model="store.product.attributes[index].variation"
+        v-if="Object.keys(store.product.attributes[index].attribute).length && store.product.attributes[index].enabled"
+      />
+    </div>
     <div class="default-term td">
       <div class="base-select" v-if="Object.keys(store.product.attributes[index].attribute).length">
-        <select @change="setDefaultTerm">
+        <select @change="setDefaultTerm" :disabled="!store.product.attributes[index].enabled">
           <option value="">Select Default Term</option>
           <option
             v-for="option in store.attributeTerms
@@ -285,18 +231,7 @@ const hastodowithduplicatevariants = () => {
         </select>
       </div>
     </div>
-    <div class="active td">
-      <FormsBaseToggle
-        v-model="store.product.attributes[index].active"
-        v-if="Object.keys(store.product.attributes[index].attribute).length"
-      />
-    </div>
-    <div class="variation td">
-      <FormsBaseToggle
-        v-model="store.product.attributes[index].variation"
-        v-if="Object.keys(store.product.attributes[index].attribute).length"
-      />
-    </div>
+
     <div class="terms td">
       <div v-if="Object.keys(store.product.attributes[index].attribute).length" class="terms-wrapper">
         <div class="term-actions">
@@ -373,11 +308,11 @@ const hastodowithduplicatevariants = () => {
   }
 
   .attribute {
-    width: 18rem;
+    // width: 18rem;
   }
 
   .default-term {
-    width: 18rem;
+    // width: 18rem;
   }
 
   .terms {
@@ -389,6 +324,7 @@ const hastodowithduplicatevariants = () => {
       gap: 1rem;
       font-size: 1.2rem;
       padding: 1rem;
+
       .term-actions {
         display: flex;
         flex-direction: column;

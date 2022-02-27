@@ -50,7 +50,7 @@
     .menu {
       position: absolute;
       top: -25%;
-      right: 120%;
+      right: 70%;
       border: 1px solid $slate-300;
       padding: 1rem;
       background-color: white;
@@ -70,21 +70,27 @@
     .row {
       .th,
       .td {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
         // border:1px solid red;
         &:nth-of-type(1) {
           grid-column: 1 / 2;
         }
         &:nth-of-type(2) {
-          grid-column: 2 / 5;
+          grid-column: 2 / 6;
         }
         &:nth-of-type(3) {
-          grid-column: 5/ 10;
+          grid-column: 6/ 7;
         }
         &:nth-of-type(4) {
-          grid-column: 10/ 11;
+          grid-column: 7/ 8;
         }
         &:nth-of-type(5) {
-          grid-column: 11/ 12;
+          grid-column: 8/ 12;
         }
         &:nth-of-type(6) {
           grid-column: 12/ 23;

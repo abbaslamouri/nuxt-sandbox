@@ -10,7 +10,7 @@ definePageMeta({
   layout: 'admin',
 })
 
-const { state, save, fetchSingle, fetchCategories } = useProduct()
+const { state, save, fetchSingle, fetchCategories, saveVariants, deleteVariants } = useProduct()
 
 const route = useRoute()
 const router = useRouter()
@@ -53,12 +53,14 @@ const saveProduct = async () => {
   store.product.slug = slugify(store.product.name, { lower: true })
   if (!store.product.permalink) store.product.permalink = slugify(store.product.name, { lower: true })
   await save(store.product)
-  if (state.errorMsg) {
-    appMessage.errorMsg = state.errorMsg
-  } else {
-    appMessage.successMsg = 'Product saved succesfully'
-    router.push({ name: 'admin-ecommerce-products-slug', params: { slug: store.product.slug } })
-  }
+  if (state.errorMsg) return (appMessage.errorMsg = state.errorMsg)
+  await deleteVariants(store.product._id)
+  if (state.errorMsg) return (appMessage = state.errorMsg)
+  if (!store.variants.length) return (appMessage.successMsg = 'product saved succesfully')
+  await saveVariants(store.variants)
+  if (state.errorMsg) return (appMessage = state.errorMsg)
+  appMessage.successMsg = 'product and variants saved succesfully'
+  router.push({ name: 'admin-ecommerce-products-slug', params: { slug: store.product.slug } })
 }
 
 provide('saveProduct', saveProduct)
@@ -90,7 +92,7 @@ provide('saveProduct', saveProduct)
           galleryType="product"
           @mediaSelectorClicked="showMediaSelector = true"
         />
-        <section class="attributes" id="attributes">
+        <section class="attributes" id="attributes" v-if="store.product._id">
           <EcommerceAdminProductAttributesContent />
           <EcommerceAdminProductAttributesSlideout
             v-show="store.showAttributesSlideout"

@@ -16,8 +16,19 @@ defineEmits(['slideoutEventEmitted'])
         terms for your variants. Attributes define the type of variant (e.g. color). Terms are a choice your customer
         can make within that group (e.g. blue).
       </p>
-      <p class="sub-message"><IconsInfo />Using this feature requires you to save the product first.</p>
-      <button class="btn btn-primary" @click="store.showAttributesSlideout = false">Cancel</button>
+      <p class="sub-message" v-if="!store.product._id">
+        <IconsInfo />Using this feature requires you to save the product first.
+      </p>
+      <div v-if="!store.attributes" class="go-to-attributes">
+        <p>You have not created any attributes yet. Click the link below to creaate new attributes for your peoducts</p>
+        <NuxtLink class="link" :to="{ name: 'admin-ecommerce-attributes' }">
+          <button class="btn btn-primary">
+            <span>Go to Attributes</span>
+          </button>
+        </NuxtLink>
+      </div>
+
+      <!-- <button class="btn btn-primary" @click="store.showAttributesSlideout = false">Cancel</button> -->
     </div>
   </div>
 </template>
@@ -26,7 +37,7 @@ defineEmits(['slideoutEventEmitted'])
 @import '@/assets/scss/variables';
 
 .empty-variant-message {
-  margin-top: 20rem;
+  margin-top: 10rem;
   font-size: 1.4rem;
   display: flex;
   align-items: center;
@@ -60,8 +71,13 @@ defineEmits(['slideoutEventEmitted'])
       }
     }
 
-    .btn {
-      align-self: flex-end;
+    .go-to-attributes {
+      display: flex;
+      flex-direction: column;
+      .link {
+        display: inline-block;
+        align-self: flex-end;
+      }
     }
   }
 }

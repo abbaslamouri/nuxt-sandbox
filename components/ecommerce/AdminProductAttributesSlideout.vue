@@ -4,36 +4,80 @@ import { useMessage } from '~/store/useMessage'
 
 defineEmits(['saveVariants', 'slideoutEventEmitted'])
 
-const saveProduct = inject('saveProduct')
 const { state, fetchAttributes, fetchAttributeTerms } = useProduct()
+const saveProduct = inject('saveProduct')
 
 const store = useStore()
 const appMessage = useMessage()
 const showAlert = ref(false)
+const showDeleteAllAttributesAlert = ref(false)
+const deletedTerms = ref([])
+const current = ref(null)
 let response = null
 
-const insertEmptyAttribute = () => {
+// Fetch all atributes
+response = await fetchAttributes()
+if (state.errorMsg) {
+  appMessage.errorMsg = state.errorMsg
+  store.attributes = []
+} else {
+  store.attributes = response.docs
+}
+
+// Fetch all attribute terms
+response = await fetchAttributeTerms()
+if (state.errorMsg) {
+  appMessage.errorMsg = state.errorMsg
+  store.attributeTerms = []
+} else {
+  store.attributeTerms = response.docs
+}
+
+current.value = JSON.stringify(store.product.attributes)
+
+const removeVariantByTermId = (termId) => {
+  let j = 0
+  while (j < store.variants.length) {
+    const k = store.variants[j].attrTerms.findIndex((t) => t._id == termId)
+    const countBefore = store.variants[j].attrTerms.length
+    if (k !== -1) store.variants[j].attrTerms.splice(k, 1)
+    const countAfter = store.variants[j].attrTerms.length
+    if (countBefore != countAfter) store.variants[j].discard = true
+    j++
+  }
+  store.variants = store.variants.filter((el) => !el.discard)
+}
+
+const insertEmptyAttribute = (attribute, terms, defaultTerm) => {
   if (store.product.attributes.length == store.attributes.length)
     return (appMessage.errorMsg = 'You have used all available attributes')
   store.product.attributes.push({
-    attribute: {},
-    terms: [],
-    defaultTerm: {},
-    active: true,
+    attribute,
+    terms,
+    defaultTerm,
+    enabled: true,
     variation: true,
   })
 }
 
+const addAllAttributes = () => {
+  console.log(store.attributes)
+  console.log(store.attributeTerms)
+  for (const prop in store.attributes) {
+    console.log(console.log(store.attributeTerms.filter((t) => t.parent._id == store.attributes[prop]._id)))
+    const attribute = store.attributes[prop]
+    const terms = store.attributeTerms.filter((t) => t.parent._id == store.attributes[prop]._id)
+    insertEmptyAttribute(attribute, terms, terms[0])
+  }
+}
+
 const closeSlideout = () => {
-  if (current !== JSON.stringify(store.product.attributes)) return (showAlert.value = true)
+  if (current.value !== JSON.stringify(store.product.attributes)) return (showAlert.value = true)
   store.showAttributesSlideout = false
 }
 
 const updateAttributes = async () => {
-  if (current == JSON.stringify(store.product.attributes)) {
-    store.showAttributesSlideout = false
-    return
-  }
+  if (current.value == JSON.stringify(store.product.attributes)) return (store.showAttributesSlideout = false)
   const newAttributes = []
   let errorMsg = ''
   for (const prop in store.product.attributes) {
@@ -44,52 +88,40 @@ const updateAttributes = async () => {
       break
     }
   }
-  if (errorMsg) {
-    appMessage.errorMsg = errorMsg
-    return
-  }
+  if (errorMsg) return (appMessage.errorMsg = errorMsg)
   store.product.attributes = newAttributes
   saveProduct(store.product)
+  current.value = JSON.stringify(store.product.attributes)
   store.showAttributesSlideout = false
 }
 
-const cancelAttributes = () => {
-  store.product.attributes = JSON.parse(current)
+const updateVariants = async (termIds) => {
+  console.log(termIds)
+  //   console.log('Save', store.variants)
+  //   let errorMsg = ''
+  //   for (const vprop in store.variants) {
+  //     for (const prop in store.variants[vprop].attrTerms) {
+  //       if (!Object.keys(store.variants[vprop].attrTerms[prop]).length)
+  //         errorMsg += `Terms missing for attribute ${
+  //           getVariantAttribute(store.variants[vprop].attrTerms[prop], prop).name
+  //         }<br>`
+  //     }
+  //   }
+  //   if (errorMsg) return (appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`)
+  //   console.log(deletedTerms.value)
+  //   // removeVariantByTermId(termToDeleteId.value)
+  //   // console.log(store.variants)
+  //   // saveProduct(store.product)
+}
+
+const cancelAttributesUpdate = () => {
+  store.product.attributes = JSON.parse(current.value)
   store.showAttributesSlideout = false
 }
 
-response = await fetchAttributes()
-if (state.errorMsg) {
-  appMessage.errorMsg = state.errorMsg
-  store.attributes = []
-} else {
-  store.attributes = response.docs
-}
-
-response = await fetchAttributeTerms()
-if (state.errorMsg) {
-  appMessage.errorMsg = state.errorMsg
-  store.attributeTerms = []
-} else {
-  store.attributeTerms = response.docs
-}
-
-const current = JSON.stringify(store.product.attributes)
-
-const removeVariantByTermId = (termId) => {
-  // let j = 0
-  // while (j < prodState.selectedItem.variants.length) {
-  //   const k = prodState.selectedItem.variants[j].attrTerms.findIndex((t) => t._id == termId)
-  //   const countBefore = prodState.selectedItem.variants[j].attrTerms.length
-  //   // console.log('Before', countBefore)
-  //   if (k !== -1) prodState.selectedItem.variants[j].attrTerms.splice(k, 1)
-  //   const countAfter = prodState.selectedItem.variants[j].attrTerms.length
-  //   // console.log('After', countAfter)
-  //   if (countBefore != countAfter) prodState.selectedItem.variants[j].discard = true
-  //   j++
-  // }
-  // prodState.selectedItem.variants = prodState.selectedItem.variants.filter((el) => !el.discard)
-  // if (!prodState.selectedItem.variants.length) prodState.selectedItem.variants = []
+const deleteAllAttributes = () => {
+  store.product.attributes = []
+  showDeleteAllAttributesAlert.value = false
 }
 </script>
 
@@ -105,27 +137,35 @@ const removeVariantByTermId = (termId) => {
           </div>
           <div class="slideout__main">
             <div class="attributes-details">
-              <div v-if="!store.product._id">
-                <EcommerceAdminProductEmptyVariantsMsg
-                  :productId="store.$attrsproduct._id"
-                  @slideoutEventEmitted="$emit('slideoutEventEmitted', $event)"
-                />
-              </div>
-              <div v-else class="attributes-table">
-                <!-- <pre style="font-size: 1rem">{{ store.product.attributes }}</pre> -->
+              <div class="attributes-table">
+                <!-- <pre style="font-size: 1rem">{{ deletedTerms }}</pre> -->
                 <header>
                   <h2>Attributes</h2>
-                  <button class="btn btn-primary" @click="insertEmptyAttribute">Add New</button>
+                  <div class="actions">
+                    <button class="btn btn-primary" @click="insertEmptyAttribute({}, [], {})">Add Attribute</button>
+                    <button class="btn btn-primary" @click="addAllAttributes">Add All Attributes</button>
+                    <button
+                      class="btn btn-secondary delete-all-attributes"
+                      @click="showDeleteAllAttributesAlert = true"
+                    >
+                      Delete All Attributes
+                    </button>
+                  </div>
                 </header>
-                <main v-if="store.product.attributes.length">
-                  <div class="table admin-product-attributes">
+                <main>
+                  <div v-if="!store.product.attributes.length">
+                    <EcommerceAdminProductEmptyAttributesMsg
+                      @slideoutEventEmitted="$emit('slideoutEventEmitted', $event)"
+                    />
+                  </div>
+                  <div v-else class="table admin-product-attributes">
                     <div class="table__header">
                       <div class="row">
                         <div class="th">ID</div>
                         <div class="th">Attribute</div>
-                        <div class="th">Default Term</div>
                         <div class="th">Enable</div>
                         <div class="th">Variation</div>
+                        <div class="th">Default Term</div>
                         <div class="th">Terms</div>
                         <div class="th">Actions</div>
                       </div>
@@ -134,6 +174,7 @@ const removeVariantByTermId = (termId) => {
                       <EcommerceAdminProductAttributeCard
                         v-for="(attribute, index) in store.product.attributes"
                         :index="index"
+                        @deleteTermsUpdated="deletedTerms.push($event)"
                       />
                     </div>
                   </div>
@@ -142,7 +183,7 @@ const removeVariantByTermId = (termId) => {
             </div>
           </div>
           <div class="slideout__footer actions shadow-md">
-            <button class="btn btn-secondary cancel" @click.prevent="cancelAttributes">Cancel</button>
+            <button class="btn btn-secondary cancel" @click.prevent="cancelAttributesUpdate">Cancel</button>
             <button
               class="btn btn-primary save"
               @click.prevent="updateAttributes"
@@ -157,6 +198,10 @@ const removeVariantByTermId = (termId) => {
     <Alert v-if="showAlert" @ok="showAlert = false" @cancel="showAlert = false" :showCancelBtn="false">
       <h3>You have unsaved changes</h3>
       <p>Please save your changes before closing this window or click cancel to exit without saving</p>
+    </Alert>
+    <Alert v-if="showDeleteAllAttributesAlert" @ok="deleteAllAttributes" @cancel="showDeleteAllAttributesAlert = false">
+      <h3>Are you sure you want to delete all attributes</h3>
+      <p>All variants accociated with this product will aso be deleted</p>
     </Alert>
   </section>
 </template>
@@ -178,6 +223,15 @@ const removeVariantByTermId = (termId) => {
       justify-content: space-between;
       padding: 2rem;
       background-color: $slate-300;
+
+      .actions {
+        display: flex;
+        gap: 2rem;
+      }
+    }
+
+    .delete-all-attributes {
+      align-self: flex-end;
     }
   }
 

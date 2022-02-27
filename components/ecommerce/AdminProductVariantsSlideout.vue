@@ -1,20 +1,24 @@
 <script setup>
+import { createReturnStatement } from '@vue/compiler-core'
 import { useMessage } from '~/store/useMessage'
 import { useStore } from '~/store/useStore'
 
 const emit = defineEmits(['slideoutEventEmitted'])
 
 const { state, save, fetchVariants, saveVariants, deleteVariants } = useProduct()
+const saveProduct = inject('saveProduct')
 
 const store = useStore()
 const appMessage = useMessage()
 const showAlert = ref(false)
 const showDeleteAllVariantsAlert = ref(false)
+const showBulkVariantsAlert = ref(false)
 const variantsActionSelect = ref('')
 const regularPrice = ref(null)
 const showRegularPriceInput = ref(false)
 const salePrice = ref(null)
 const showSalePriceInput = ref(false)
+const current = ref(null)
 
 const variantActions = computed(() => [
   { key: 'create-all', name: 'Create variations form all attribute', disabled: false },
@@ -46,6 +50,15 @@ const variantActions = computed(() => [
     disabledIf: store.variants.length ? false : true,
   },
 ])
+
+const response = await fetchVariants(store.product._id)
+if (state.errorMsg) {
+  appMessage.errorMsg = state.errorMsg
+  store.variants = []
+} else {
+  store.variants = response.docs
+}
+current.value = JSON.stringify(store.variants)
 
 const variantBase = (terms = []) => {
   return {
@@ -89,14 +102,34 @@ const bulkAddVariants = () => {
   let terms = []
   if (!store.product.attributes.length)
     return (appMessage.errorMsg = 'I do not know how you got here but you need to create attributes first')
+  for (const prop in store.product.attributes) {
+    if (!store.product.attributes[prop].terms.length)
+      return (appMessage.errorMsg = `All attributes must contain terms.  Attribute ${store.product.attributes[prop].attribute.name} does not contain any terms.  Please delete this attribute or add terms`)
+  }
   terms = store.product.attributes.map((el) => [...el.terms])
   if (getCombinations(terms)[0].length)
     store.variants = [...getCombinations(terms)].map((el) => {
       return variantBase([...el])
     })
+
+  showBulkVariantsAlert.value = false
+}
+
+const preBulkVariants = () => {
+  if (store.variants.length) showBulkVariantsAlert.value = true
+  else bulkAddVariants()
 }
 
 const addSingleVariant = () => {
+  const maxVariantCount = store.product.attributes
+    .map((a) => {
+      return a.terms.length
+    })
+    .reduce((a, b) => a * b, 1)
+
+  if (store.variants.length === maxVariantCount)
+    return (appMessage.errorMsg = 'You have created all possible variantions.  Please edit an existing one.')
+
   const terms = []
   for (const prop in store.product.attributes) {
     terms[prop] = {}
@@ -115,13 +148,11 @@ const updateVariants = async () => {
         }<br>`
     }
   }
-  if (errorMsg) {
-    appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`
-  } else {
-    await deleteVariants(store.variants)
-    await saveVariants(store.variants)
-    await save(store.product)
-  }
+  if (errorMsg) return (appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`)
+  saveProduct(store.product)
+  current.value = JSON.stringify(store.variants)
+
+  emit('slideoutEventEmitted', false)
 }
 
 const deleteAllVariants = async () => {
@@ -152,15 +183,13 @@ const setSalePrices = () => {
   showSalePriceInput.value = false
 }
 
-
 const closeSlideout = () => {
-  if (current !== JSON.stringify(store.variants)) return (showAlert.value = true)
+  if (current.value !== JSON.stringify(store.variants)) return (showAlert.value = true)
   emit('slideoutEventEmitted', false)
 }
 
-
 const cancelVariants = () => {
-  store.variants = JSON.parse(current)
+  store.variants = JSON.parse(current.value)
   emit('slideoutEventEmitted', false)
 }
 
@@ -168,7 +197,7 @@ const handleVariantsAction = () => {
   if (!variantsActionSelect.value) return (appMessage.errorMsg = 'Please select an action')
   switch (variantsActionSelect.value) {
     case 'create-all':
-      bulkAddVariants()
+      preBulkVariants()
       break
     case 'add-variant':
       addSingleVariant()
@@ -191,17 +220,6 @@ const handleVariantsAction = () => {
     variantsActionSelect.value = ''
   }, 10)
 }
-
-
-
-const response = await fetchVariants(store.product._id)
-if (state.errorMsg) {
-  appMessage.errorMsg = state.errorMsg
-  store.variants = []
-} else {
-  store.variants = response.docs
-}
-const current = JSON.stringify(store.variants)
 </script>
 
 <template>
@@ -216,7 +234,7 @@ const current = JSON.stringify(store.variants)
               <button class="btn close"><IconsClose @click.prevent="closeSlideout" /></button>
             </div>
             <div class="main">
-              <!-- <pre style="font-size: 1rem">{{ JSON.parse(current) }}======={{ store.variants }}</pre> -->
+              <!-- <pre style="font-size: 1rem">{{ store.variants }}</pre> -->
               <div v-if="!store.product._id">
                 <EcommerceAdminProductEmptyAttributesMsg
                   :productId="store.product._id"
@@ -254,7 +272,7 @@ const current = JSON.stringify(store.variants)
                       </form>
                       <!-- <button class="btn btn-primary" @click="handleVariantsAction">Go</button> -->
                     </div>
-                    <button class="btn btn-primary" @click="bulkAddVariants">Bulk Add</button>
+                    <button class="btn btn-primary" @click="preBulkVariants">Bulk Add</button>
                   </div>
                 </header>
                 <main>
@@ -300,6 +318,10 @@ const current = JSON.stringify(store.variants)
     <Alert v-if="showDeleteAllVariantsAlert" @ok="deleteAllVariants" @cancel="showDeleteAllVariantsAlert = false">
       <h3>Are you sure?</h3>
       <p>All variants associated with this product will be deleted</p>
+    </Alert>
+    <Alert v-if="showBulkVariantsAlert" @ok="bulkAddVariants" @cancel="showBulkVariantsAlert = false">
+      <h3>Are you sure you want to recreate all variants?</h3>
+      <p>This action will overwrite all existing variants</p>
     </Alert>
   </section>
 </template>

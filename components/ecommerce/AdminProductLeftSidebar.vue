@@ -1,29 +1,26 @@
 <script setup>
-defineProps({
-  product: {
-    type: Object,
-  },
-})
+import { useStore } from '~/store/useStore'
+const store = useStore()
+
 const nav = ref([
-  { key: 'details', title: 'Details', open: true },
-  { key: 'price', title: 'Price', open: false },
-  { key: 'image-gallery', title: 'Image Gallery', open: false },
-  { key: 'attributes', title: 'Attributes', open: false },
-  { key: 'variants', title: 'Variants', open: false },
-  { key: 'shipping-options', title: 'Shipping Options', open: false },
-  { key: 'digital-delivery', title: 'Digital Delivery', open: false },
-  { key: 'extra-fields', title: 'Extra Fields', open: false },
-  { key: 'seo', title: 'SEO', open: false },
-  { key: 'misc', title: 'Misc', open: false },
+  { key: 'details', title: 'Details', showIf: true },
+  { key: 'price', title: 'Price', showIf: true },
+  { key: 'image-gallery', title: 'Image Gallery', showIf: true },
+  { key: 'attributes', title: 'Attributes', showIf: !!store.product._id },
+  { key: 'variants', title: 'Variants', showIf: !!(store.product._id && store.product.attributes.length) },
+  { key: 'shipping-options', title: 'Shipping Options', showIf: true },
+  { key: 'digital-delivery', title: 'Digital Delivery', showIf: true },
+  { key: 'extra-fields', title: 'Extra Fields', showIf: true },
+  { key: 'seo', title: 'SEO', showIf: true },
+  { key: 'misc', title: 'Misc', showIf: true },
 ])
 </script>
 
 <template>
   <ul class="admin-product-nav">
-    <li v-for="navItem in nav" :key="navItem">
+    <li v-for="navItem in nav" :key="navItem" :class="{ hide: !navItem.showIf }">
       <a :href="`#${navItem.key}`">{{ navItem.title }}</a>
     </li>
-    <!-- <pre style="font-size: 1rem">{{ product }}</pre> -->
   </ul>
 </template>
 
@@ -35,6 +32,10 @@ const nav = ref([
     padding: 0.5rem 1rem;
     transition: all 0.3s ease;
     border-radius: 2px;
+
+    &.hide {
+      display: none;
+    }
     &:hover {
       background-color: $slate-200;
     }

@@ -182,10 +182,11 @@ const useFactory = () => {
   const deleteVariants = async (productId) => {
     state.errorMsg = null
     try {
-      await $fetch('/api/v1/variants/delete-many', {
+      const response =await $fetch('/api/v1/variants/delete-many', {
         method: 'POST',
         params: { productId },
       })
+      console.log(response)
       return true
     } catch (error) {
       state.errorMsg = error.data

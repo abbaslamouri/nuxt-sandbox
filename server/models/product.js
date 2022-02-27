@@ -121,7 +121,7 @@ const schema = new mongoose.Schema(
         terms: [{ type: mongoose.Schema.Types.ObjectId, ref: Attributeterm }],
         // required: [true, 'Product Category is required'],
         defaultTerm: { type: mongoose.Schema.Types.ObjectId, ref: Attributeterm },
-        active: {
+        enabled: {
           type: Boolean,
           default: false,
         },
