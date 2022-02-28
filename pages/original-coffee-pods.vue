@@ -1,30 +1,17 @@
 <script setup>
-import ListTiled from '~~/components/icons/ListTiled.vue'
 const { state, fetchAll } = useProduct()
 
 const products = ref([])
 const route = useRoute()
 const listType = ref('tile')
-const page = ref(1)
-const perPage = ref(10)
-const selectedCategories = ref('')
-const timer = ref(null)
-const slides = ref([
-  'assets/vday-d-3.webp',
-  'assets/dott-baristatray-choco.webp',
-  // 'http://picsum.photos/id/1032/900/400',
-  // 'http://picsum.photos/id/1033/900/400',
-  // 'http://picsum.photos/id/1035/900/400',
-  // 'http://picsum.photos/id/1036/900/400',
-  // 'http://picsum.photos/id/1037/900/400',
-])
+
+const slides = ref(['assets/vday-d-3.webp', 'assets/dott-baristatray-choco.webp'])
 const heroBgImage = computed(() =>
   route.name === 'original-coffee-pods' ? 'assets/hero-original.webp' : 'assets/hero-virtuo.webp'
 )
 
 const response = await fetchAll()
 products.value = response.docs
-console.log(response)
 // const pages = computed(() =>
 // 	state.totalItemCount % perPage.value
 // 		? parseInt(state.totalItemCount / perPage.value) + 1
@@ -116,7 +103,7 @@ const handleSearch = async () => {
       <div class="view">
         <span>View</span>
         <div class="icons">
-          <ListTiled @click="listType = 'tile'" :class="{ selected: listType === 'tile' }" />
+          <IconsListTiled @click="listType = 'tile'" :class="{ selected: listType === 'tile' }" />
           <IconsListBulleted @click="listType = 'list'" :class="{ selected: listType === 'list' }" />
         </div>
       </div>
@@ -136,7 +123,7 @@ const handleSearch = async () => {
       </div>
       <div class="main">
         <!-- <Search v-model="state.query.keyword" @handleSubmit="handleSearch" /> -->
-        <EcommerceProductList v-for="product in products" :key="product._id" :product="product" :listType="listType" />
+        <EcommerceProductCard v-for="product in products" :key="product._id" :product="product" :listType="listType" />
         <!-- <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" /> -->
       </div>
     </div>
@@ -276,7 +263,7 @@ const handleSearch = async () => {
 
   .products {
     width: 100%;
-    border: 1px solid red;
+    // border: 1px solid red;
     width: 100%;
     max-width: 996px;
 
@@ -313,10 +300,10 @@ const handleSearch = async () => {
     }
 
     .main {
-        display: flex;
-        justify-content: space-evenly;
-        border: 1px solid green;
-      
+      display: flex;
+      // justify-content: space-evenly;
+      flex-wrap: wrap;
+      // border: 1px solid green;
     }
   }
   .no-products {

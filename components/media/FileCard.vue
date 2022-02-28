@@ -42,7 +42,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="card">
+  <div
+    class="card"
+    @mouseenter="$event.target.classList.add('hovered')"
+    @mouseleave="$event.target.classList.remove('hovered')"
+  >
     <div v-if="file.mimetype && file.mimetype.includes('image')" class="thumb">
       <img :src="`${file.path}`" />
     </div>
@@ -55,10 +59,12 @@ onMounted(async () => {
       </p>
     </div>
     <IconsProgressRing v-if="uploadProgress" :progress="uploadProgress" class="progress" />
+    <div class="tooltip">{{ file.filename }}</div>
   </div>
 </template>
 
 <style lang="scss" scoped>
+@import '@/assets/scss/variables';
 .card {
   position: relative;
   display: flex;
@@ -107,6 +113,47 @@ onMounted(async () => {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+  }
+
+  .tooltip {
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    background-color: $slate-600;
+    display: grid;
+    grid-template-columns: minmax(max-content, 40rem);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    font-size:1rem;
+    font-weight: 500;
+    opacity: 0;
+    visibility: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: $slate-600 transparent transparent transparent;
+    }
+  }
+
+  &.hovered {
+    background-color: $slate-500;
+
+    img {
+      opacity: 0.5;
+    }
+
+    .tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
   }
 }
 </style>

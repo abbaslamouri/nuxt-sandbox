@@ -52,11 +52,13 @@ const selectMedia = async (event) => {
 const saveProduct = async () => {
   store.product.slug = slugify(store.product.name, { lower: true })
   if (!store.product.permalink) store.product.permalink = slugify(store.product.name, { lower: true })
-  await save(store.product)
+  const response = await save(store.product)
   if (state.errorMsg) return (appMessage.errorMsg = state.errorMsg)
+  store.product = response
   await deleteVariants(store.product._id)
   if (state.errorMsg) return (appMessage = state.errorMsg)
   if (!store.variants.length) return (appMessage.successMsg = 'product saved succesfully')
+  console.log('SV', store.variants)
   await saveVariants(store.variants)
   if (state.errorMsg) return (appMessage = state.errorMsg)
   appMessage.successMsg = 'product and variants saved succesfully'
