@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
   product: {
     type: Object,
     required: true,
@@ -7,24 +7,53 @@ defineProps({
   listType: {
     type: String,
   },
+  showSelectQty: {
+    type: Boolean,
+  },
 })
 
+const emit = defineEmits(['selectQuantityBtnClicked', 'closeSelectQuantity'])
+
 const hide = ref(true)
+const quantity = ref(null)
 const showQuantitySelector = ref(false)
 const quantitySelectorPosition = ref(null)
 
 const setQuantitySelectorPosition = (event) => {
-  console.log(event.target)
+  // console.log(event.target)
   const position = event.target.getBoundingClientRect().y
-  console.log(position)
-  if (position > 800) quantitySelectorPosition.value = null
-  else quantitySelectorPosition.value = 'bottom'
+  // console.log(position)
+  if (position < 320) quantitySelectorPosition.value = 'below'
+  else quantitySelectorPosition.value = null
   showQuantitySelector.value = true
+  emit('selectQuantityBtnClicked', !props.showSelectQty)
+}
+
+const addToCart = () => {
+  console.log(props.product)
+  console.log(quantity.value)
+  emit('selectQuantityBtnClicked', !props.showSelectQty)
+  const cartProduct = {
+    _id: props.product._id,
+    name: props.product.name,
+    slug: props.product.slug,
+    description: props.product.description,
+    price: props.product.price,
+    salePrice: props.product.salePrice,
+    thumb: {
+      filename: props.product.gallery[1].filename,
+      slug: props.product.gallery[1].slug,
+      path: props.product.gallery[1].path,
+    },
+  }
+
+  console.log(cartProduct)
 }
 </script>
 
 <template>
   <div class="product" :class="{ tile: listType === 'tile', list: listType === 'list' }">
+    {{ quantity }}
     <div class="top">
       <div class="thumb-description" @mouseenter="hide = false" @mouseleave="hide = true">
         <div class="thumb" :class="{ hide: !hide }">
@@ -35,18 +64,41 @@ const setQuantitySelectorPosition = (event) => {
       <div class="title">
         {{ product.name }}
       </div>
+      <div class="attributes">
+        <div
+          class="item"
+          v-for="attribute in product.attributes.filter((a) => a.enabled && !a.variantion)"
+          :key="attribute._id"
+        >
+          <!-- <div class="attribute">{{ attribute.attribute.name }}:</div> -->
+          <div class="terms">
+            <span v-for="term in attribute.terms" :key="term._id">
+              <EcommerceRichness :richness="term.name * 1" :total="13" v-if="attribute.attribute.name === `Richness`" />
+              <div v-else>{{ term.name }}</div>
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="bottom">
       <div class="price">
-        <div class="price">{{ product.price }}</div>
+        <div class="regular-price">{{ product.price }}</div>
         <div class="sale-price">{{ product.salePrice }}</div>
       </div>
       <div class="add-to-bag">
         <button class="btn btn secondary" @click="setQuantitySelectorPosition"><IconsPlus /></button>
-        <div class="quantity-selector" :class="quantitySelectorPosition" v-if="showQuantitySelector">
+        <div class="quantity-selector" :class="quantitySelectorPosition" v-if="showSelectQty">
           <ul>
-            <li v-for="n in 15" :key="`predefined-quantity-${n}`">{{ (n - 1) * 10 }}</li>
+            <li v-for="n in 15" :key="`predefined-quantity-${n}`" @click="quantity = (n - 1) * 10">
+              <span>
+                {{ (n - 1) * 10 }}
+              </span>
+            </li>
           </ul>
+          <div class="cart-quantity">
+            <input type="text" v-model="quantity" placeholder="Add custom quantity" />
+            <button class="btn btn-secondary" @click="addToCart">OK</button>
+          </div>
         </div>
       </div>
     </div>
@@ -119,6 +171,24 @@ const setQuantitySelectorPosition = (event) => {
       font-size: 1.8rem;
       font-weight: 500;
     }
+
+    .attributes {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 0.5rem;
+      // border: 1px solid red;
+      font-size: 1.3rem;
+
+      .item {
+        display: flex;
+
+        .terms {
+          font-weight: 500;
+        }
+      }
+    }
   }
 
   .bottom {
@@ -126,14 +196,17 @@ const setQuantitySelectorPosition = (event) => {
     align-items: center;
     gap: 2rem;
 
-    .price-add-to-bag {
-      .price {
+    .price {
+      .regular-price {
+        text-decoration: line-through;
+        color: $slate-400;
       }
     }
+
     .add-to-bag {
       position: relative;
       .btn {
-        background-color: $green-600;
+        background-color: $green-700;
         padding: 1rem;
         border-radius: 3px;
 
@@ -143,20 +216,26 @@ const setQuantitySelectorPosition = (event) => {
       }
       .quantity-selector {
         position: absolute;
-        top: -215px;
+        top: -196px;
         left: 50%;
-        width: 200px;
-        height: 200px;
-        border: 1px solid green;
+        width: 215px;
+        height: 180px;
+        // border: 1px solid green;
         transform: translateX(-50%);
-        background-color: $slate-200;
+        background-color: $stone-200;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 1rem;
+        border-radius: 3px;
+        z-index: 9;
 
-        &.bottom {
+        &.below {
           top: 130%;
 
           &::before {
             top: -20px;
-            border-color: transparent transparent $slate-600 transparent;
+            border-color: transparent transparent $stone-200 transparent;
           }
         }
 
@@ -168,7 +247,7 @@ const setQuantitySelectorPosition = (event) => {
           transform: translateX(-50%);
           border-width: 10px;
           border-style: solid;
-          border-color: $slate-600 transparent transparent transparent;
+          border-color: $stone-200 transparent transparent transparent;
         }
         // padding: 2rem;
         // display: flex;
@@ -177,10 +256,10 @@ const setQuantitySelectorPosition = (event) => {
         ul {
           width: 100%;
           display: flex;
-          justify-content: center;
-          align-items: center;
+          // justify-content: center;
+          align-items: flex-start;
           flex-wrap: wrap;
-          border: 1px solid red;
+          // border: 1px solid red;
 
           // gap:1rem;
 
@@ -193,64 +272,47 @@ const setQuantitySelectorPosition = (event) => {
             height: 40px;
             margin-left: -1px;
             margin-top: -1px;
+            cursor: pointer;
+            border-right: 1px solid $stone-400;
+            span {
+              padding: 0.5rem;
+              border-radius: 3px;
+              width: 30px;
+              height: 30px;
+              text-align: center;
+            }
 
-            // &:nth-of-type(4n) {
-            border-right: 1px solid $slate-400;
+            &:hover {
+              span {
+                border: 1px solid $stone-400;
+              }
+            }
+
+            &:nth-of-type(5n) {
+              border-right: none;
+            }
             // }
           }
         }
+
+        .cart-quantity {
+          width: 100%;
+          // border:1px solid red;
+          display: flex;
+          // align-items: center;
+          input {
+            flex: 1;
+            height: 4rem;
+            border: $stone-400;
+            padding: 0 1rem;
+            font-size: 1.2rem;
+          }
+
+          .btn {
+            color: $slate-50;
+          }
+        }
       }
-
-      // .quantity-selector {
-      //   position: absolute;
-      //   top: 130%;
-      //   left: 50%;
-      //   width: 200px;
-      //   height: 200px;
-      //   border: 1px solid green;
-      //   transform: translateX(-50%);
-      //   background-color: $slate-200;
-
-      //   &::before {
-      //     content: '';
-      //     position: absolute;
-      //     top: -10%;
-      //     left: 50%;
-      //     transform: translateX(-50%);
-      //     border-width: 10px;
-      //     border-style: solid;
-      //     border-color: transparent transparent $slate-600 transparent;
-      //   }
-      //   // padding: 2rem;
-      //   // display: flex;
-      //   // justify-content: center;
-      //   // align-content: flex-start;
-      //   ul {
-      //     width: 100%;
-      //     display: flex;
-      //     justify-content: center;
-      //     align-items: center;
-      //     flex-wrap: wrap;
-      //     border: 1px solid red;
-
-      //     // gap:1rem;
-
-      //     li {
-      //       display: flex;
-      //       justify-content: center;
-      //       align-items: center;
-      //       font-size: 1.2rem;
-      //       width: 40px;
-      //       height: 40px;
-      //       margin-left: -1px;
-      //       margin-top: -1px;
-
-      //       // &:nth-of-type(4n) {
-      //       border-right: 1px solid $slate-400;
-      //       // }
-      //     }
-      //   }
-      // }
     }
   }
 }

@@ -7,7 +7,7 @@ const schema = new mongoose.Schema(
       type: String,
       trim: true,
       required: [true, ' Name is required'],
-      minlength: [3, 'Too short'],
+      // minlength: [3, 'Too short'],
       maxlength: [100, 'Name cannot be more than 100 characters long'],
     },
     slug: {
