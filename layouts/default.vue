@@ -28,7 +28,7 @@ const auth = useAuth()
               <LoginDropdown v-if="!auth.authenticated" />
               <ProfileDropdown v-else />
             </div>
-            <!-- <NavCart /> -->
+            <NavCart />
           </div>
         </div>
       </div>

@@ -33,7 +33,7 @@ const errorMsg = ref('')
 const uuid = useUniqueId().getId()
 
 const placeholderColor = props.label ? 'transparent' : 'inherit'
-const inputWidth = props.type === 'password' ? '50%' : '100%'
+const inputWidth = props.type === 'password' ? '100%' : '100%'
 
 onMounted(() => {
   // if (!props.modelValue) inputRef.value.focus();
@@ -43,7 +43,6 @@ watch(
   () => inputRef,
   (current, prev) => {
     // console.log('PPPPP', inputRef.value)
-
     // if (current) inputRef.value.focus()
   }
 )
@@ -79,10 +78,10 @@ export default {
       <span v-if="$attrs.required !== undefined"> (required)</span>
     </label>
 
-    <div class="password-strength" v-if="type === 'password'">
+    <!-- <div class="password-strength" v-if="type === 'password'">
       <div class="strength">Strength</div>
       <div class="reasons">Reasons</div>
-    </div>
+    </div> -->
     <div class="error" v-else>error</div>
   </div>
 </template>

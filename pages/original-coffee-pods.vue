@@ -4,6 +4,7 @@ const { state, fetchAll } = useProduct()
 const products = ref([])
 const route = useRoute()
 const listType = ref('tile')
+const showSelectQtys = ref([])
 
 const slides = ref(['assets/vday-d-3.webp', 'assets/dott-baristatray-choco.webp'])
 const heroBgImage = computed(() =>
@@ -12,6 +13,10 @@ const heroBgImage = computed(() =>
 
 const response = await fetchAll()
 products.value = response.docs
+for (const prop in products.value) {
+  showSelectQtys.value[prop] = false
+}
+
 // const pages = computed(() =>
 // 	state.totalItemCount % perPage.value
 // 		? parseInt(state.totalItemCount / perPage.value) + 1
@@ -66,6 +71,20 @@ const handleSearch = async () => {
 // )
 
 // provide('products', products.value)
+
+const handleSelectQuantity = ($event, i) => {
+  console.log($event, i)
+  for (const prop in showSelectQtys.value) {
+    showSelectQtys.value[prop] = false
+  }
+  showSelectQtys.value[i] = $event
+}
+
+const closeAllSelectQuantity = () => {
+  for (const prop in showSelectQtys.value) {
+    showSelectQtys.value[prop] = false
+  }
+}
 </script>
 
 <template>
@@ -123,7 +142,15 @@ const handleSearch = async () => {
       </div>
       <div class="main">
         <!-- <Search v-model="state.query.keyword" @handleSubmit="handleSearch" /> -->
-        <EcommerceProductCard v-for="product in products" :key="product._id" :product="product" :listType="listType" />
+        <EcommerceProductCard
+          v-for="(product, i) in products"
+          :key="product._id"
+          :product="product"
+          :listType="listType"
+          @selectQuantityBtnClicked="handleSelectQuantity($event, i)"
+          @closeSelectQuantity="showSelectQtys[i] = false"
+          :showSelectQty="showSelectQtys[i]"
+        />
         <!-- <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" /> -->
       </div>
     </div>

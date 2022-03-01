@@ -1,5 +1,5 @@
 <script setup>
-import { useCart } from '~/pinia/useCart'
+import { useCart } from '~/store/useCart'
 
 const cart = useCart()
 
@@ -38,6 +38,11 @@ onMounted(() => {
   padding: 0.5rem 1rem;
   height: 3rem;
   text-transform: uppercase;
+
+  &:hover {
+    background-color: $slate-50;
+    color: $slate-800;
+  }
 
   .link {
     display: flex;

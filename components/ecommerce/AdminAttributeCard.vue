@@ -125,7 +125,7 @@ const deleteTerm = async (termId) => {
         />
       </div>
     </div>
-    <div class="terms td shadow-md" @click="termInputFocus">
+    <div class="terms td shadow-md" @click="termInputFocus" v-show="attribute._id">
       <div class="list" v-for="(term, j) in attributeTerms" :key="term">
         <span>{{ term.name }}</span>
         <IconsClose @click="deleteTerm(term._id)" />
