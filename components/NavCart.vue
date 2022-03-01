@@ -15,15 +15,20 @@ onMounted(() => {
         }
   }
 })
+
+const xx = () => {
+  console.log('PPPPPLLLLL')
+  cart.showCartSlideout = true
+}
 </script>
 
 <template>
   <div class="nav-cart">
-    <NuxtLink class="link" :to="{ name: 'cart' }">
+    <a href="#" class="link" @click="xx">
       <IconsCartFill />
       <h3>Your bag</h3>
       <span class="badge">({{ cart.numberOfItems }})</span>
-    </NuxtLink>
+    </a>
   </div>
 </template>
 

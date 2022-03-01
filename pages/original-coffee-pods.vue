@@ -1,20 +1,26 @@
 <script setup>
-const { state, fetchAll } = useProduct()
+import { useMessage } from '~/store/useMessage'
 
+const { state, fetchAll } = useProduct()
+const appMessage = useMessage()
 const products = ref([])
 const route = useRoute()
 const listType = ref('tile')
 const showSelectQtys = ref([])
-
 const slides = ref(['assets/vday-d-3.webp', 'assets/dott-baristatray-choco.webp'])
 const heroBgImage = computed(() =>
   route.name === 'original-coffee-pods' ? 'assets/hero-original.webp' : 'assets/hero-virtuo.webp'
 )
 
 const response = await fetchAll()
-products.value = response.docs
-for (const prop in products.value) {
-  showSelectQtys.value[prop] = false
+if (state.errorMsg) {
+  appMessage.errorMsg = state.errorMsg
+  products.value = []
+} else {
+  products.value = response.docs
+  for (const prop in products.value) {
+    showSelectQtys.value[prop] = false
+  }
 }
 
 // const pages = computed(() =>
@@ -73,7 +79,7 @@ const handleSearch = async () => {
 // provide('products', products.value)
 
 const handleSelectQuantity = ($event, i) => {
-  console.log($event, i)
+  // console.log($event, i)
   for (const prop in showSelectQtys.value) {
     showSelectQtys.value[prop] = false
   }

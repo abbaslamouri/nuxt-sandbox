@@ -1,6 +1,8 @@
 <script setup>
 import { useAuth } from '~/store/useAuth'
+import { useCart } from '~/store/useCart'
 const auth = useAuth()
+const cart = useCart()
 
 // console.log(useCookie('auth'))
 // import { useAuth } from '~/pinia/useAuth'
@@ -29,6 +31,7 @@ const auth = useAuth()
               <ProfileDropdown v-else />
             </div>
             <NavCart />
+            <EcommerceCartSlideout v-if="cart.showCartSlideout" />
           </div>
         </div>
       </div>
