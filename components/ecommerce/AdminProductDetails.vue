@@ -33,16 +33,10 @@
 			</div>
 			<FormsBaseTextarea v-model="store.product.excerpt" label="Excerpt" placeholder="Excerpt" rows="3" />
 			<FormsBaseTextarea v-model="store.product.description" label="Description" placeholder="Description" rows="5" />
-			<FormsBaseInput type="number" label="Intensity" placeholder="Intensity" v-model="store.product.intensity" />
-			<FormsBaseInput label="Roastiness" placeholder="Roastiness" v-model="store.product.roastiness" />
-			<!-- <div class="base-textarea">
-				<textarea v-model="store.product.excerpt" label="Excerpt" placeholder="Excerptdd" rows="5"></textarea>
-				<label>Excerpt</label>
+			<div class="intensity-roastiness">
+				<FormsBaseInput type="number" label="Intensity" placeholder="Intensity" v-model="store.product.intensity" />
+				<FormsBaseInput label="Roastiness" placeholder="Roastiness" v-model="store.product.roastiness" />
 			</div>
-			<div class="base-textarea">
-				<textarea v-model="store.product.description" label="Description" placeholder="Description" rows="5"></textarea>
-				<label>Description</label>
-			</div> -->
 		</div>
 	</section>
 </template>
@@ -83,6 +77,17 @@
 							font-weight: 600;
 						}
 					}
+				}
+			}
+
+			.intensity-roastiness {
+				display: flex;
+				align-items: center;
+				gap: 2rem;
+
+				.intensity,
+				.roastiness {
+					flex: 1;
 				}
 			}
 		}
