@@ -10,6 +10,7 @@ export const useMessage = defineStore('message', {
 			alertParagraph: '',
 			alertAction: '',
 			showAlertCancelBtn: true,
+
 			// snackbar: {
 			//   show: false,
 			//   message: '',

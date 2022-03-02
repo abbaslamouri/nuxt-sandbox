@@ -1,9 +1,16 @@
 <script setup>
 	import { useCart } from '~/store/useCart'
-
+	import { useStore } from '~/store/useStore'
 	import { useMessage } from '~/store/useMessage'
+	const store = useStore()
 	const cart = useCart()
 	const appMessage = useMessage()
+
+	// const setSelectedMedia = (event) => {
+	// 	console.log('DDDDDDD')
+	// 	store.selectedMedia = event
+	// 	store.showMediaSelector = false
+	// }
 
 	// watch(appMessage.errorMsg, (current, old) => {
 	//   console.log(current)
@@ -48,6 +55,9 @@
 				<h3>{{ appMessage.alertHeading }}</h3>
 				<p>{{ appMessage.alertParagraph }}</p>
 			</Alert>
+			<div class="media-selector" v-if="store.showMediaSelector">
+				<LazyMediaUploader @mediaSelectCancel="store.showMediaSelector = false" />
+			</div>
 		</NuxtLayout>
 	</div>
 </template>

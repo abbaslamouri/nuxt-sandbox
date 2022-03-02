@@ -42,7 +42,8 @@
 
 	// Set category gallery
 	const selectMedia = async (event) => {
-		showMediaSelector.value = false
+		console.log('mediap', event)
+		// showMediaSelector.value = false
 		for (const prop in event) {
 			const index = store.product.gallery.findIndex((el) => el._id === event[prop]._id)
 			if (index === -1) {
@@ -74,6 +75,22 @@
 		router.push({ name: 'admin-ecommerce-products-slug', params: { slug: store.product.slug } })
 	}
 
+	const handleNewMediaSelectBtnClicked = () => {
+		store.referenceMedia = 'productMedia'
+		store.showMediaSelector = true
+	}
+
+	watch(
+		() => store.selectedMedia,
+		(currentVal) => {
+			console.log(currentVal)
+			if (store.referenceMedia === 'productMedia') selectMedia(currentVal)
+			// store.showMediaSelector = false
+			// store.selectedMedia = []
+		},
+		{ deep: true }
+	)
+
 	provide('saveProduct', saveProduct)
 </script>
 
@@ -103,7 +120,7 @@
 					:gallery="store.product.gallery"
 					:galleryIntro="galleryIntro"
 					galleryType="product"
-					@mediaSelectorClicked="showMediaSelector = true"
+					@newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
 				/>
 				<section class="attributes" id="attributes" v-if="store.product._id && store.product.type === 'variable'">
 					<EcommerceAdminProductAttributesContent />
@@ -140,13 +157,13 @@
 				<EcommerceAdminProductRightSidebar @productStatusUpdated="product.status = $event" @saveProduct="saveProduct" />
 			</div>
 		</div>
-		<div class="media-selector" v-if="showMediaSelector">
+		<!-- <div class="media-selector" v-if="showMediaSelector">
 			<LazyMediaUploader
 				@mediaSelected="selectMedia"
 				@mediaSelectCancel="showMediaSelector = false"
 				v-if="showMediaSelector"
 			/>
-		</div>
+		</div> -->
 		<div class="go-to-top">
 			<a href="#product-go-back" class="btn">Go To Top</a>
 		</div>
