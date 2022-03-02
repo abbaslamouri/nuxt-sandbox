@@ -15,16 +15,11 @@ onMounted(() => {
         }
   }
 })
-
-const xx = () => {
-  console.log('PPPPPLLLLL')
-  cart.showCartSlideout = true
-}
 </script>
 
 <template>
   <div class="nav-cart">
-    <a href="#" class="link" @click="xx">
+    <a href="#" class="link" @click="cart.showCartSlideout = true">
       <IconsCartFill />
       <h3>Your bag</h3>
       <span class="badge">({{ cart.numberOfItems }})</span>

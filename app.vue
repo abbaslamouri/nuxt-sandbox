@@ -1,5 +1,8 @@
 <script setup>
+import { useCart } from '~/store/useCart'
+
 import { useMessage } from '~/store/useMessage'
+const cart = useCart()
 const appMessage = useMessage()
 
 // watch(appMessage.errorMsg, (current, old) => {
@@ -19,6 +22,10 @@ const appMessage = useMessage()
   <div>
     <NuxtLayout>
       <NuxtPage />
+      <transition name="slideout">
+        <EcommerceCartSlideout v-if="cart.showCartSlideout" />
+      </transition>
+
       <SnackBar
         :show="!!appMessage.errorMsg"
         :message="appMessage.errorMsg"

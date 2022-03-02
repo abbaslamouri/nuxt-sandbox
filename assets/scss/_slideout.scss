@@ -9,7 +9,7 @@
       letter-spacing: 0.25rem;
 
       .title {
-        font-size: 2rem;
+        font-size: 1.8rem;
       }
       svg {
         fill: $stone-400;
@@ -85,16 +85,16 @@
   .slideout__footer {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 2rem;
-    padding: 2rem;
+    // justify-content: flex-end;
+    // gap: 2rem;
+    // padding: 2rem;
     background-color: $slate-300;
-    width: 100%;
-    // border: 1px solid red;
+    // width: 100%;
+    border: 10px solid red;
 
-    .btn {
-      height: 100%;
-      padding: 0.75rem 2rem;
-    }
+    // .btn {
+    //   height: 100%;
+    //   padding: 0.75rem 2rem;
+    // }
   }
 }

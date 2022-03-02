@@ -31,7 +31,7 @@ const cart = useCart()
               <ProfileDropdown v-else />
             </div>
             <NavCart />
-            <EcommerceCartSlideout v-if="cart.showCartSlideout" />
+            <!-- <EcommerceCartSlideout /> -->
           </div>
         </div>
       </div>
