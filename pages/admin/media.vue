@@ -23,7 +23,7 @@ export default {
 @import '@/assets/scss/variables';
 
 .media {
-  min-height: 100vh;
+  height: 92vh;
   width: 100%;
   background-color: $slate-100;
 }

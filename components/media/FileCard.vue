@@ -78,7 +78,7 @@ onMounted(async () => {
     img {
       width: 12rem;
       height: 12rem;
-      object-fit: cover;
+      object-fit: contain;
     }
   }
 
