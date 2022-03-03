@@ -16,7 +16,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['selectQuantityBtnClicked', 'closeSelectQuantity'])
+const emit = defineEmits(['selectQuantityBtnClicked', 'closeSelectQuantity', 'itemQuantitySelected'])
 
 const { state, fetchVariants } = useProduct()
 const appMessage = useMessage()
@@ -44,15 +44,6 @@ if (state.errorMsg) {
 //   showQuantitySelector.value = true
 //   emit('selectQuantityBtnClicked', !props.showSelectQty)
 // }
-
-const addToCart = (quantity) => {
-  if (!quantity) {
-    appMessage.errorMsg = 'Please select quantity'
-  } else {
-    emit('selectQuantityBtnClicked', !props.showSelectQty)
-    cart.addItem(props.product, variants.value, quantity)
-  }
-}
 </script>
 
 <template>
@@ -74,14 +65,10 @@ const addToCart = (quantity) => {
     </div>
     <div class="bottom">
       <div class="price">
-        <div class="regular-price">{{ product.price }}</div>
+        <div class="regular-price" :class="{ strikeout: product.salePrice }">{{ product.price }}</div>
         <div class="sale-price">{{ product.salePrice }}</div>
       </div>
-      <EcommerceQuantitySelector
-        :showSelectQty="showSelectQty"
-        @selectQuantityBtnClicked="$emit('selectQuantityBtnClicked', $event)"
-        @quantitySelected="addToCart"
-      />
+      <EcommerceQuantitySelector :showSelectQty="showSelectQty" @okBtnClicked="$emit('itemQuantitySelected', $event)" />
       <!-- <div class="quantity-selector">
         <button class="btn btn secondary" @click="setQuantitySelectorPosition"><IconsPlus /></button>
         <div class="quantity-selector" :class="quantitySelectorPosition" v-if="showSelectQty">
@@ -196,8 +183,10 @@ const addToCart = (quantity) => {
 
     .price {
       .regular-price {
-        text-decoration: line-through;
         color: $slate-400;
+        &.strikeout {
+          text-decoration: line-through;
+        }
       }
     }
 

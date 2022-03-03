@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
+import Media from '~/server/models/media'
 
 const schema = new mongoose.Schema(
   {
@@ -32,7 +33,7 @@ const schema = new mongoose.Schema(
     //   type: String,
     //   default: 'user-placeholder.jpg',
     // },
-    avatar: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
+    avatar: { type: mongoose.Schema.Types.ObjectId, ref: Media },
     role: {
       type: String,
       enum: ['admin', 'shop-manager', 'customer', 'user'],

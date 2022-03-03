@@ -10,7 +10,7 @@ export default async (req, res) => {
     let auth = null
     if (user) {
       const token = await user.getSinedJwtToken()
-      auth = { token, user: { name: user.name, email: user.email, role: user.role } }
+      auth = { token, user: { _id: user._id, name: user.name, email: user.email, role: user.role } }
     }
     const expires = !expiresIn
       ? new Date(Date.now() + config.COOKIE_EXPIRE * 24 * 60 * 60 * 1000)
