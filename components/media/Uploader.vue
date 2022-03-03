@@ -199,20 +199,16 @@ const handleSearch = async (event) => {
 }
 
 const setSelectedMedia = () => {
-  console.log('DDDDDDD')
   store.selectedMedia = selectedMedia.value
   store.showMediaSelector = false
 
-  // $emit('mediaSelected', selectedMedia)
 }
 </script>
 
 <template>
   <div class="media-uploader">
-    <!-- <div class="wrapper"> -->
     <div class="top shadow-md">
       <h3 class="title">Media</h3>
-      <!-- <div class="content"> -->
       <div class="folders">
         <div class="folder__actions">
           <MediaFolderActions
@@ -256,7 +252,6 @@ const setSelectedMedia = () => {
           />
         </transition>
       </div>
-      <!-- </div> -->
     </div>
     <div class="bottom shadow-md">
       <MediaFileList
@@ -271,48 +266,38 @@ const setSelectedMedia = () => {
       </div>
     </div>
     <div class="actions" v-if="route.name !== 'admin-media'">
-      <button class="btn btn-primary" @click="setSelectedMedia">Select</button>
       <button class="btn btn-secondary cancel" @click="$emit('mediaSelectCancel')">Cancel</button>
+      <button class="btn btn-primary" @click="setSelectedMedia">Select</button>
     </div>
   </div>
-  <!-- </div> -->
 </template>
 
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
 
 .media-uploader {
-  // .wrapper {
-  // position: fixed;
-  // inset: 100
-  // width: 100vw;
   height: 100%;
-  // border: 10px solid orange;
-  // z-index: 9;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  // padding: 1rem;
-  // overflow-y: scroll;
 
   .top {
     .title {
       background-color: $slate-300;
       padding: 1rem;
+      text-align: center;
     }
-    .folder-actions {
-      display: flex;
-      // flex-direction: column;
-      // border: 5px solid pink;
-      background-color: $slate-50;
-      border-bottom: 1px solid $slate-600;
 
-      // .content {
-      //   display: flex;
-      //   flex-direction: column;
-      //   gap: 2rem;
-      //   padding: 1rem;
-      // }
+    .folders {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      border-bottom: 1px solid $slate-400;
+      padding: 2rem;
+
+      .folder-actions {
+        display: flex;
+      }
     }
   }
 
@@ -322,27 +307,9 @@ const setSelectedMedia = () => {
     justify-content: space-between;
     gap: 1rem;
     background-color: $slate-50;
-    // border: 5px solid blue;
-    // height: 80%;S
     flex: 1;
     overflow-y: auto;
     padding: 0 0 2rem 0;
-
-    // .title {
-    //   text-align: center;
-    //   background-color: $slate-300;
-    //   padding: 1rem;
-    // }
-
-    // .content {
-    //   padding: 1rem;
-    //   // .list {
-    //   // overflow-y: scroll;
-    //   border: 1px solid red;
-    //   // overflow-y: auto;
-    //   // height: 100%;
-    // }
-    // }
   }
 
   .actions {
@@ -356,10 +323,13 @@ const setSelectedMedia = () => {
     background-color: $slate-300;
 
     .btn {
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       padding: 1rem 2rem;
+
+      &.cancel {
+        border: none;
+      }
     }
   }
-  // }
 }
 </style>

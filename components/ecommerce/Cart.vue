@@ -1,6 +1,21 @@
 <script setup>
 import { useCart } from '~/store/useCart'
 const cart = useCart()
+const showSelectQtys = ref([])
+
+for (const prop in cart.items) {
+  showSelectQtys.value[prop] = false
+}
+
+const addToCart = (quantity) => {}
+
+const handleSelectQuantity = ($event, i) => {
+  // console.log($event, i)
+  for (const prop in showSelectQtys.value) {
+    showSelectQtys.value[prop] = false
+  }
+  showSelectQtys.value[i] = $event
+}
 </script>
 
 <template>
@@ -30,7 +45,14 @@ const cart = useCart()
                   <div class="price">${{ item.price }}</div>
                 </div>
               </div>
-              <div class="quantity">{{ item.quantity }}</div>
+              <EcommerceQuantitySelector
+                class="cart"
+                :showSelectQty="showSelectQtys[index]"
+                @selectQuantityBtnClicked="handleSelectQuantity($event, index)"
+                :btnText="item.quantity"
+                @quantitySelected="addToCart"
+              />
+              <!-- <div class="quantity">{{ item.quantity }}</div> -->
             </div>
           </div>
           <div v-else class="empty-cart">

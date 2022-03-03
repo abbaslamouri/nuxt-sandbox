@@ -184,7 +184,7 @@
 		</template>
 		<template v-slot:footer>
 			<div class="actions">
-				<button class="btn btn-secondary cancel" @click.prevent="cancelAttributesUpdate">Cancel</button>
+				<button class="btn btn-secondary" @click.prevent="cancelAttributesUpdate">Cancel</button>
 				<button
 					class="btn btn-primary"
 					@click.prevent="updateAttributes"

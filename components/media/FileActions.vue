@@ -112,7 +112,7 @@ const clearKeyword = async () => {
   justify-content: space-between;
   align-items: center;
   gap: 4rem;
-  padding: 2rem 1rem;
+  padding: 1rem;
   border-bottom: 1px #ccc solid;
 
   .add-new-file {
