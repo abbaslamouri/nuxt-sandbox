@@ -1,171 +1,213 @@
 <script setup>
-import { useCart } from '~/store/useCart'
-import { useMessage } from '~/store/useMessage'
+	import { useCart } from '~/store/useCart'
+	import { useMessage } from '~/store/useMessage'
 
-const props = defineProps({
-  btnText: {
-    type: [String, Number],
-  },
-  // listType: {
-  //   type: String,
-  // },
-  showSelectQty: {
-    type: Boolean,
-  },
-})
+	const props = defineProps({
+		item: {
+			type: Object,
+			// required: true,
+		},
+		btnText: {
+			type: [String, Number],
+		},
 
-const emit = defineEmits(['quantitySelected', 'selectQuantityBtnClicked', 'closeSelectQuantity'])
+		showSelectQty: {
+			type: Boolean,
+		},
+	})
 
-const quantity = ref(null)
-const showQuantitySelector = ref(false)
-const quantitySelectorPosition = ref(null)
+	const emit = defineEmits(['quantitySelected', 'okBtnClicked', 'closeSelectQuantity'])
+	const cart = useCart()
 
-const setQuantitySelectorPosition = (event) => {
-  const position = event.target.getBoundingClientRect().y
-  if (position < 320) quantitySelectorPosition.value = 'below'
-  else quantitySelectorPosition.value = null
-  showQuantitySelector.value = true
-  emit('selectQuantityBtnClicked', !props.showSelectQty)
-}
+	const quantity = ref(null)
+	const showQuantitySelector = ref(false)
+	const quantitySelectorPosition = ref(null)
+
+	const setQuantitySelectorPosition = (event) => {
+		const position = event.target.getBoundingClientRect().y
+		if (position < 320) quantitySelectorPosition.value = 'below'
+		else quantitySelectorPosition.value = null
+		showQuantitySelector.value = true
+		emit('okBtnClicked', !props.showSelectQty)
+	}
+
+	const handleQuantityBtnClick = () => {
+		if (quantity === null) return
+		cart.updateItemQuantity(props.item, quantity.value)
+		// if (quantity.value === 0) cart.items.splice(props.index, 1)
+		// else cart.items[props.index].quantity = quantity.value
+		quantity.value = null
+		emit('okBtnClicked', false)
+	}
+
+	const handleQuantityBoxClick = (n) => {
+		quantity.value = (n - 1) * 10
+		cart.updateItemQuantity(props.item, (n - 1) * 10)
+
+		// if (quantity.value === 0) cart.items.splice(props.index, 1)
+		// else cart.items[props.index].quantity = quantity.value
+		quantity.value = null
+		emit('okBtnClicked', false)
+	}
 </script>
 
 <template>
-  <div class="quantity-selector">
-    <button class="btn btn secondary" @click="setQuantitySelectorPosition">
-      <div class="btn-text" v-if="btnText">{{ btnText }}</div>
-      <IconsPlus v-else />
-    </button>
-    <div class="quantity-selector" :class="quantitySelectorPosition" v-if="showSelectQty">
-      <ul>
-        <li v-for="n in 15" :key="`predefined-quantity-${n}`" @click="quantity = (n - 1) * 10">
-          <span>
-            {{ (n - 1) * 10 }}
-          </span>
-        </li>
-      </ul>
-      <div class="cart-quantity">
-        <input type="text" v-model="quantity" placeholder="Add custom quantity" />
-        <button class="btn btn-secondary" @click="$emit('quantitySelected', quantity)">OK</button>
-      </div>
-    </div>
-  </div>
+	<div class="quantity-selector">
+		<button class="btn btn secondary" @click="setQuantitySelectorPosition">
+			<div class="btn-text" v-if="btnText">{{ btnText }}</div>
+			<IconsPlus v-else />
+		</button>
+		<div class="selector" :class="quantitySelectorPosition" v-if="showSelectQty">
+			<ul>
+				<li v-for="n in 15" :key="`predefined-quantity-${n}`" @click="handleQuantityBoxClick(n)">
+					<span>
+						{{ (n - 1) * 10 }}
+					</span>
+				</li>
+			</ul>
+			<div class="cart-quantity">
+				<input type="text" v-model="quantity" placeholder="Add custom quantity" @change="handleQuantityBtnClick" />
+				<button class="btn btn-secondary" @click="handleQuantityBtnClick">OK</button>
+			</div>
+		</div>
+	</div>
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/scss/variables';
-.quantity-selector {
-  position: relative;
-  .btn {
-    background-color: $green-700;
-    padding: 1rem;
-    border-radius: 3px;
+	@import '@/assets/scss/variables';
+	.quantity-selector {
+		position: relative;
+		.btn {
+			background-color: $green-700;
+			padding: 1rem;
+			border-radius: 3px;
+			width: 5rem;
+			height: 5rem;
+			.btn-text {
+				color: $slate-50;
+				font-size: 1.2rem;
+			}
 
-    svg {
-      fill: $slate-50;
-    }
-  }
-  .quantity-selector {
-    position: absolute;
-    top: -196px;
-    left: 50%;
-    width: 215px;
-    height: 180px;
-    // border: 1px solid green;
-    transform: translateX(-50%);
-    background-color: $stone-200;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 1rem;
-    border-radius: 3px;
-    z-index: 9;
+			svg {
+				fill: $slate-50;
+			}
+		}
+		.selector {
+			position: absolute;
+			top: -196px;
+			left: 50%;
+			width: 215px;
+			height: 180px;
+			// border: 1px solid green;
+			transform: translateX(-50%);
+			background-color: $stone-200;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			padding: 1rem;
+			border-radius: 3px;
+			z-index: 9;
 
-    &.below {
-      top: 130%;
+			&.below {
+				top: 130%;
 
-      &::before {
-        top: -20px;
-        border-color: transparent transparent $stone-200 transparent;
-      }
-    }
+				&::before {
+					top: -20px;
+					border-color: transparent transparent $stone-200 transparent;
+				}
+			}
 
-    &::before {
-      content: '';
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border-width: 10px;
-      border-style: solid;
-      border-color: $stone-200 transparent transparent transparent;
-    }
-    // padding: 2rem;
-    // display: flex;
-    // justify-content: center;
-    // align-content: flex-start;
-    ul {
-      width: 100%;
-      display: flex;
-      // justify-content: center;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      // border: 1px solid red;
+			&::before {
+				content: '';
+				position: absolute;
+				top: 100%;
+				left: 50%;
+				transform: translateX(-50%);
+				border-width: 10px;
+				border-style: solid;
+				border-color: $stone-200 transparent transparent transparent;
+			}
+			// padding: 2rem;
+			// display: flex;
+			// justify-content: center;
+			// align-content: flex-start;
+			ul {
+				width: 100%;
+				display: flex;
+				// justify-content: center;
+				align-items: flex-start;
+				flex-wrap: wrap;
+				// border: 1px solid red;
 
-      // gap:1rem;
+				// gap:1rem;
 
-      li {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.2rem;
-        width: 40px;
-        height: 40px;
-        margin-left: -1px;
-        margin-top: -1px;
-        cursor: pointer;
-        border-right: 1px solid $stone-400;
-        span {
-          padding: 0.5rem;
-          border-radius: 3px;
-          width: 30px;
-          height: 30px;
-          text-align: center;
-        }
+				li {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					font-size: 1.2rem;
+					width: 40px;
+					height: 40px;
+					margin-left: -1px;
+					margin-top: -1px;
+					cursor: pointer;
+					border-right: 1px solid $stone-400;
+					span {
+						padding: 0.5rem;
+						border-radius: 3px;
+						width: 30px;
+						height: 30px;
+						text-align: center;
+					}
 
-        &:hover {
-          span {
-            border: 1px solid $stone-400;
-          }
-        }
+					&:hover {
+						span {
+							border: 1px solid $stone-400;
+						}
+					}
 
-        &:nth-of-type(5n) {
-          border-right: none;
-        }
-        // }
-      }
-    }
+					&:nth-of-type(5n) {
+						border-right: none;
+					}
+					// }
+				}
+			}
 
-    .cart-quantity {
-      width: 100%;
-      // border:1px solid red;
-      display: flex;
-      // align-items: center;
-      input {
-        flex: 1;
-        height: 4rem;
-        border: $stone-400;
-        padding: 0 1rem;
-        font-size: 1.2rem;
-      }
+			.cart-quantity {
+				width: 100%;
+				// border:1px solid red;
+				display: flex;
+				// align-items: center;
+				input {
+					flex: 1;
+					height: 4rem;
+					border: $stone-400;
+					padding: 0 1rem;
+					font-size: 1.2rem;
+				}
 
-      .btn {
-        color: $slate-50;
-      }
-    }
+				.btn {
+					color: $slate-50;
+				}
+			}
+		}
 
-    &.cart {
-      left: 100%;
-    }
-  }
-}
+		&.cart {
+			.selector {
+				top: -60px;
+				left: -115px;
+
+				&::before {
+					content: '';
+					position: absolute;
+					top: 50%;
+					left: 210px;
+					transform: translateY(-50%);
+					border-width: 10px;
+					border-style: solid;
+					border-color: transparent transparent transparent $stone-200;
+				}
+			}
+		}
+	}
 </style>
