@@ -102,7 +102,7 @@ const handleQuantityBtnClick = (qty) => {
     top: -196px;
     left: 50%;
     width: 215px;
-    height: 180px;
+    height: 200px;
     // border: 1px solid green;
     transform: translateX(-50%);
     background-color: $stone-200;
@@ -182,10 +182,10 @@ const handleQuantityBtnClick = (qty) => {
       width: 100%;
       // border:1px solid red;
       display: flex;
-      // align-items: center;
+      align-items: center;
       input {
         flex: 1;
-        height: 4rem;
+        height: 100%;
         border: $stone-400;
         padding: 0 1rem;
         font-size: 1.2rem;

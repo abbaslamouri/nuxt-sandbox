@@ -40,11 +40,12 @@ export const useCart = defineStore('cart', {
     },
 
     updateItemQuantity(item, quantity) {
+      console.log(item, quantity)
       if (isNaN(quantity) || quantity === null) return
-      const index = this.cart.items.findIndex((p) => p._id == item._id)
+      const index = this.cart.items.findIndex((p) => p.product == item.product)
       if (index !== -1) {
         if (quantity === 0) this.cart.items.splice(index, 1)
-        else this.cart.items[index].quantity = quantity
+        else this.cart.items[index].quantity = quantity * 1
         if (process.client) {
           localStorage.setItem('cart', JSON.stringify(this.cart))
         }
@@ -79,7 +80,7 @@ export const useCart = defineStore('cart', {
       return this.cart.customer
     },
     total() {
-      return this.cart.items.reduce((accumulator, item) => accumulator + item.price * item.quantity, 0)
+      return this.cart.items.reduce((accumulator, item) => accumulator + item.price * item.quantity * 1, 0)
     },
     numberOfItems() {
       return this.cart && this.cart.items && this.cart.items.length

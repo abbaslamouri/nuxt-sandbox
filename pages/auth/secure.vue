@@ -82,7 +82,7 @@ const signin = async () => {
             <NuxtLink class="link btn btn-primary" :to="{ name: 'auth-signup' }">
               <span>Create an Accoun</span>
             </NuxtLink>
-            <NuxtLink class="link btn btn-primary" :to="{ name: 'checkout' }">
+            <NuxtLink class="link btn btn-secondary guest" :to="{ name: 'checkout' }">
               <span>Checkout as a guest</span>
             </NuxtLink>
           </div>
@@ -195,14 +195,21 @@ const signin = async () => {
 
       .actions {
         align-self: flex-end;
+        display: flex;
+        gap: 2rem;
         .btn {
           align-self: flex-start;
           border-radius: 3px;
           padding: 1rem 2rem;
           display: flex;
-          background-color: $green-700;
           color: $slate-50;
           gap: 2rem;
+          background-color: $green-700;
+
+          &.guest{
+            background-color: transparent;
+            color:$slate-800;
+          }
         }
       }
     }

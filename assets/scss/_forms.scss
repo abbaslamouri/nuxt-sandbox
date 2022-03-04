@@ -1,285 +1,285 @@
 .base-input {
-	position: relative;
-	--size: 0.5em;
-	border-radius: 0.25rem;
-	border: 1px solid $slate-200;
-	box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
-	background-color: white;
-	height: 5rem;
+  position: relative;
+  --size: 0.5em;
+  border-radius: 0.25rem;
+  border: 1px solid $slate-200;
+  box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
+  background-color: white;
+  height: 5rem;
 
-	cursor: text;
+  cursor: text;
 
-	.currency {
-		position: absolute;
-		top: 2rem;
-		font-size: 80%;
-		left: 2rem;
-	}
+  .currency {
+    position: absolute;
+    top: 2rem;
+    font-size: 80%;
+    left: 2rem;
+  }
 
-	input {
-		display: inline-block;
-		padding: 2rem 1rem 1rem 2rem;
-		width: 100%;
-		height: 100%;
-		background-color: transparent;
+  input {
+    display: inline-block;
+    padding: 2rem 1rem 1rem 2rem;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
 
-		&.currency-input {
-			padding: 2rem 1rem 1rem 3rem;
-		}
+    &.currency-input {
+      padding: 2rem 1rem 1rem 3rem;
+    }
 
-		&.invalid {
-			&:focus {
-				border: 3px solid $red-200;
-			}
-		}
+    &.invalid {
+      &:focus {
+        border: 3px solid $red-200;
+      }
+    }
 
-		&:focus {
-			border: 3px solid $sky-200;
+    &:focus {
+      border: 3px solid $sky-200;
 
-			&:placeholder-shown + label {
-				transform: translateY(-0.5rem);
-				font-size: 80%;
-			}
+      &:placeholder-shown + label {
+        transform: translateY(-0.5rem);
+        font-size: 80%;
+      }
 
-			& + label {
-				transform: translateY(-0.5rem);
-				font-size: 80%;
-			}
-		}
+      & + label {
+        transform: translateY(-0.5rem);
+        font-size: 80%;
+      }
+    }
 
-		// &::placeholder {
-		//   color: v-bind(placeholderColor);
-		// }
+    // &::placeholder {
+    //   color: v-bind(placeholderColor);
+    // }
 
-		&:placeholder-shown + label {
-			transform: translateY(0.75rem);
-		}
-	}
+    &:placeholder-shown + label {
+      transform: translateY(0.75rem);
+    }
+  }
 
-	label {
-		position: absolute;
-		top: 0.75rem;
-		left: 2rem;
-		font-size: 80%;
-		color: lighten($color: $color-primary, $amount: 50);
-		transition: all 0.3s ease;
-		transform: translateY(-0.5rem);
-		cursor: text;
-	}
+  label {
+    position: absolute;
+    top: 0.75rem;
+    left: 2rem;
+    font-size: 80%;
+    color: lighten($color: $color-primary, $amount: 50);
+    transition: all 0.3s ease;
+    transform: translateY(-0.5rem);
+    cursor: text;
+  }
 
-	.error {
-		position: absolute;
-		color: $red-600;
-		bottom: -2rem;
-		left: 1rem;
-		font-size: 80%;
-	}
+  .hint {
+    position: absolute;
+    color: $slate-600;
+    bottom: -2rem;
+    left: 1rem;
+    font-size: 80%;
+  }
 }
 
 .base-textarea {
-	position: relative;
-	--size: 0.5em;
-	border-radius: 0.25rem;
-	border: 1px solid $slate-200;
-	box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
+  position: relative;
+  --size: 0.5em;
+  border-radius: 0.25rem;
+  border: 1px solid $slate-200;
+  box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
 
-	background-color: white;
-	// height: 5rem;
+  background-color: white;
+  // height: 5rem;
 
-	cursor: text;
+  cursor: text;
 
-	// .currency {
-	// 	position: absolute;
-	// 	top: 2rem;
-	// 	font-size: 80%;
-	// 	left: 2rem;
-	// }
+  // .currency {
+  // 	position: absolute;
+  // 	top: 2rem;
+  // 	font-size: 80%;
+  // 	left: 2rem;
+  // }
 
-	textarea {
-		display: inline-block;
-		padding: 2rem 1rem 1rem 2rem;
-		width: 100%;
-		height: 100%;
-		background-color: transparent;
-		// border: 1px solid red;
+  textarea {
+    display: inline-block;
+    padding: 2rem 1rem 1rem 2rem;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    // border: 1px solid red;
 
-		// &.currency-input {
-		// 	padding: 2rem 1rem 1rem 3rem;
-		// }
+    // &.currency-input {
+    // 	padding: 2rem 1rem 1rem 3rem;
+    // }
 
-		// &.invalid {
-		// 	&:focus {
-		// 		border: 3px solid $red-200;
-		// 	}
-		// }
+    // &.invalid {
+    // 	&:focus {
+    // 		border: 3px solid $red-200;
+    // 	}
+    // }
 
-		&:focus {
-			border: 3px solid $sky-200;
+    &:focus {
+      border: 3px solid $sky-200;
 
-			&:placeholder-shown + label {
-				transform: translateY(-0.5rem);
-				font-size: 80%;
-			}
+      &:placeholder-shown + label {
+        transform: translateY(-0.5rem);
+        font-size: 80%;
+      }
 
-			& + label {
-				transform: translateY(-0.5rem);
-				font-size: 80%;
-			}
-		}
+      & + label {
+        transform: translateY(-0.5rem);
+        font-size: 80%;
+      }
+    }
 
-		// &::placeholder {
-		//   color: v-bind(placeholderColor);
-		// }
+    // &::placeholder {
+    //   color: v-bind(placeholderColor);
+    // }
 
-		&:placeholder-shown + label {
-			transform: translateY(0.75rem);
-		}
-	}
+    &:placeholder-shown + label {
+      transform: translateY(0.75rem);
+    }
+  }
 
-	label {
-		position: absolute;
-		top: 0.75rem;
-		left: 2rem;
-		font-size: 80%;
-		color: lighten($color: $color-primary, $amount: 50);
-		transition: all 0.3s ease;
-		transform: translateY(-0.5rem);
-		cursor: text;
-		// color: transparent;
-	}
+  label {
+    position: absolute;
+    top: 0.75rem;
+    left: 2rem;
+    font-size: 80%;
+    color: lighten($color: $color-primary, $amount: 50);
+    transition: all 0.3s ease;
+    transform: translateY(-0.5rem);
+    cursor: text;
+    // color: transparent;
+  }
 
-	// .error {
-	// 	position: absolute;
-	// 	color: $red-600;
-	// 	bottom: -2rem;
-	// 	left: 1rem;
-	// 	font-size: 80%;
-	// }
+  // .error {
+  // 	position: absolute;
+  // 	color: $red-600;
+  // 	bottom: -2rem;
+  // 	left: 1rem;
+  // 	font-size: 80%;
+  // }
 }
 
 .base-select {
-	position: relative;
-	--size: 0.5em;
-	border-radius: 0.25rem;
-	height: 4.5rem;
-	border: 1px solid $slate-200;
-	background-color: white;
-	overflow: hidden;
-	// width: 100%;
-	// height: 100%;
-	// width: min-content;
-	// display: flex;
-	// align-items: center;
-	// gap: 1rem;
-	// cursor: pointer;
-	// padding: 2rem 0 0rem 0;
-	width: 100%;
+  position: relative;
+  --size: 0.5em;
+  border-radius: 0.25rem;
+  height: 4.5rem;
+  border: 1px solid $slate-200;
+  background-color: white;
+  overflow: hidden;
+  // width: 100%;
+  // height: 100%;
+  // width: min-content;
+  // display: flex;
+  // align-items: center;
+  // gap: 1rem;
+  // cursor: pointer;
+  // padding: 2rem 0 0rem 0;
+  width: 100%;
 
-	// padding: 1.5rem 2.5rem;
-	box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
+  // padding: 1.5rem 2.5rem;
+  box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
 
-	// border: 1px solid red;
+  // border: 1px solid red;
 
-	// .custom-select {
-	// position: relative;
-	// cursor: pointer;
+  // .custom-select {
+  // position: relative;
+  // cursor: pointer;
 
-	label {
-		position: absolute;
-		top: 0.2rem;
-		left: 2rem;
-		// border: 1px solid red;
-		font-size: 80%;
-		// font-weight: 600;
-		color: lighten($color: $color-primary, $amount: 50);
-	}
+  label {
+    position: absolute;
+    top: 0.2rem;
+    left: 2rem;
+    // border: 1px solid red;
+    font-size: 80%;
+    // font-weight: 600;
+    color: lighten($color: $color-primary, $amount: 50);
+  }
 
-	select {
-		// padding: 0 4rem 0 2rem;
-		padding: 2rem 0.75rem 1rem 2rem;
+  select {
+    // padding: 0 4rem 0 2rem;
+    padding: 2rem 0.75rem 1rem 2rem;
 
-		appearance: none;
-		width: 100%;
-		height: 100%;
-		background-color: transparent;
-		cursor: pointer;
-		// outline: none;
-		border: none;
+    appearance: none;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    cursor: pointer;
+    // outline: none;
+    border: none;
 
-		&.centered {
-			padding: 1rem 0.75rem 1rem 2rem;
-		}
-		// border: 2px solid green;
-		// padding: 0 6rem 0 2rem;
-		// transform: translateY(1rem);
+    &.centered {
+      padding: 1rem 0.75rem 1rem 2rem;
+    }
+    // border: 2px solid green;
+    // padding: 0 6rem 0 2rem;
+    // transform: translateY(1rem);
 
-		// & > option {
-		// 	padding: 2rem;
-		// 	color: red;
-		// 	height: 1rem;
-		// 	display: inline-block;
-		// }
+    // & > option {
+    // 	padding: 2rem;
+    // 	color: red;
+    // 	height: 1rem;
+    // 	display: inline-block;
+    // }
 
-		// cursor: pointer;
-		// padding: 0 4rem 0 0;
-		// border: none;
-		// outline: none;
-		// height: 100%;
-		// appearance: none;
-		// background-color: transparent;
-	}
+    // cursor: pointer;
+    // padding: 0 4rem 0 0;
+    // border: none;
+    // outline: none;
+    // height: 100%;
+    // appearance: none;
+    // background-color: transparent;
+  }
 
-	&::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		pointer-events: none;
-		background-color: transparent;
-		width: 4em;
-		// padding: 2rem;
-		// background-color: red;
-	}
-	&::after {
-		position: absolute;
-		content: '';
-		width: var(--size);
-		height: 0;
-		height: 0;
-		pointer-events: none;
-		box-sizing: border-box;
-		right: 2rem;
-		top: 50%;
-		transform: translate(-50%, -30%);
-		border: var(--size) solid transparent;
-		border-top: var(--size) solid $slate-400;
-		pointer-events: none;
-	}
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background-color: transparent;
+    width: 4em;
+    // padding: 2rem;
+    // background-color: red;
+  }
+  &::after {
+    position: absolute;
+    content: '';
+    width: var(--size);
+    height: 0;
+    height: 0;
+    pointer-events: none;
+    box-sizing: border-box;
+    right: 2rem;
+    top: 50%;
+    transform: translate(-50%, -30%);
+    border: var(--size) solid transparent;
+    border-top: var(--size) solid $slate-400;
+    pointer-events: none;
+  }
 
-	// &::before,
-	// &::after {
-	//   position: absolute;
-	//   content: '';
-	//   width: var(--size);
-	//   height: 0;
-	//   height: 0;
-	//   pointer-events: none;
-	//   border: var(--size) solid transparent;
-	//   box-sizing: border-box;
-	// }
-	// &::before {
-	//   top: 95%;
-	//   right: 0;
-	//   transform: translateY(-50%);
-	//   border-top: var(--size) solid $slate-400;
-	// }
+  // &::before,
+  // &::after {
+  //   position: absolute;
+  //   content: '';
+  //   width: var(--size);
+  //   height: 0;
+  //   height: 0;
+  //   pointer-events: none;
+  //   border: var(--size) solid transparent;
+  //   box-sizing: border-box;
+  // }
+  // &::before {
+  //   top: 95%;
+  //   right: 0;
+  //   transform: translateY(-50%);
+  //   border-top: var(--size) solid $slate-400;
+  // }
 
-	// &::after {
-	//   top: 25%;
-	//   right: 0%;
-	//   transform: translateY(-50%);
-	//   border-bottom: var(--size) solid $slate-400;
-	// }
-	// }
+  // &::after {
+  //   top: 25%;
+  //   right: 0%;
+  //   transform: translateY(-50%);
+  //   border-bottom: var(--size) solid $slate-400;
+  // }
+  // }
 }

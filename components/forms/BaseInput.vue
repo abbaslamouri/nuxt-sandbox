@@ -20,10 +20,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  // focus: {
-  //   type: Boolean,
-  //   default: false,
-  // },
+  hint: {
+    type: String,
+    default: "",
+  },
 })
 defineEmits(['update:modelValue'])
 
@@ -82,7 +82,7 @@ export default {
       <div class="strength">Strength</div>
       <div class="reasons">Reasons</div>
     </div> -->
-    <div class="error" v-else>error</div>
+    <div class="hint">{{hint}}</div>
   </div>
 </template>
 

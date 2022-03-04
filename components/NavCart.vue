@@ -1,134 +1,135 @@
 <script setup>
-	import { useCart } from '~/store/useCart'
+import { useCart } from '~/store/useCart'
 
-	const cart = useCart()
+const cart = useCart()
 
-	onMounted(() => {
-		if (process.client) {
-			cart.cart = localStorage.getItem('cart')
-				? JSON.parse(localStorage.getItem('cart'))
-				: {
-						items: [],
-						customer: { shippingAddress: {} },
-						paymentMethod: 'stripe',
-						coupons: [],
-				  }
-		}
-	})
+onMounted(() => {
+  if (process.client) {
+    cart.cart = localStorage.getItem('cart')
+      ? JSON.parse(localStorage.getItem('cart'))
+      : {
+          items: [],
+          customer: { shippingAddress: {} },
+          paymentMethod: 'stripe',
+          coupons: [],
+          taxes: 0,
+        }
+  }
+})
 </script>
 
 <template>
-	<div class="nav-cart" :class="{ 'has-items': cart.items.length }">
-		<a href="#" class="link" @click="cart.showCartSlideout = true">
-			<IconsCartFill />
-			<h3>Your bag</h3>
-			<span class="badge">({{ cart.numberOfItems }})</span>
-		</a>
-	</div>
+  <div class="nav-cart" :class="{ 'has-items': cart.items.length }">
+    <a href="#" class="link" @click="cart.showCartSlideout = true">
+      <IconsCartFill />
+      <h3>Your bag</h3>
+      <span class="badge">({{ cart.numberOfItems }})</span>
+    </a>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-	@import '@/assets/scss/variables';
+@import '@/assets/scss/variables';
 
-	.nav-cart {
-		display: flex;
-		align-items: center;
-		border: 1px solid $slate-50;
-		border-radius: 3px;
-		padding: 0.5rem 1rem;
-		height: 3rem;
-		text-transform: uppercase;
+.nav-cart {
+  display: flex;
+  align-items: center;
+  border: 1px solid $slate-50;
+  border-radius: 3px;
+  padding: 0.5rem 1rem;
+  height: 3rem;
+  text-transform: uppercase;
 
-		&.has-items {
-			background-color: $green-700;
-		}
+  &.has-items {
+    background-color: $green-700;
+  }
 
-		&:hover {
-			background-color: $slate-50;
-			color: $slate-800;
-		}
+  &:hover {
+    background-color: $slate-50;
+    color: $slate-800;
+  }
 
-		.link {
-			display: flex;
-			align-items: center;
-			gap: 1rem;
-			font-weight: 300;
+  .link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-weight: 300;
 
-			h3 {
-				text-transform: uppercase;
-				font-weight: 300;
-				font-size: 1.2rem;
-			}
+    h3 {
+      text-transform: uppercase;
+      font-weight: 300;
+      font-size: 1.2rem;
+    }
 
-			svg {
-				width: 2rem;
-				height: 2rem;
-			}
-		}
+    svg {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
 
-		// border border-white flex items-center gap-2 rounded px-3 py-1
-	}
-	// .profile-nav {
-	// 	// padding: 1rem 2rem;
-	// 	// box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-	// 	font-size: 1.2rem;
-	// 	text-transform: uppercase;
-	// 	display: flex;
-	// 	// justify-content: flex-end;
-	// 	gap: 1rem;
+  // border border-white flex items-center gap-2 rounded px-3 py-1
+}
+// .profile-nav {
+// 	// padding: 1rem 2rem;
+// 	// box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+// 	font-size: 1.2rem;
+// 	text-transform: uppercase;
+// 	display: flex;
+// 	// justify-content: flex-end;
+// 	gap: 1rem;
 
-	// 	.cart {
-	// 		a {
-	// 			display: flex;
-	// 			align-items: center;
+// 	.cart {
+// 		a {
+// 			display: flex;
+// 			align-items: center;
 
-	// 			.badge {
-	// 				display: flex;
-	// 				align-items: center;
-	// 				justify-content: center;
-	// 				background-color: #f02020;
-	// 				color: #fff;
-	// 				border-radius: 50%;
-	// 				width: 2.5rem;
-	// 				height: 2.5rem;
-	// 				// padding: 0.3rem 0.7rem;
-	// 				font-size: 1.4rem;
-	// 				align-self: flex-start;
-	// 			}
-	// 		}
-	// 	}
+// 			.badge {
+// 				display: flex;
+// 				align-items: center;
+// 				justify-content: center;
+// 				background-color: #f02020;
+// 				color: #fff;
+// 				border-radius: 50%;
+// 				width: 2.5rem;
+// 				height: 2.5rem;
+// 				// padding: 0.3rem 0.7rem;
+// 				font-size: 1.4rem;
+// 				align-self: flex-start;
+// 			}
+// 		}
+// 	}
 
-	// 	.nav-links {
-	// 		display: flex;
-	// 		align-items: center;
-	// 		justify-content: flex-end;
-	// 		gap: 2rem;
+// 	.nav-links {
+// 		display: flex;
+// 		align-items: center;
+// 		justify-content: flex-end;
+// 		gap: 2rem;
 
-	// 		.link {
-	// 			display: flex;
-	// 			align-items: center;
-	// 			gap: 0.3rem;
+// 		.link {
+// 			display: flex;
+// 			align-items: center;
+// 			gap: 0.3rem;
 
-	// 			svg {
-	// 				width: 1.5rem;
-	// 			}
+// 			svg {
+// 				width: 1.5rem;
+// 			}
 
-	// 			&.router-link-active {
-	// 				color: green;
-	// 			}
-	// 		}
+// 			&.router-link-active {
+// 				color: green;
+// 			}
+// 		}
 
-	// 		.nav-user {
-	// 			display: flex;
-	// 			align-items: center;
-	// 			gap: 1rem;
-	// 			margin-left: 2rem;
+// 		.nav-user {
+// 			display: flex;
+// 			align-items: center;
+// 			gap: 1rem;
+// 			margin-left: 2rem;
 
-	// 			img {
-	// 				border-radius: 50%;
-	// 				width: 3rem;
-	// 			}
-	// 		}
-	// 	}
-	// }
+// 			img {
+// 				border-radius: 50%;
+// 				width: 3rem;
+// 			}
+// 		}
+// 	}
+// }
 </style>
