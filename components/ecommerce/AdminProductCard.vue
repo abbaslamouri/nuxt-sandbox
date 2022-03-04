@@ -24,6 +24,10 @@ const handleDeleteBtnClick = async () => {
           v-if="product.gallery && product.gallery[1] && product.gallery[1].path"
           :src="`${product.gallery[1].path}`"
         />
+        <img
+          v-else-if="product.gallery && product.gallery[0] && product.gallery[0].path"
+          :src="`${product.gallery[0].path}`"
+        />
         <img v-else class="thumb" :src="`/placeholder.png`" />
       </div>
       <h3 class="title">{{ product.name }}</h3>

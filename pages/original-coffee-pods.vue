@@ -19,7 +19,12 @@ if (state.errorMsg) {
   appMessage.errorMsg = state.errorMsg
   products.value = []
 } else {
-  products.value = response.docs
+  for (const prop in response.docs) {
+    console.log(response.docs[prop].categories.map((g) => g.slug).includes('free-samples'))
+    if (!response.docs[prop].categories.map((g) => g.slug).includes('free-samples'))
+      products.value.push(response.docs[prop])
+  }
+  // products.value = response.docs
   for (const prop in products.value) {
     showSelectQtys.value[prop] = false
   }

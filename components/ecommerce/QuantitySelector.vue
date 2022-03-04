@@ -3,10 +3,18 @@ import { useCart } from '~/store/useCart'
 import { useMessage } from '~/store/useMessage'
 
 const props = defineProps({
-  // item: {
-  //   type: Object,
-  //   // required: true,
-  // },
+  minVal: {
+    type: Number,
+    required: true,
+  },
+  maxVal: {
+    type: Number,
+    required: true,
+  },
+  stepVal: {
+    type: Number,
+    required: true,
+  },
   btnText: {
     type: [String, Number],
   },
@@ -22,9 +30,39 @@ const cart = useCart()
 const quantity = ref(null)
 const showQuantitySelector = ref(false)
 const quantitySelectorPosition = ref(null)
+const quantityArr = ref([])
+const quantitySelectorOffset = ref(null)
+// const selectorWrapper = ref(null)
+
+// const selectorWrapper = computed(() => {
+//   if (process.client) return document.querySelector('.selector-wrapper').offsetHeight
+// })
+// const selector = ref('null')
+
+let i = props.minVal
+while (i <= props.maxVal) {
+  quantityArr.value.push(i)
+  i += props.stepVal
+}
+if (quantityArr.value.length <= 5) {
+  quantitySelectorOffset.value = `-110px`
+} else if (quantityArr.value.length > 5 && quantityArr.value.length <= 10) {
+  quantitySelectorOffset.value = `-150px`
+} else if (quantityArr.value.length > 10 && quantityArr.value.length <= 15) {
+  quantitySelectorOffset.value = `-190px`
+} else if (quantityArr.value.length > 15 && quantityArr.value.length <= 20) {
+  quantitySelectorOffset.value = `-230px`
+} else if (quantityArr.value.length > 20 && quantityArr.value.length <= 25) {
+  quantitySelectorOffset.value = `-270px`
+} else if (quantityArr.value.length > 25 && quantityArr.value.length <= 30) {
+  quantitySelectorOffset.value = `-310px`
+} else {
+  quantitySelectorOffset.value = `-350px`
+}
 
 const setQuantitySelectorPosition = (event) => {
   const position = event.target.getBoundingClientRect().y
+  console.log(position)
   if (position < 320) quantitySelectorPosition.value = 'below'
   else quantitySelectorPosition.value = null
   showQuantitySelector.value = true
@@ -49,19 +87,27 @@ const handleQuantityBtnClick = (qty) => {
 //   // else cart.items[props.index].quantity = quantity.value
 //   quantity.value = null
 // }
+// onMounted(() => {
+// selectorWrapper.value = document.querySelector('.selector-wrapper')
+// if (selectorWrapper.value) {
+//   console.log(selectorWrapper.value.offsetWidth)
+//   console.log(selectorWrapper.value.offsetHeight)
+// }
+// })
 </script>
 
 <template>
   <div class="quantity-selector">
+    <!-- {{ quantitySelectorOffset }} -->
     <button class="btn btn secondary" @click="setQuantitySelectorPosition">
       <div class="btn-text" v-if="btnText">{{ btnText }}</div>
       <IconsPlus v-else />
     </button>
-    <div class="selector" :class="quantitySelectorPosition" v-if="showSelectQty">
+    <div class="selector" v-if="showSelectQty" :class="quantitySelectorPosition">
       <ul>
-        <li v-for="n in 15" :key="`predefined-quantity-${n}`" @click="handleQuantityBtnClick((n - 1) * 10)">
+        <li v-for="n in quantityArr" :key="`predefined-quantity-${n}`" @click="handleQuantityBtnClick(n)">
           <span>
-            {{ (n - 1) * 10 }}
+            {{ n }}
           </span>
         </li>
       </ul>
@@ -86,8 +132,8 @@ const handleQuantityBtnClick = (qty) => {
     background-color: $green-700;
     padding: 1rem;
     border-radius: 3px;
-    width: 5rem;
-    height: 5rem;
+    width: 4rem;
+    height: 4rem;
     .btn-text {
       color: $slate-50;
       font-size: 1.2rem;
@@ -99,10 +145,10 @@ const handleQuantityBtnClick = (qty) => {
   }
   .selector {
     position: absolute;
-    top: -196px;
+    top: v-bind(quantitySelectorOffset);
     left: 50%;
     width: 215px;
-    height: 200px;
+    // height: 200px;
     // border: 1px solid green;
     transform: translateX(-50%);
     background-color: $stone-200;
@@ -180,15 +226,15 @@ const handleQuantityBtnClick = (qty) => {
 
     .cart-quantity {
       width: 100%;
-      // border:1px solid red;
       display: flex;
-      align-items: center;
+      align-items: stretch;
       input {
         flex: 1;
         height: 100%;
         border: $stone-400;
         padding: 0 1rem;
         font-size: 1.2rem;
+        height: 4rem;
       }
 
       .btn {

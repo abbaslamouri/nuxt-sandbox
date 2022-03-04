@@ -57,11 +57,8 @@
 		if (!store.product.permalink) store.product.permalink = slugify(store.product.name, { lower: true })
 		response = await save(store.product)
 		if (state.errorMsg) return (appMessage.errorMsg = state.errorMsg)
-		// console.log('S', store.product)
-		// console.log('R', response)
 		store.product._id = response._id
 		await deleteVariants(store.product._id)
-		console.log('KKKKKKKXXX')
 
 		if (state.errorMsg) return (appMessage = state.errorMsg)
 		if (!store.variants.length) {

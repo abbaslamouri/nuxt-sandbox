@@ -34,7 +34,7 @@ const cancelEditFolder = () => {
 }
 
 const saveNewFolder = async () => {
-  appMessage.snackbar.show = false
+  appMessage.errorMsg = null
   try {
     newFolder.value.slug = slugify(newFolder.value.name, { lower: true })
     let savedFolder = null
@@ -49,7 +49,7 @@ const saveNewFolder = async () => {
     showForm.value = false
     newFolder.value = {}
   } catch (error) {
-    appMessage.setSnackbar(true, error.data, 'Error')
+    appMessage.errorMsg = error.data
   }
 }
 
@@ -59,22 +59,21 @@ const selectFolderToDelete = async () => {
 }
 
 const deleteFolder = async () => {
-  appMessage.snackbar.show = false
+  appMessage.errorMsg = null
   showAlert.value = false
   if (props.media.filter((m) => m.folder._id == props.selectedFolder._id).length) {
-    return appMessage.setSnackbar(
-      true,
-      'You cannot delete non-empty folders.  Please delete or move all media to another folder before deleting folders.',
+    return (
+      (appMessage.errorMsg =
+        'You cannot delete non-empty folders.  Please delete or move all media to another folder before deleting folders.'),
       'Error'
     )
   }
   try {
-    const response = await $fetch('/api/v1/folders/', { method: 'DELETE', params: { id: props.selectedFolder._id } })
-    // console.log(response)
+    await $fetch('/api/v1/folders/', { method: 'DELETE', params: { id: props.selectedFolder._id } })
     emit('folderDeleted')
-    appMessage.setSnackbar(true, `Folder ${props.selectedFolder.name} deleted succesfully`, 'Success', 5)
+    appMessage.successMsg = `Folder ${props.selectedFolder.name} deleted succesfully`
   } catch (error) {
-    appMessage.setSnackbar(true, error.data, 'Error')
+    appMessage.errorMsg = error.data
   }
   showAlert.value = false
 }

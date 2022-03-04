@@ -21,7 +21,7 @@ const useFactory = () => {
     errorMsg: '',
   })
 
-  const fetchAll = async (payload) => {
+  const fetchAll = async (payload = {}) => {
     state.errorMsg = null
     try {
       const response = await $fetch('/api/v1/products', { params: { ...state.params, ...payload } })
@@ -46,6 +46,8 @@ const useFactory = () => {
       } else {
         return {
           name: '',
+          price: 0,
+          salePrice: 0,
           type: 'simple',
           attributes: [],
           categories: [],
@@ -63,7 +65,7 @@ const useFactory = () => {
     state.errorMsg = null
     let response = null
     try {
-      if (!product.name || !product.price) {
+      if (!product.name) {
         state.errorMsg = 'Product name and price are required'
         return false
       }

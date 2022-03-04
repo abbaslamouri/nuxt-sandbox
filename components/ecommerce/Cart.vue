@@ -45,6 +45,9 @@ const handleOkBtnClicked = (event, index) => {
               </div>
               <EcommerceQuantitySelector
                 class="cart"
+                :minVal="0"
+                :maxVal="140"
+                :stepVal="10"
                 :item="item"
                 :showSelectQty="showSelectQtys[index]"
                 :btnText="item.quantity"

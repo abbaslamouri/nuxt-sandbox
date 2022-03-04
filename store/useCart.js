@@ -21,16 +21,25 @@ export const useCart = defineStore('cart', {
           type: item.type,
           name: item.name,
           slug: item.slug,
+          categories: item.categories,
           quantity: quantity * 1,
         }
         if (item.type === 'simple') {
           cartItem.price = item.price
           cartItem.salePrice = item.salePrice
-          cartItem.thumb = {
-            _id: item.gallery[1]._id,
-            filename: item.gallery[1].filename,
-            path: item.gallery[1].path,
-          }
+          cartItem.thumb = item.gallery[1]
+            ? {
+                _id: item.gallery[1]._id,
+                filename: item.gallery[1].filename,
+                path: item.gallery[1].path,
+              }
+            : item.gallery[0]
+            ? {
+                _id: item.gallery[0]._id,
+                filename: item.gallery[0].filename,
+                path: item.gallery[0].path,
+              }
+            : null
         }
         this.cart.items.push(cartItem)
       }
@@ -66,6 +75,10 @@ export const useCart = defineStore('cart', {
 
     removeItem(item) {
       this.cart.items = this.cart.items.filter((el) => el.product != item.product)
+      this.cart.cartTotal = this.total
+      if (process.client) {
+        localStorage.setItem('cart', JSON.stringify(this.cart))
+      }
     },
   },
 

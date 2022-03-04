@@ -30,8 +30,7 @@ export default async (req, res) => {
       const body = await useBody(req)
       console.log(body)
       // Remove old carts by user
-      const oldCarts = await Model.find({ customer: body.customer._id })
-      if (oldCarts.length) oldCarts.remove()
+      await Model.deleteMany({ customer: body.customer._id })
       const doc = await Model.create(body)
       if (!doc) {
         const newError = new Error(`We are not able to create a new document`)

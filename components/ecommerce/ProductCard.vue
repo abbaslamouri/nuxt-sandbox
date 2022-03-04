@@ -65,10 +65,16 @@ if (state.errorMsg) {
     </div>
     <div class="bottom">
       <div class="price">
-        <div class="regular-price" :class="{ strikeout: product.salePrice }">{{ product.price }}</div>
-        <div class="sale-price">{{ product.salePrice }}</div>
+        <div class="regular-price" :class="{ strikeout: product.salePrice }">${{ product.price }}</div>
+        <div class="sale-price" v-if="product.salePrice">${{ product.salePrice }}</div>
       </div>
-      <EcommerceQuantitySelector :showSelectQty="showSelectQty" @okBtnClicked="$emit('itemQuantitySelected', $event)" />
+      <EcommerceQuantitySelector
+        :minVal="0"
+        :maxVal="140"
+        :stepVal="10"
+        :showSelectQty="showSelectQty"
+        @okBtnClicked="$emit('itemQuantitySelected', $event)"
+      />
       <!-- <div class="quantity-selector">
         <button class="btn btn secondary" @click="setQuantitySelectorPosition"><IconsPlus /></button>
         <div class="quantity-selector" :class="quantitySelectorPosition" v-if="showSelectQty">
@@ -183,8 +189,9 @@ if (state.errorMsg) {
 
     .price {
       .regular-price {
-        color: $slate-400;
         &.strikeout {
+          color: $slate-400;
+
           text-decoration: line-through;
         }
       }
