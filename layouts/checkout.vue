@@ -1,8 +1,12 @@
 <script setup>
 import { useAuth } from '~/store/useAuth'
 import { useCart } from '~/store/useCart'
+
+const route = useRoute()
 const auth = useAuth()
 const cart = useCart()
+
+// console.log(route.name)
 
 // console.log(useCookie('auth'))
 // import { useAuth } from '~/pinia/useAuth'
@@ -30,7 +34,7 @@ const cart = useCart()
               <!-- <LoginDropdown v-if="!auth.authenticated" /> -->
               <!-- <ProfileDropdown v-else /> -->
             </div>
-            <NavCart />
+            <NavCart v-show="route.name != 'checkout' && route.name != 'shipping'" />
             <!-- <EcommerceCartSlideout /> -->
           </div>
         </div>

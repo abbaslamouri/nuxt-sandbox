@@ -35,6 +35,8 @@ const handleChange = (event) => {
 </template>
 
 <style lang="scss" scoped>
+@import '@/assets/scss/variables';
+
 .base-radio {
   // border: 1px solid red;
   // background-color: teal;
@@ -46,8 +48,8 @@ const handleChange = (event) => {
 
   input {
     cursor: pointer;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
   }
 }
 </style>

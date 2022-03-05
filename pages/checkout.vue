@@ -17,9 +17,10 @@ const auth = useAuth()
 const appMessage = useMessage()
 const showSelectQtys = ref([])
 const promoCode = ref(null)
+const coupon = ref('')
+
 const freeSamples = ref([])
 
-const coupon = ref('')
 
 onMounted(async () => {
   const response = await fetchAll()
@@ -80,7 +81,7 @@ const applyCoupon = () => {
 <template>
   <div class="checkout">
     <div class="checkout-steps">
-      <EcommerceCheckoutSteps step1 activeColor="#15803d" />
+      <EcommerceCheckoutSteps :step="1" activeColor="#16a34a" />
     </div>
     <div class="content" v-if="cart.items.length">
       <div class="main">
@@ -178,7 +179,10 @@ const applyCoupon = () => {
             </div>
           </div>
           <div class="footer">
-            <button class="btn btn-primary"><span> Proceed to checkout</span><IconsChevronRight /></button>
+            <NuxtLink class="link btn btn-primary" :to="{ name: 'shipping' }">
+              <span> Proceed to checkout</span><IconsChevronRight />
+            </NuxtLink>
+            <!-- <button class="btn btn-primary"><span> Proceed to checkout</span><IconsChevronRight /></button> -->
           </div>
         </div>
       </div>
@@ -220,11 +224,7 @@ const applyCoupon = () => {
     </div>
     <div v-else class="empty-cart">
       <p>You have no items in your bag</p>
-      <NuxtLink
-        class="link btn btn-primary"
-        :to="{ name: 'original-coffee-pods' }"
-        @click="cart.showCartSlideout = false"
-      >
+      <NuxtLink class="link btn btn-primary" :to="{ name: 'original-coffee-pods' }">
         <span>Start Shopping</span>
       </NuxtLink>
     </div>
@@ -510,14 +510,14 @@ const applyCoupon = () => {
       }
 
       .nyc {
-        display:flex;
+        display: flex;
         flex-direction: column;
         align-items: center;
-        gap:2rem;
+        gap: 2rem;
         h3 {
           font-size: 2rem;
         }
-        p{
+        p {
           text-align: center;
         }
       }
