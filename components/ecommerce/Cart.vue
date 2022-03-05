@@ -84,7 +84,6 @@ const handleOkBtnClicked = (event, index) => {
         <NuxtLink class="link btn btn-primary" :to="{ name: 'auth-secure' }" @click="cart.showCartSlideout = false">
           <span>Checkout</span>
         </NuxtLink>
-        <!-- <button class="btn btn-primary">Checkout</button> -->
       </div>
     </template>
   </Slideout>
