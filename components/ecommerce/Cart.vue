@@ -35,6 +35,10 @@ const handleOkBtnClicked = (event, index) => {
             </div>
           </div>
           <div v-if="cart.items.length" class="cart-items">
+            <div class="table shopping-bag">
+              <div class="table__body"></div>
+            </div>
+
             <div class="item" v-for="(item, index) in cart.items" :key="`cart-item-${index}`">
               <div class="left">
                 <div class="thumb"><img :src="item.thumb.path" v-if="item.thumb" /></div>

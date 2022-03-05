@@ -15,12 +15,11 @@ const router = useRouter()
 const cart = useCart()
 const auth = useAuth()
 const appMessage = useMessage()
-const showSelectQtys = ref([])
+// const showSelectQtys = ref([])
 const promoCode = ref(null)
 const coupon = ref('')
 
 const freeSamples = ref([])
-
 
 onMounted(async () => {
   const response = await fetchAll()
@@ -54,13 +53,13 @@ onMounted(async () => {
 
 // console.log(products.value)
 
-const handleOkBtnClicked = (event, index) => {
-  for (const prop in showSelectQtys.value) {
-    showSelectQtys.value[prop] = false
-  }
-  showSelectQtys.value[index] = event.status
-  cart.updateItemQuantity(cart.items[index], event.quantity)
-}
+// const handleOkBtnClicked = (event, index) => {
+//   for (const prop in showSelectQtys.value) {
+//     showSelectQtys.value[prop] = false
+//   }
+//   showSelectQtys.value[index] = event.status
+//   cart.updateItemQuantity(cart.items[index], event.quantity)
+// }
 
 const handleCheckout = async () => {
   if (auth.authenticated) {
@@ -102,43 +101,13 @@ const applyCoupon = () => {
             </div>
           </div>
           <div class="table__body">
-            <div class="item row" v-for="(item, index) in cart.items" :key="item.product">
-              <div class="image-name td">
-                <div class="image">
-                  <img :src="item.thumb ? item.thumb.path : '/placeholder.png'" :alt="` ${item.name} Photo`" />
-                </div>
-                <h4 class="name">{{ item.name }}</h4>
-              </div>
-              <div class="price td">${{ item.price.toFixed(2) }}</div>
-              <div class="quantity td" v-if="!item.categories.map((g) => g.slug).includes('free-samples')">
-                <EcommerceQuantitySelector
-                  class="cart"
-                  :item="item"
-                  :minVal="0"
-                  :maxVal="140"
-                  :stepVal="10"
-                  :showSelectQty="showSelectQtys[index]"
-                  :btnText="item.quantity"
-                  @okBtnClicked="handleOkBtnClicked($event, index)"
-                />
-              </div>
-              <div class="quantity td" v-else>
-                <EcommerceQuantitySelector
-                  v-if="item.slug === 'recycling-bag'"
-                  class="cart"
-                  :item="item"
-                  :minVal="0"
-                  :maxVal="4"
-                  :stepVal="1"
-                  :showSelectQty="showSelectQtys[index]"
-                  :btnText="item.quantity"
-                  @okBtnClicked="handleOkBtnClicked($event, index)"
-                />
-                <button v-else class="btn btn-secondary free-sample-single">{{ item.quantity }}</button>
-              </div>
-              <div class="line-item-total td">${{ (item.quantity * item.price).toFixed(2) }}</div>
-              <div class="trash td" @click="cart.removeItem(item)"><IconsClose /></div>
-            </div>
+            <EcommerceCheckoutCard
+              class="row"
+              v-for="(item, index) in cart.items"
+              :key="item.product"
+              :item="item"
+              :index="index"
+            />
           </div>
           <nuxt-link class="link continue-shopping" :to="{ name: 'original-coffee-pods' }">
             <IconsChevronLeft />
