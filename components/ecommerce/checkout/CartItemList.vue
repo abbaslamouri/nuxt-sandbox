@@ -20,9 +20,6 @@
 <template>
 	<div class="cart-items">
 		<div v-if="cart.items.length" class="flex-col">
-			<!-- <div class="table shopping-bag">
-				<div class="table__body"></div>
-			</div> -->
 			<div
 				class="cart-items__item flex-row gap2 items-center justify-between py1 mt-1"
 				v-for="(item, index) in cart.items"
@@ -30,9 +27,9 @@
 			>
 				<div class="flex-row gap2 items-center">
 					<div class="w5 h5"><img class="wfull contain" :src="item.thumb.path" v-if="item.thumb" /></div>
-					<div class="flex-col">
-						<div class="name">{{ item.name }}</div>
-						<div class="price">${{ item.price }}</div>
+					<div class="flex-col text-sm">
+						<div class="font-bold">{{ item.name }}</div>
+						<div class="text-yellow-700">${{ item.price }}</div>
 					</div>
 				</div>
 				<EcommerceCheckoutQuantitySelector

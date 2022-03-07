@@ -111,37 +111,13 @@ const closeAllSelectQuantity = () => {
 </script>
 
 <template>
-  <div class="oroginal-coffee-pods">
+  <div class="original-coffee-pods border">
     <!-- {{ cart.cart }} -->
 
     <section class="offers-carousel">
       <Carousel :slides="slides" indicators controls interval="5" height="10" />
     </section>
-    <section class="hero" :style="{ backgroundImage: `url(${heroBgImage})` }">
-      <div class="links">
-        <NuxtLink class="link" :to="{ name: 'original-coffee-pods', params: { slug: ' ' } }">
-          <button class="btn">
-            <IconsOriginalActive />
-            <span>Original</span>
-          </button>
-        </NuxtLink>
-        <NuxtLink class="link" :to="{ name: 'virtuo-coffee-pods', params: { slug: ' ' } }">
-          <button class="btn">
-            <IconsVirtuoActive />
-            <span>Virtuo</span>
-          </button>
-        </NuxtLink>
-      </div>
-      <div class="content">
-        <div>Original</div>
-        <h1>The Classic Espresso Experience</h1>
-        <NuxtLink class="link" :to="{ name: 'original-coffee-pods', params: { slug: ' ' } }">
-          <button class="btn btn-primary">
-            <span>Learn more about the original system</span>
-          </button>
-        </NuxtLink>
-      </div>
-    </section>
+    <EcommerceProductsHero />
     <section class="filters-views">
       <div class="filter"><span>Filter</span> <IconsFilter /></div>
       <div class="view">
@@ -152,7 +128,7 @@ const closeAllSelectQuantity = () => {
         </div>
       </div>
     </section>
-    <div v-if="products.length" class="products">
+    <!-- <div v-if="products.length" class="products">
       <div class="header" :style="{ backgroundImage: `url('assets/barista-creations-coffee-capsules-desktop2.webp')` }">
         <h3 class="title">ISPIRAZIONE ITALIANA</h3>
         <h4 class="sub-title">
@@ -166,7 +142,6 @@ const closeAllSelectQuantity = () => {
         </NuxtLink>
       </div>
       <div class="main">
-        <!-- <Search v-model="state.query.keyword" @handleSubmit="handleSearch" /> -->
         <EcommerceProductCard
           v-for="(product, i) in products"
           :key="product._id"
@@ -175,7 +150,6 @@ const closeAllSelectQuantity = () => {
           @itemQuantitySelected="handleItemQuantitySelected($event, i)"
           :showSelectQty="showSelectQtys[i]"
         />
-        <!-- <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" /> -->
       </div>
     </div>
     <div v-else class="no-products shadow-md">
@@ -189,13 +163,13 @@ const closeAllSelectQuantity = () => {
           </button>
         </NuxtLink>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
-.oroginal-coffee-pods {
+.original-coffee-pods {
   min-height: 100%;
   height: 100%;
   width: 100%;
@@ -207,67 +181,67 @@ const closeAllSelectQuantity = () => {
     background-color: white;
   }
 
-  .hero {
-    position: relative;
-    width: 100%;
-    background-size: cover;
-    background-repeat: no-repeat;
-    height: auto;
-    min-height: 40rem;
-    text-transform: uppercase;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2rem 3rem;
-    padding: 0 3rem;
-    color: $slate-50;
-    .links {
-      display: flex;
-      align-items: center;
-      .btn {
-        background-color: $slate-50;
-        color: $slate-800;
-        border-radius: 5px;
-        padding: 1rem 2rem;
-        font-size: 1.2rem;
-        letter-spacing: 0.2rem;
-        svg {
-          // width: 4rem;
-          // height: 4rem;
-        }
-        span {
-          opacity: 0.5;
-        }
-      }
-    }
-    .content {
-      align-self: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 2rem;
-      letter-spacing: 0.25rem;
-      text-align: center;
-      h1 {
-        font-size: 5rem;
-        letter-spacing: 1rem;
-        max-width: 996px;
-      }
-      .link {
-        .btn {
-          background-color: transparent;
-          border: none;
-          font-size: 1.4rem;
-          letter-spacing: 0.25rem;
-          &:hover {
-            color: $slate-300;
-          }
-        }
-      }
-    }
-    // background-image: url('assets/');
-  }
+  // .hero {
+  //   position: relative;
+  //   width: 100%;
+  //   background-size: cover;
+  //   background-repeat: no-repeat;
+  //   height: auto;
+  //   min-height: 40rem;
+  //   text-transform: uppercase;
+  //   display: flex;
+  //   flex-direction: column;
+  //   justify-content: center;
+  //   gap: 2rem 3rem;
+  //   padding: 0 3rem;
+  //   color: $slate-50;
+  //   .links {
+  //     display: flex;
+  //     align-items: center;
+  //     .btn {
+  //       background-color: $slate-50;
+  //       color: $slate-800;
+  //       border-radius: 5px;
+  //       padding: 1rem 2rem;
+  //       font-size: 1.2rem;
+  //       letter-spacing: 0.2rem;
+  //       svg {
+  //         // width: 4rem;
+  //         // height: 4rem;
+  //       }
+  //       span {
+  //         opacity: 0.5;
+  //       }
+  //     }
+  //   }
+  //   .content {
+  //     align-self: center;
+  //     display: flex;
+  //     flex-direction: column;
+  //     justify-content: center;
+  //     align-items: center;
+  //     gap: 2rem;
+  //     letter-spacing: 0.25rem;
+  //     text-align: center;
+  //     h1 {
+  //       font-size: 5rem;
+  //       letter-spacing: 1rem;
+  //       max-width: 996px;
+  //     }
+  //     .link {
+  //       .btn {
+  //         background-color: transparent;
+  //         border: none;
+  //         font-size: 1.4rem;
+  //         letter-spacing: 0.25rem;
+  //         &:hover {
+  //           color: $slate-300;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   // background-image: url('assets/');
+  // }
 
   .filters-views {
     border: 1px solid teal;
