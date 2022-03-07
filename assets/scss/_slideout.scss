@@ -1,6 +1,6 @@
 .slideout {
 	z-index: 99;
-	color: $slate-800;
+	// color: $slate-800;
 
 	.slideout__wrapper {
 		position: fixed;
@@ -26,7 +26,7 @@
 			flex: 1;
 			height: 100%;
 			width: 100%;
-			overflow-y: scroll;
+			overflow-y: auto;
 		}
 	}
 
@@ -35,32 +35,26 @@
 		align-items: center;
 		justify-content: space-between;
 		padding: 2rem;
-		background-color: $slate-300;
 		width: 100%;
 
-		.title {
-			font-size: 2rem;
-			font-weight: 700;
-		}
+		// .close {
+		// 	border: 1px solid transparent;
+		// 	border-radius: 5px;
 
-		.close {
-			border: 1px solid transparent;
-			border-radius: 5px;
+		// 	&:hover {
+		// 		border: 1px solid $slate-200;
+		// 		background-color: $stone-200;
+		// 	}
 
-			&:hover {
-				border: 1px solid $slate-200;
-				background-color: $stone-200;
-			}
-
-			svg {
-				width: 2rem;
-				height: 2rem;
-			}
-		}
+		// 	svg {
+		// 		width: 2rem;
+		// 		height: 2rem;
+		// 	}
+		// }
 	}
 
 	&__footer {
-		background-color: $slate-300;
+		// background-color: $slate-300;
 		width: 100%;
 		padding: 2rem;
 	}
@@ -70,13 +64,14 @@
 			background-color: transparent;
 			text-transform: uppercase;
 			letter-spacing: 0.25rem;
+			background-color: $stone-300;
 
 			.title {
 				font-size: 1.8rem;
 			}
-			svg {
-				fill: $stone-400;
-			}
+			// svg {
+			// 	fill: $stone-400;
+			// }
 		}
 
 		.slideout__content {
@@ -84,8 +79,7 @@
 		}
 
 		.slideout__footer {
-			background-color: transparent;
-			border: none;
+			background-color: $stone-300;
 		}
 	}
 }

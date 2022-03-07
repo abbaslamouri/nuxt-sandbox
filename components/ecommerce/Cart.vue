@@ -1,263 +1,64 @@
 <script setup>
-import { useCart } from '~/store/useCart'
-import { useAuth } from '~/store/useAuth'
-import { useMessage } from '~/store/useMessage'
+	import { useCart } from '~/store/useCart'
+	import { useAuth } from '~/store/useAuth'
+	import { useMessage } from '~/store/useMessage'
 
-const router = useRouter()
-const cart = useCart()
-const auth = useAuth()
-const appMessage = useMessage()
-const showSelectQtys = ref([])
+	const router = useRouter()
+	const cart = useCart()
+	const auth = useAuth()
+	const appMessage = useMessage()
 
-for (const prop in cart.items) {
-  showSelectQtys.value[prop] = false
-}
-
-const handleOkBtnClicked = (event, index) => {
-  for (const prop in showSelectQtys.value) {
-    showSelectQtys.value[prop] = false
-  }
-  showSelectQtys.value[index] = event.status
-  cart.updateItemQuantity(cart.items[index], event.quantity)
-}
-
-const handleCheckoutBtnClick = async () => {
-  appMessage.showCartSlideout = false
-  if (auth.authenticated) {
-    appMessage.errorMsg = null
-    try {
-      const response = await $fetch('/api/v1/users', { params: { id: auth.user._id } })
-      cart.updateCartCustomer(response)
-    } catch (error) {
-      appMessage.errorMsg = error.data
-      return false
-    }
-    router.push({ name: 'checkout' })
-  } else {
-    router.push({ name: 'auth-secure' })
-  }
-}
+	const handleCheckoutBtnClick = async () => {
+		appMessage.showCartSlideout = false
+		if (auth.authenticated) {
+			appMessage.errorMsg = null
+			try {
+				const response = await $fetch('/api/v1/users', { params: { id: auth.user._id } })
+				cart.updateCartCustomer(response)
+			} catch (error) {
+				appMessage.errorMsg = error.data
+				return false
+			}
+			router.push({ name: 'checkout' })
+		} else {
+			router.push({ name: 'auth-secure' })
+		}
+	}
 </script>
 
 <template>
-  <Slideout @closeSlideout="appMessage.showCartSlideout = false" class="cart">
-    <template v-slot:header>
-      <h3 class="title">Shoping Bag</h3>
-      {{ cart.customer }}===
-    </template>
-    <template v-slot:default>
-      <div class="cart-details">
-        <div class="top">
-          <div class="free-samples-shipping">
-            <div class="free-samples">
-              <IconsCoffee />
-              <div><span class="first">Free Coffee Samples with all orders.</span> <span>Add at Checkout</span></div>
-            </div>
-            <div class="free-shipping">
-              <IconsShippingFilled />
-              <span>Free shipping from $35</span>
-            </div>
-          </div>
-          <div v-if="cart.items.length" class="cart-items">
-            <div class="table shopping-bag">
-              <div class="table__body"></div>
-            </div>
-
-            <div class="item" v-for="(item, index) in cart.items" :key="`cart-item-${index}`">
-              <div class="left">
-                <div class="thumb"><img :src="item.thumb.path" v-if="item.thumb" /></div>
-                <div class="name-price">
-                  <div class="name">{{ item.name }}</div>
-                  <div class="price">${{ item.price }}</div>
-                </div>
-              </div>
-              <EcommerceQuantitySelector
-                class="cart"
-                :minVal="0"
-                :maxVal="140"
-                :stepVal="10"
-                :item="item"
-                :showSelectQty="showSelectQtys[index]"
-                :btnText="item.quantity"
-                @okBtnClicked="handleOkBtnClicked($event, index)"
-              />
-            </div>
-          </div>
-          <div v-else class="empty-cart">
-            <p>You have no items in your bag</p>
-            <NuxtLink
-              class="link btn btn-primary"
-              :to="{ name: 'original-coffee-pods' }"
-              @click="appMessage.showCartSlideout = false"
-            >
-              <span>Start Shopping</span>
-            </NuxtLink>
-          </div>
-        </div>
-        <div class="bottom" v-if="cart.items.length">
-          <div class="total">
-            <div>Total</div>
-            <div class="cart-total">${{ cart.total.toFixed(2) }}</div>
-          </div>
-          <p class="info">(Shipping costs, special offers not included)</p>
-        </div>
-      </div>
-    </template>
-    <template v-slot:footer>
-      <div class="actions shadow-md" v-if="cart.items.length">
-        <button class="btn btn-secondary" @click="handleCheckoutBtnClick">Checkout</button>
-        <!-- <NuxtLink class="link btn btn-primary" :to="{ name: 'auth-secure' }" @click="appMessage.showCartSlideout = false">
-          <span>Checkout</span>
-        </NuxtLink> -->
-      </div>
-    </template>
-  </Slideout>
+	<Slideout @closeSlideout="appMessage.showCartSlideout = false" class="cart">
+		<template v-slot:header>
+			<h3 class="cart__title">Shoping Bag</h3>
+		</template>
+		<template v-slot:default>
+			<div class="cart__details flex-col gap3 p2">
+				<div class="promo-items flex-col gap2">
+					<div class="flex-row gap1 items-center">
+						<IconsCoffee />
+						<div><span class="font-bold">Free Coffee Samples with all orders.</span> <span>Add at Checkout</span></div>
+					</div>
+					<div class="flex-row gap1 items-center">
+						<IconsShippingFilled />
+						<span>Free shipping from $35</span>
+					</div>
+				</div>
+				<EcommerceCheckoutCartItemList v-if="cart.items.length" />
+				<div class="cart_summary flex-row justify-between">
+					<div>Total</div>
+					<div class="text-sm text-yellow-700">${{ cart.total.toFixed(2) }}</div>
+				</div>
+				<p class="text-xs">(Shipping costs, special offers not included)</p>
+			</div>
+		</template>
+		<template v-slot:footer>
+			<div class="flex-row justify-end" v-if="cart.items.length">
+				<button class="btn btn__checkout" @click="handleCheckoutBtnClick">Checkout</button>
+			</div>
+		</template>
+	</Slideout>
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/scss/variables';
-
-.cart {
-  .cart-details {
-    // border: 1px solid green;
-    height: 100%;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 3rem;
-
-    .top {
-      display: flex;
-      flex-direction: column;
-      gap: 3rem;
-      .free-samples-shipping {
-        display: flex;
-        flex-direction: column;
-        gap: 1.6rem;
-
-        .free-samples {
-          display: flex;
-          align-items: center;
-          gap: 2rem;
-
-          svg {
-            width: 4rem;
-            height: 4rem;
-          }
-
-          .first {
-            // font-size: 1.6rem;
-            font-weight: 600;
-          }
-        }
-
-        .free-shipping {
-          display: flex;
-          align-items: center;
-          gap: 2rem;
-          // font-size: 2rem;
-        }
-      }
-
-      .cart-items {
-        display: flex;
-        flex-direction: column;
-        // gap: 2rem;
-        .item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          border-top: 1px solid $stone-300;
-          border-bottom: 1px solid $stone-300;
-          padding: 1rem 0;
-          margin-top: -1px;
-
-          .left {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-
-            .thumb {
-              width: 5rem;
-              height: 5rem;
-
-              img {
-                max-width: 100%;
-                object-fit: contain;
-              }
-            }
-
-            .name-price {
-              font-size: 1.2rem;
-
-              .name {
-                font-weight: 500;
-              }
-
-              .price {
-                color: $yellow-700;
-              }
-            }
-          }
-
-          .quantity {
-            background-color: $green-700;
-            color: $slate-50;
-            padding: 1.5rem;
-            border-radius: 5px;
-          }
-        }
-      }
-
-      .empty-cart {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-
-        .link {
-          align-self: stretch;
-          border-radius: 5px;
-          padding: 1rem;
-          background-color: $green-700;
-          font-size: 1.4rem;
-        }
-      }
-    }
-
-    .bottom {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-
-      .total {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-
-        .cart-total {
-          color: $yellow-700;
-          font-size: 1.4rem;
-        }
-      }
-
-      .info {
-        font-size: 1.2rem;
-      }
-    }
-  }
-  .actions {
-    // border:1px solid red;
-    display: flex;
-    .btn {
-      flex: 1;
-      border-radius: 5px;
-      background-color: $green-700;
-      color: $slate-50;
-      font-size: 1.4rem;
-      padding: 1.5rem;
-    }
-  }
-}
+	@import '@/assets/scss/variables';
 </style>

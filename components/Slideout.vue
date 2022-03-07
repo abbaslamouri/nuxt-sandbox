@@ -1,27 +1,75 @@
 <script setup>
-defineEmits(['closeSlideout'])
+	defineEmits(['closeSlideout'])
 </script>
 
 <template>
-  <section class="slideout">
-    <div class="overlay"></div>
-    <div class="slideout__wrapper" @click.self="$emit('closeSlideout')">
-      <div class="slideout__content">
-        <div class="slideout__header shadow-md">
-          <slot name="header"></slot>
-          <button class="btn close"><IconsClose @click="$emit('closeSlideout')" /></button>
-        </div>
-        <div class="slideout__main">
-          <slot></slot>
-        </div>
-        <div class="slideout__footer shadow-md">
-          <slot name="footer"></slot>
-        </div>
-      </div>
-    </div>
-  </section>
+	<section class="slideout">
+		<div class="overlay"></div>
+		<div class="slideout__wrapper" @click.self="$emit('closeSlideout')">
+			<div class="slideout__content flex-col">
+				<div class="slideout__header flex-row items-center justify-between p2 wfull">
+					<slot name="header"></slot>
+					<button class="btn btn__close"><IconsClose @click="$emit('closeSlideout')" /></button>
+				</div>
+				<div class="slideout__main">
+					<slot></slot>
+				</div>
+				<div class="slideout__footer p2 wfull">
+					<slot name="footer"></slot>
+				</div>
+			</div>
+		</div>
+	</section>
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/scss/variables';
+	@import '@/assets/scss/variables';
+
+	.slideout {
+		z-index: 99;
+
+		.slideout__wrapper {
+			position: fixed;
+			inset: 0;
+			width: 100vw;
+			height: 100vh;
+			z-index: 9;
+		}
+		&__content {
+			background-color: $slate-50;
+			height: 100%;
+			position: fixed;
+			top: 0;
+			bottom: 0;
+			right: 0;
+			width: 100%;
+			max-width: 1024px;
+
+			.slideout__main {
+				flex: 1;
+				height: 100%;
+				width: 100%;
+				overflow-y: auto;
+			}
+		}
+
+		&.cart {
+			.slideout__header {
+				background-color: transparent;
+				text-transform: uppercase;
+				letter-spacing: 0.25rem;
+				background-color: $stone-300;
+				padding: 1rem;
+			}
+
+			.slideout__content {
+				width: 415px;
+			}
+
+			.slideout__footer {
+				background-color: $stone-300;
+				padding: 1rem;
+			}
+		}
+	}
 </style>
