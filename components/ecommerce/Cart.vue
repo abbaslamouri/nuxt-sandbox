@@ -1,6 +1,12 @@
 <script setup>
 import { useCart } from '~/store/useCart'
+import { useAuth } from '~/store/useAuth'
+import { useMessage } from '~/store/useMessage'
+
+const router = useRouter()
 const cart = useCart()
+const auth = useAuth()
+const appMessage = useMessage()
 const showSelectQtys = ref([])
 
 for (const prop in cart.items) {
@@ -14,12 +20,30 @@ const handleOkBtnClicked = (event, index) => {
   showSelectQtys.value[index] = event.status
   cart.updateItemQuantity(cart.items[index], event.quantity)
 }
+
+const handleCheckoutBtnClick = async () => {
+  appMessage.showCartSlideout = false
+  if (auth.authenticated) {
+    appMessage.errorMsg = null
+    try {
+      const response = await $fetch('/api/v1/users', { params: { id: auth.user._id } })
+      cart.updateCartCustomer(response)
+    } catch (error) {
+      appMessage.errorMsg = error.data
+      return false
+    }
+    router.push({ name: 'checkout' })
+  } else {
+    router.push({ name: 'auth-secure' })
+  }
+}
 </script>
 
 <template>
-  <Slideout @closeSlideout="cart.showCartSlideout = false" class="cart">
+  <Slideout @closeSlideout="appMessage.showCartSlideout = false" class="cart">
     <template v-slot:header>
       <h3 class="title">Shoping Bag</h3>
+      {{ cart.customer }}===
     </template>
     <template v-slot:default>
       <div class="cart-details">
@@ -64,7 +88,7 @@ const handleOkBtnClicked = (event, index) => {
             <NuxtLink
               class="link btn btn-primary"
               :to="{ name: 'original-coffee-pods' }"
-              @click="cart.showCartSlideout = false"
+              @click="appMessage.showCartSlideout = false"
             >
               <span>Start Shopping</span>
             </NuxtLink>
@@ -81,9 +105,10 @@ const handleOkBtnClicked = (event, index) => {
     </template>
     <template v-slot:footer>
       <div class="actions shadow-md" v-if="cart.items.length">
-        <NuxtLink class="link btn btn-primary" :to="{ name: 'auth-secure' }" @click="cart.showCartSlideout = false">
+        <button class="btn btn-secondary" @click="handleCheckoutBtnClick">Checkout</button>
+        <!-- <NuxtLink class="link btn btn-primary" :to="{ name: 'auth-secure' }" @click="appMessage.showCartSlideout = false">
           <span>Checkout</span>
-        </NuxtLink>
+        </NuxtLink> -->
       </div>
     </template>
   </Slideout>
@@ -229,6 +254,7 @@ const handleOkBtnClicked = (event, index) => {
       flex: 1;
       border-radius: 5px;
       background-color: $green-700;
+      color: $slate-50;
       font-size: 1.4rem;
       padding: 1.5rem;
     }

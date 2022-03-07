@@ -245,7 +245,7 @@ const applyCoupon = () => {
     width: 996px;
 
     .main {
-      width: 655px;
+      flex:1;
       background-color: $slate-50;
 
       .intro {
@@ -420,7 +420,7 @@ const applyCoupon = () => {
     }
     .aside {
       background-color: $slate-50;
-      flex: 1;
+      width: 320px;
       padding: 2rem;
       display: flex;
       flex-direction: column;

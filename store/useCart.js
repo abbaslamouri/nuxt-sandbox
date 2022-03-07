@@ -3,18 +3,41 @@ import { defineStore } from 'pinia'
 export const useCart = defineStore('cart', {
   state: () => {
     return {
-      cart: { items: [] },
-      showCartSlideout: false,
+      // cart: {
+      items: [],
+      customer: {
+        shippingAddresses: [],
+        phones: [],
+      },
+      paymentMethod: 'stripe',
+      coupons: [],
+      taxes: 0,
+      // },
     }
   },
   actions: {
+    updateLocalStorage() {
+      if (process.client) {
+        localStorage.setItem(
+          'cart',
+          JSON.stringify({
+            items: this.items,
+            customer: this.customer,
+            shippingMethod: this.shippingMethod,
+            taxes: this.taxes,
+            coupons: this.coupons,
+          })
+        )
+      }
+    },
+
     addItem(item, quantity) {
       console.log('ITEM', item)
       if (isNaN(quantity) || quantity === null) return
       let index = null
-      index = this.cart.items.findIndex((p) => p._id == item._id)
+      index = this.items.findIndex((p) => p._id == item._id)
       if (index !== -1) {
-        this.cart.items[index].quantity = this.cart.items[index].quantity + quantity
+        this.items[index].quantity = this.items[index].quantity + quantity
       } else {
         const cartItem = {
           product: item._id,
@@ -41,63 +64,62 @@ export const useCart = defineStore('cart', {
               }
             : null
         }
-        this.cart.items.push(cartItem)
+        this.items.push(cartItem)
       }
-      if (process.client) {
-        localStorage.setItem('cart', JSON.stringify(this.cart))
-      }
+      this.updateLocalStorage()
     },
 
     updateItemQuantity(item, quantity) {
       console.log(item, quantity)
       if (isNaN(quantity) || quantity === null) return
-      const index = this.cart.items.findIndex((p) => p.product == item.product)
+      const index = this.items.findIndex((p) => p.product == item.product)
       if (index !== -1) {
-        if (quantity === 0) this.cart.items.splice(index, 1)
-        else this.cart.items[index].quantity = quantity * 1
-        if (process.client) {
-          localStorage.setItem('cart', JSON.stringify(this.cart))
-        }
+        if (quantity === 0) this.items.splice(index, 1)
+        else this.items[index].quantity = quantity * 1
+        this.updateLocalStorage()
       }
     },
 
+    updateCartCustomer(customer = {}) {
+      this.customer = customer
+      this.updateLocalStorage()
+    },
+
     incrementItemCount(item) {
-      const index = this.cart.items.findIndex((p) => p._id == item._id)
-      if (index !== -1) this.cart.items[index].quantity++
+      const index = this.items.findIndex((p) => p._id == item._id)
+      if (index !== -1) this.items[index].quantity++
     },
 
     decrementItemCount(item) {
-      const index = this.cart.items.findIndex((p) => p.product == item.product)
-      if (index !== -1 && this.cart.items[index].quantity >= 2) {
-        this.cart.items[index].quantity--
+      const index = this.items.findIndex((p) => p.product == item.product)
+      if (index !== -1 && this.items[index].quantity >= 2) {
+        this.items[index].quantity--
       }
     },
 
     removeItem(item) {
-      this.cart.items = this.cart.items.filter((el) => el.product != item.product)
-      this.cart.cartTotal = this.total
-      if (process.client) {
-        localStorage.setItem('cart', JSON.stringify(this.cart))
-      }
+      this.items = this.items.filter((el) => el.product != item.product)
+      this.cartTotal = this.total
+      this.updateLocalStorage()
     },
   },
 
   getters: {
     hasItems() {
-      return this.cart.items && this.cart.items.length ? true : false
+      return this.items && this.items.length ? true : false
     },
-    items() {
-      return this.cart.items
-    },
-    customer() {
-      return this.cart.customer
-    },
+    // items() {
+    //   return this.items
+    // },
+    // customer() {
+    //   return this.customer
+    // },
     total() {
-      return this.cart.items.reduce((accumulator, item) => accumulator + item.price * item.quantity * 1, 0)
+      return this.items.reduce((accumulator, item) => accumulator + item.price * item.quantity * 1, 0)
     },
     numberOfItems() {
-      return this.cart && this.cart.items && this.cart.items.length
-        ? this.cart.items.reduce((accumulator, item) => accumulator + item.quantity, 0)
+      return this && this.items && this.items.length
+        ? this.items.reduce((accumulator, item) => accumulator + item.quantity, 0)
         : 0
     },
   },

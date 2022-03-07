@@ -1,6 +1,8 @@
 <script setup>
 import { useCart } from '~/store/useCart'
-import { useAuth } from '~/store/useAuth'
+import { useMessage } from '~/store/useMessage'
+import countryData from '~/assets/countryData.json'
+import stateData from '~/assets/stateData.json'
 
 useMeta({
   title: 'Shipping | YRL',
@@ -11,29 +13,23 @@ definePageMeta({
 
 const router = useRouter()
 const cart = useCart()
+const appMessage = useMessage()
 const { state, fetchAll } = useProduct()
 const promoCode = ref(null)
 const showSelectQtys = ref([])
+const showAddressModalKeys = ref([])
 const shippingOption = ref(null)
+const shippingAddresses = ref(null)
+const phones = ref(null)
 
-// const auth = useAuth()
+const storeData = () => {
+  shippingAddresses.value = JSON.stringify(cart.customer.shippingAddresses)
+  phones.value = JSON.stringify(cart.customer.phones)
+}
 
-// if (auth.authenticated) cart.cart.customer = auth.user
-
-const freeSamples = ref([])
-
-onMounted(async () => {
-  const response = await fetchAll()
-  if (state.errorMsg) {
-    appMessage.errorMsg = state.errorMsg
-  } else {
-    for (const prop in response.docs) {
-      if (response.docs[prop].categories.map((g) => g.slug).includes('free-samples'))
-        freeSamples.value.push(response.docs[prop])
-    }
-  }
-  // console.log(freeSamples.value)
-})
+for (const prop in cart.customer.shippingAddresses) {
+  showAddressModalKeys.value[prop] = false
+}
 
 const handleOkBtnClicked = (event, index) => {
   for (const prop in showSelectQtys.value) {
@@ -49,13 +45,79 @@ const handleSubmit = async () => {
   await cart.saveCart()
   router.push({ name: 'payment' })
 }
-</script>
 
-<!-- <script>
-export default {
-  layout: 'basir',
+const handleEditAddressBtnClick = (i) => {
+  for (const prop in cart.customer.shippingAddresses) {
+    showAddressModalKeys.value[prop] = false
+  }
+  showAddressModalKeys.value[i] = true
+  // cart.customer.value = cart.customer
+  // console.log(cart.customer)
+  // showAddressModal.value = true
 }
-</script> -->
+
+const handleAddAddressBtnClick = () => {
+  cart.customer.shippingAddresses.push({
+    title: '',
+    name: '',
+    address: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'USA',
+    addressType: 'Residential',
+    default: false,
+    deliveryInstructions: '',
+  })
+  showAddressModalKeys.value[cart.customer.shippingAddresses.length - 1] = true
+
+  cart.customer.phones.push({
+    phoneType: '',
+    phoneNumber: '',
+    phoneCountryCode: '1',
+  })
+
+  // console.log(cart.customer)
+  // showAddressModal.value = true
+}
+
+const handleAddPhoneNumberBtnClick = () => {
+  if (cart.customer.phones.length >= 4) return (appMessage.errorMsg = 'You cannot enter more tghan 4 phone number')
+  cart.customer.phones.push({
+    phoneType: '',
+    phoneNumber: '',
+    phoneCountryCode: '1',
+  })
+}
+
+const updateCustomerShippingAddress = (i) => {
+  console.log(JSON.stringify(cart.customer.shippingAddresses) === shippingAddresses)
+  console.log(JSON.stringify(cart.customer.phones) === phones)
+  console.log(cart.customer.shippingAddresses)
+  console.log(cart.customer.phones)
+  storeData()
+  showAddressModalKeys.value[i] = false
+}
+
+const cancelCustomerShippingAddress = (i) => {
+  showAddressModalKeys.value[i] = true
+  cart.customer.shippingAddresses = JSON.parse(shippingAddresses)
+  cart.customer.phones = JSON.parse(phones)
+}
+
+const setDefaultAddress = (i) => {
+  for (const prop in cart.customer.shippingAddresses) {
+    cart.customer.shippingAddresses[prop].default = false
+  }
+  cart.customer.shippingAddresses[i].default = true
+}
+
+const handleRemovePhoneNumberBtnClick = (i) => {
+  cart.customer.phones.splice(i, 1)
+}
+
+storeData()
+</script>
 
 <template>
   <div class="shipping">
@@ -64,27 +126,198 @@ export default {
     </div>
     <div class="content" v-if="cart.items.length">
       <div class="main">
-        <!-- <pre class="text-sm">{{ cart.cart }}</pre> -->
+        <!-- <pre>{{ cart.customer }}==={{ showAddressModalKeys }}</pre> -->
         <div class="shipping-address">
-          <!-- <div class="promo-code"> -->
-          <div class="header">Shipping Address</div>
+          <div class="header">Shipping Addresses</div>
           <div class="main">
-            <div class="title">Address</div>
-            <div class="address">
-              <div class="name">{{ cart.customer.name }}</div>
-              <div class="street">Street</div>
-              <div class="city-state-postalCode">
-                <span class="city">City</span>, <span class="state">State</span>&nbsp;
-                <span class="postal-code">postalCode</span>
+            <div class="addresses" v-if="cart.customer.shippingAddresses">
+              <div class="address" v-for="(address, i) in cart.customer.shippingAddresses" :key="`address-${i}`">
+                <div class="default-status">
+                  <!-- <p class="info">Currently set as your default address</p> -->
+                  <FormsBaseRadio
+                    v-model="cart.customer.shippingAddresses[i].default"
+                    :value="true"
+                    @update:modelValue="setDefaultAddress(i)"
+                  />
+                </div>
+                <div class="details">
+                  <div class="name">{{ address.name || cart.customer.name }}</div>
+                  <div class="street">{{ address.address }}</div>
+                  <div class="city-state-postalCode">
+                    <span class="city">{{ address.city }}</span>
+                    <span class="state">{{ address.state }}</span
+                    >&nbsp;
+                    <span class="postal-code">{{ address.postalCode }}</span>
+                  </div>
+                </div>
+                <button class="btn btn-secondary edit-address" @click="handleEditAddressBtnClick(i)">
+                  Edit Address
+                </button>
+                <Modal v-if="showAddressModalKeys[i]" :outerBoxWidth="75" :outerBoxHeight="100">
+                  <template v-slot:header>
+                    <h3>Address</h3>
+                    <p>Mandatory fields are marked with a *</p>
+                  </template>
+                  <template v-slot:default>
+                    <div class="shipping-address-popup-main">
+                      {{ cart.customer }}
+                      <section>
+                        <div class="field-group">
+                          <FormsBaseRadioGroup
+                            label="My delivery address is"
+                            v-model="cart.customer.shippingAddresses[i].addressType"
+                            :options="[
+                              { key: 'Residential', name: 'Residential' },
+                              { key: 'Commercial', name: 'Commercial' },
+                            ]"
+                          />
+                        </div>
+                        <div class="field-group">
+                          <FormsBaseSelect
+                            label="Title"
+                            v-model="cart.customer.shippingAddresses[i].title"
+                            :options="[
+                              { key: 'Mr/Ms', name: 'Mr/Ms' },
+                              { key: 'Ms', name: 'Ms' },
+                              { key: 'Mr', name: 'Mr' },
+                              { key: 'Dr', name: 'Dr' },
+                              { key: 'Mrs', name: 'Mrs' },
+                              { key: '', name: '-' },
+                            ]"
+                          />
+                          <FormsBaseInput
+                            label="Name"
+                            placeholder="Name"
+                            v-model="cart.customer.shippingAddresses[i].name"
+                          />
+                        </div>
+                        <div class="field-group"></div>
+                      </section>
+                      <section class="phone-numbers">
+                        <div
+                          class="field-group"
+                          v-for="(phoneNumber, j) in cart.customer.phones"
+                          :key="`phone-number-${j}`"
+                        >
+                          <div class="phone-number">
+                            <FormsBaseInput
+                              label="Phone Number"
+                              placeholder="Phone Number"
+                              v-model="cart.customer.phones[j].phoneNumber"
+                            />
+                          </div>
+                          <div class="phone-type">
+                            <FormsBaseSelect
+                              label="PhoneType"
+                              v-model="cart.customer.phones[j].phoneType"
+                              :options="[
+                                { key: 'Cell', name: 'Cell' },
+                                { key: 'Home', name: 'Home' },
+                                { key: 'Worrk', name: 'Mr' },
+                              ]"
+                            />
+                          </div>
+
+                          <div class="phone-country-code">
+                            <FormsBaseSelect
+                              label="Country Code"
+                              v-model="cart.customer.phones[j].phoneCountryCode"
+                              :options="
+                                countryData.map((el) => {
+                                  return { key: el.phone_code, name: el.country_name }
+                                })
+                              "
+                            />
+                          </div>
+
+                          <button
+                            class="btn btn-secondary remove-phone-number"
+                            @click="handleRemovePhoneNumberBtnClick(i)"
+                            v-if="cart.customer.phones.length > 1"
+                          >
+                            <IconsMinus />
+                          </button>
+                        </div>
+                        <button
+                          class="btn btn-secondary add-phone-number"
+                          @click="handleAddPhoneNumberBtnClick"
+                          :disabled="cart.customer.phones.length >= 4"
+                        >
+                          Add Phone Number
+                        </button>
+                      </section>
+                      <section>
+                        <FormsBaseInput
+                          label="Address"
+                          placeholder="Address"
+                          v-model="cart.customer.shippingAddresses[i].address"
+                        />
+                        <div class="field-group">
+                          <FormsBaseInput
+                            label="City"
+                            placeholder="City"
+                            v-model="cart.customer.shippingAddresses[i].city"
+                          />
+                          <FormsBaseSelect
+                            label="State"
+                            v-model="cart.customer.shippingAddresses[i].state"
+                            :options="
+                              stateData.map((el) => {
+                                return { key: el.abbreviation, name: el.name }
+                              })
+                            "
+                          />
+                        </div>
+                        <div class="field-group">
+                          <FormsBaseInput
+                            label="Postal Code"
+                            placeholder="Postal Code"
+                            v-model="cart.customer.shippingAddresses[i].postalCode"
+                          />
+                          <FormsBaseSelect
+                            label="Country"
+                            v-model="cart.customer.shippingAddresses[i].country"
+                            :options="
+                              countryData.map((el) => {
+                                return { key: el.three_letter_country_code, name: el.country_name }
+                              })
+                            "
+                          />
+                        </div>
+                      </section>
+                      <section class="delivery-instructions">
+                        <div class="field-group">
+                          <FormsBaseTextarea
+                            label="Delivery Instructions"
+                            rows="5"
+                            v-model="cart.customer.shippingAddresses[i].deliveryInstructions"
+                          />
+                        </div>
+                      </section>
+                      <section>
+                        <FormsBaseToggle
+                          label="Set as the default delivery address"
+                          v-model="cart.customer.shippingAddresses[i].default"
+                          @update:modelValue="setDefaultAddress(i)"
+                        />
+                      </section>
+                    </div>
+                  </template>
+                  <template v-slot:footer>
+                    <section class="actions">
+                      <button class="btn btn-secondary cancel" @click="cancelCustomerShippingAddress(i)">Cancel</button>
+                      <button class="btn btn-primary" @click="updateCustomerShippingAddress(i)">Save Address</button>
+                    </section>
+                  </template>
+                </Modal>
               </div>
             </div>
-            <p class="info">Currently set as your default address</p>
-            <button class="btn btn-secondary edit-address">Add Address</button>
-            <button class="btn btn-secondary add-address">Add Address</button>
+
+            <button class="btn btn-secondary add-address" @click="handleAddAddressBtnClick">Add Address</button>
           </div>
+          <div class="customer-address"></div>
         </div>
         <div class="shipping-options">
-          <!-- <div class="promo-code"> -->
           <div class="header">Shipping Options</div>
           <div class="main">
             <div class="deliveries">
@@ -145,113 +378,53 @@ export default {
           </div>
         </div>
         <div class="footer">
-          <button class="btn btn-secondary back"><IconsChevronLeft /><span> Back To Basket</span></button>
-          <NuxtLink class="link btn btn-primary" :to="{ name: 'shipping' }">
+          <NuxtLink class="link btn btn-primary back" :to="{ name: 'checkout' }">
+            <IconsChevronLeft /><span>Back to Basket</span>
+          </NuxtLink>
+          <NuxtLink class="link btn btn-primary" :to="{ name: 'payment' }">
             <span> continue</span><IconsChevronRight />
           </NuxtLink>
         </div>
       </div>
       <div class="aside">
-        <div class="intro">Add Free Sample Pack and Recycling Bag</div>
-        <div class="free-samples">
-          <div class="table shopping-bag">
-            <div class="table__header">
-              <div class="row">
-                <div class="th">Item</div>
-                <div class="th">Unit Price</div>
-                <div class="th">Quantity</div>
-                <div class="th">Total</div>
-                <div class="th"></div>
-              </div>
+        <div class="intro">Shopping Bag</div>
+        <div class="table shipping-shopping-bag">
+          <div class="table__header">
+            <div class="row">
+              <div class="th">Item</div>
+              <div class="th">Quantity</div>
+              <div class="th">Total</div>
             </div>
-            <div class="table__body">
-              <div class="item row" v-for="(item, index) in cart.items" :key="item.product">
-                <div class="image-name td">
-                  <div class="image">
-                    <img :src="item.thumb ? item.thumb.path : '/placeholder.png'" :alt="` ${item.name} Photo`" />
-                  </div>
-                  <h4 class="name">{{ item.name }}</h4>
-                </div>
-                <div class="price td">${{ item.price.toFixed(2) }}</div>
-                <div class="quantity td" v-if="!item.categories.map((g) => g.slug).includes('free-samples')">
-                  <EcommerceQuantitySelector
-                    class="cart"
-                    :item="item"
-                    :minVal="0"
-                    :maxVal="140"
-                    :stepVal="10"
-                    :showSelectQty="showSelectQtys[index]"
-                    :btnText="item.quantity"
-                    @okBtnClicked="handleOkBtnClicked($event, index)"
-                  />
-                </div>
-                <div class="quantity td" v-else>
-                  <EcommerceQuantitySelector
-                    v-if="item.slug === 'recycling-bag'"
-                    class="cart"
-                    :item="item"
-                    :minVal="0"
-                    :maxVal="4"
-                    :stepVal="1"
-                    :showSelectQty="showSelectQtys[index]"
-                    :btnText="item.quantity"
-                    @okBtnClicked="handleOkBtnClicked($event, index)"
-                  />
-                  <button v-else class="btn btn-secondary free-sample-single">{{ item.quantity }}</button>
-                </div>
-                <div class="line-item-total td">${{ (item.quantity * item.price).toFixed(2) }}</div>
-                <div class="trash td" @click="cart.removeItem(item)"><IconsClose /></div>
+          </div>
+          <div class="table__body">
+            <div class="row" v-for="(item, index) in cart.items" :key="item.product">
+              <div class="image-name td">
+                <h4 class="name">{{ item.name }}</h4>
               </div>
-            </div>
-            <nuxt-link class="link continue-shopping" :to="{ name: 'original-coffee-pods' }">
-              <IconsChevronLeft />
-              <div>shopping</div>
-            </nuxt-link>
-            <div class="promo-code-total">
-              <div class="promo-code">
-                <div class="header">Promo Code</div>
-                <div class="main">
-                  <div class="title">Enter promo code</div>
-                  <form>
-                    <div class="input">
-                      <FormsBaseInput
-                        label="Promo Code"
-                        placeholder="Promo Code"
-                        v-model="promoCode"
-                        hint="Please enter a valid coupon code"
-                      />
-                    </div>
-                    <button class="btn bttn-secondary">Apply Coupon</button>
-                  </form>
-                </div>
-              </div>
-              <div class="total">
-                <div class="cart-subtotal row">
-                  <span> Subtotal</span><span class="currency">${{ cart.total.toFixed(2) }}</span>
-                </div>
-                <div class="cart-taxes row">
-                  <span> Estimated Taxes</span>
-                  <span v-if="cart.taxes" class="currency">${{ cart.taxes.toFixed(2) }}</span>
-                  <span v-else class="currency">$0.00</span>
-                </div>
-                <div class="cart-total row">
-                  <span> Total</span>
-                  <span v-if="cart.taxes" class="currency">${{ (cart.total + cart.taxes).toFixed }}</span>
-                  <span v-else class="currency">${{ cart.total.toFixed(2) }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="footer">
-              <NuxtLink class="link btn btn-primary" :to="{ name: 'shipping' }">
-                <span> Proceed to checkout</span><IconsChevronRight />
-              </NuxtLink>
-              <!-- <button class="btn btn-primary"><span> Proceed to checkout</span><IconsChevronRight /></button> -->
+              <div class="quantity td">{{ item.quantity }}</div>
+              <div class="line-item-total td">${{ (item.quantity * item.price).toFixed(2) }}</div>
             </div>
           </div>
         </div>
-        <div class="nyc">
-          <h3>NYC: No Bag Needed</h3>
-          <p>Just place used capsules in your blue recycling bin</p>
+        <div class="total">
+          <div class="cart-subtotal row">
+            <span> Subtotal</span><span class="currency">${{ cart.total.toFixed(2) }}</span>
+          </div>
+          <div class="cart-taxes row">
+            <span> Estimated Taxes</span>
+            <span v-if="cart.taxes" class="currency">${{ cart.taxes.toFixed(2) }}</span>
+            <span v-else class="currency">$0.00</span>
+          </div>
+          <div class="cart-total row">
+            <span> Total</span>
+            <span v-if="cart.taxes" class="currency">${{ (cart.total + cart.taxes).toFixed }}</span>
+            <span v-else class="currency">${{ cart.total.toFixed(2) }}</span>
+          </div>
+        </div>
+        <div class="footer">
+          <NuxtLink class="link btn btn-primary" :to="{ name: 'checkout' }">
+            <span>Edit</span>
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -261,81 +434,6 @@ export default {
         <span>Start Shopping</span>
       </NuxtLink>
     </div>
-
-    <h2>Shipping Details</h2>
-    {{ cart.cart }}
-    <!-- <CheckoutSteps :step1="true" :step2="true" /> -->
-
-    <!-- <form @submit.prevent="handleSubmit">
-      <FormsBaseInput
-        type="text"
-        label="Name"
-        icon="envelope"
-        v-model="cart.customer.name"
-        leadingIcon="IconsPersonFill"
-        :required="true"
-        minlength="8"
-        maxlength="25"
-        hint="Enter a valid email"
-      />
-      <FormsBaseInput
-        type="email"
-        label="Email"
-        icon="envelope"
-        v-model="cart.customer.email"
-        leadingIcon="IconsPersonFill"
-        :required="true"
-        minlength="8"
-        maxlength="25"
-        hint="Enter a valid email"
-      />
-      <FormsBaseInput
-        type="text"
-        label="Address"
-        icon="envelope"
-        v-model="cart.customer.shippingAddress.address"
-        leadingIcon="IconsPersonFill"
-        :required="true"
-        minlength="8"
-        maxlength="25"
-        hint="Enter a valid email"
-      />
-      <FormsBaseInput
-        type="text"
-        label="City"
-        icon="envelope"
-        v-model="cart.customer.shippingAddress.city"
-        leadingIcon="IconsPersonFill"
-        :required="true"
-        minlength="8"
-        maxlength="25"
-        hint="Enter a valid email"
-      />
-      <FormsBaseInput
-        type="text"
-        label="Postal Code"
-        icon="envelope"
-        v-model="cart.customer.shippingAddress.postalCode"
-        leadingIcon="IconsPersonFill"
-        :required="true"
-        minlength="8"
-        maxlength="25"
-        hint="Enter a valid email"
-      />
-      <FormsBaseInput
-        type="text"
-        label="Country"
-        icon="envelope"
-        v-model="cart.customer.shippingAddress.country"
-        leadingIcon="IconsPersonFill"
-        :required="true"
-        minlength="8"
-        maxlength="25"
-        hint="Enter a valid email"
-      />
-
-      <button class="btn">Continue</button>
-    </form> -->
   </div>
 </template>
 
@@ -354,27 +452,6 @@ export default {
     width: 996px;
     color: $slate-50;
     background-color: $slate-700;
-  }
-
-  .empty-cart {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-    background-color: $slate-50;
-    width: 996px;
-    padding: 3rem;
-    font-size: 2rem;
-
-    border: 1px solid red;
-    .link {
-      // align-self: stretch;
-      border-radius: 5px;
-      padding: 1rem 3rem;
-      background-color: $green-700;
-      font-size: 1.4rem;
-    }
   }
 
   .content {
@@ -405,17 +482,35 @@ export default {
           gap: 2rem;
           padding: 2rem;
 
-          .title {
-            text-transform: uppercase;
-            color: $stone-500;
-            font-size: 1.2rem;
-          }
-          .address {
+          .addresses {
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
-            font-size: 1.2rem;
-            font-weight: 700;
+            gap: 2rem;
+            // align-items: center;
+            .address {
+              display: flex;
+              align-items: center;
+              // flex-direction: column;
+              gap: 3rem;
+              font-size: 1.2rem;
+              font-weight: 700;
+
+              .default-status {
+              }
+
+              .details {
+                display: flex;
+                flex-direction: column;
+                // align-items: center;
+              }
+              .edit-address {
+                display: flex;
+                align-items: center;
+                color: $yellow-700;
+                border: none;
+                padding: 0;
+              }
+            }
           }
 
           .info {
@@ -426,12 +521,12 @@ export default {
           .btn {
             border-radius: 3px;
 
-            &.edit-address {
-              color: $yellow-700;
-              border: none;
-              align-self: flex-start;
-              padding: 0;
-            }
+            // &.edit-address {
+            //   color: $yellow-700;
+            //   border: none;
+            //   align-self: flex-start;
+            //   padding: 0;
+            // }
 
             &.add-address {
               align-self: flex-end;
@@ -442,8 +537,6 @@ export default {
       }
 
       .shipping-options {
-        // display: flex;
-        // flex-direction: column;
         font-size: 1.2rem;
         .header {
           background-color: $stone-400;
@@ -465,7 +558,6 @@ export default {
               display: flex;
               align-items: center;
               gap: 2rem;
-              // border: 1px solid red;
 
               svg {
                 width: 5rem;
@@ -518,8 +610,6 @@ export default {
         display: flex;
 
         .btn {
-          // display:flex;
-          // cursor: pointer;
           gap: 2rem;
           padding: 1rem 3rem;
           border-radius: 3px;
@@ -541,30 +631,16 @@ export default {
           }
         }
       }
-
-      // <div class="header">Shipping Options</div>
-      //     <div class="main">
-      //       <div class="deliveries">
-      //         <div class="title">Home and Office Deliveries</div>
-      //         <div class="free">
-      //           <div class="radio-button">
-      //             <FormsBaseRadio v-model="shippingOption" value="free" />
-      //           </div>
-      //           <div class="content">
-      //             <div class="title">Standard - Free (from $35)</div>
-      //             <div class="details">Arrives in 3--5 business days</div>
-      //           </div>
-      //           <div class="cost">Free</div>
-      //         </div>
-      //       </div>
     }
     .aside {
       background-color: $slate-50;
-      flex: 1;
+      width: 320px;
+      max-width: 320px;
       padding: 2rem;
       display: flex;
       flex-direction: column;
       gap: 2rem;
+      width: 415px;
 
       .intro {
         text-align: center;
@@ -572,56 +648,137 @@ export default {
         letter-spacing: 0.15rem;
       }
 
-      .shopping-bag {
+      .table.shipping-shopping-bag {
+        border: 1px solid $stone-300;
+
+        .table__header {
+          padding: 1rem;
+          background-color: $stone-300;
+        }
         .table__body {
+          padding: 0 1rem;
           .row {
+            border: none;
             border-bottom: 1px solid $stone-200;
-            .image-name {
-              .image {
-                width: 4rem;
-                height: 4rem;
+            padding: 0.75rem 0;
 
-                img {
-                  width: 100%;
-                }
-              }
-
-              .name {
-                font-weight: 600;
-              }
+            .name {
+              font-weight: 600;
             }
 
-            .price {
+            .line-item-total {
               color: $yellow-700;
-            }
-
-            .quantity {
-              .free-sample-single {
-                // background-color: $green-700;
-                border-radius: 3px;
-                padding: 1.5rem;
-                // color: $slate-50;
-                cursor: not-allowed;
-
-                svg {
-                  fill: $slate-50;
-                  width: 1.5rem;
-                  height: 1.5rem;
-                }
-              }
-            }
-
-            .trash {
-              cursor: pointer;
-              svg {
-                width: 1.5rem;
-                height: 1.5rem;
-                fill: $slate-600;
-              }
+              font-size: 1.2rem;
             }
           }
         }
       }
+
+      .total {
+        padding: 0 2rem;
+        font-size: 1.2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        .row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          .currency {
+            color: $yellow-700;
+          }
+        }
+      }
+      .footer {
+        .btn {
+          padding: 1rem 3rem;
+          border-radius: 3px;
+          background-color: transparent;
+          color: $slate-800;
+        }
+      }
+    }
+  }
+}
+
+.shipping-address-popup-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  // font-size: 1.2rem;
+  // font-weight: 700;
+
+  .phone-numbers {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+    .field-group {
+      display: flex;
+      // flex-direction: row;
+      // grid-template-rows: 1fr;
+      // grid-template-columns: 1fr 20% 20% 2rem;
+      align-items: center;
+      gap: 2rem;
+      width: 100%;
+      border: 1px solid green;
+
+      .phone-number {
+        flex: 1;
+      }
+
+      .phone-type {
+        width: 20rem;
+      }
+
+      .phone-country-code {
+        width: 20rem;
+      }
+
+      .remove-phone-number {
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        align-self: center;
+        border: none;
+
+        svg {
+          height: 3rem;
+          width: 3rem;
+          fill: red;
+        }
+      }
+    }
+    .btn {
+      align-self: flex-end;
+
+      &:disabled {
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .field-group {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  // border: 1px solid $stone-400;
+}
+
+footer {
+  .actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2rem;
+
+    .btn {
+      padding: 1rem 3rem;
     }
   }
 }

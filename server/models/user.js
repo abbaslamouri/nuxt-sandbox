@@ -23,16 +23,39 @@ const schema = new mongoose.Schema(
         'Please enter a valid email address',
       ],
     },
-    shippingAddress: {
-      address: { type: String, default: 'asdsad' },
-      city: { type: String, default: 'sdads' },
-      postalCode: { type: String, default: 'dsadsa' },
-      country: { type: String, default: 'dsasad' },
+    title: {
+      type: String,
+      trim: true,
+      maxlength: [20, 'Name cannot be more than 20 characters long'],
     },
-    // avatar: {
-    //   type: String,
-    //   default: 'user-placeholder.jpg',
-    // },
+    shippingAddresses: [
+      {
+        title: '',
+        name: { type: String, default: '' },
+        address: { type: String, default: '' },
+        city: { type: String, default: '' },
+        state: { type: String, default: '' },
+        postalCode: { type: String, default: '' },
+        country: { type: String, default: '' },
+        default: { type: Boolean, default: false },
+        addressType: {
+          type: String,
+          enum: ['Residential', 'Commercial'],
+          default: 'Residential',
+        },
+      },
+    ],
+
+    billingAddress: {
+      address: { type: String, default: '' },
+      city: { type: String, default: '' },
+      state: { type: String, default: '' },
+      postalCode: { type: String, default: '' },
+      country: { type: String, default: '' },
+    },
+
+    phones: [{ phoneType: String, phoneNumber: String, phoneCountryCode: String }],
+
     avatar: { type: mongoose.Schema.Types.ObjectId, ref: Media },
     role: {
       type: String,
@@ -48,6 +71,10 @@ const schema = new mongoose.Schema(
     active: {
       type: Boolean,
       default: false,
+    },
+    deliveryInstructions: {
+      type: String,
+      maxlength: [2000, '2000 characters maximum'],
     },
     // cart: {
     // 	type: Array,

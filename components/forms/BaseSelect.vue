@@ -33,7 +33,7 @@ const selectRef = ref('inputRef')
 
 <script>
 export default {
-  inheritAttrs: false,
+  // inheritAttrs: false,
 }
 </script>
 
@@ -45,7 +45,6 @@ export default {
       :class="{ centered: !label }"
       ref="selectRef"
       :value="modelValue"
-      v-bind="$attrs"
       :id="`base-select-${uuid}`"
       :aria-describedby="errorMsg ? `base-input-error-${uuid}` : null"
       :aria-invalid="errorMsg ? true : null"

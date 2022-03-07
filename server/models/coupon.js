@@ -7,8 +7,8 @@ const schema = new mongoose.Schema(
       type: String,
       trim: true,
       required: [true, 'Coupon Name is required'],
-      minlength: [2, 'Too short'],
-      maxlength: [100, 'Too long'],
+      minlength: [3, 'Too short'],
+      maxlength: [20, 'Too long'],
       unique: true,
       uppercase: true,
     },
@@ -32,8 +32,8 @@ const schema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['fixed-cart', 'fixed-product', 'percent-cart', 'percent-product'],
-      default: 'fixed-product',
+      enum: ['dollar','percent'],
+      default: 'percent',
     },
     freeShipping: {
       type: Boolean,

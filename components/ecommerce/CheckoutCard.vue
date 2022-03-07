@@ -22,7 +22,7 @@ definePageMeta({
 })
 
 // const { state, fetchAll } = useProduct()
-// const router = useRouter()
+const route = useRoute()
 const cart = useCart()
 // const auth = useAuth()
 // const appMessage = useMessage()

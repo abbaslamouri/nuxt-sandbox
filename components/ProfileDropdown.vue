@@ -17,6 +17,7 @@ const signout = async () => {
     auth.user = null
     auth.token = null
     appMessage.successMsg = 'You are logged out'
+    if (process.client) localStorage.removeItem('cart')
   } catch (error) {
     appMessage.errorMsg = error.data
   }

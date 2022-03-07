@@ -1,26 +1,25 @@
 <script setup>
 import { useCart } from '~/store/useCart'
+import { useMessage } from '~/store/useMessage'
 
 const cart = useCart()
+const appMessage = useMessage()
 
 onMounted(() => {
-  if (process.client) {
-    cart.cart = localStorage.getItem('cart')
-      ? JSON.parse(localStorage.getItem('cart'))
-      : {
-          items: [],
-          customer: { shippingAddress: {} },
-          paymentMethod: 'stripe',
-          coupons: [],
-          taxes: 0,
-        }
+  if (process.client && localStorage.getItem('cart')) {
+    cart.items = JSON.parse(localStorage.getItem('cart')).items
+    cart.customer = JSON.parse(localStorage.getItem('cart')).customer
+    cart.shippingMethod = JSON.parse(localStorage.getItem('cart')).shippingMethod
+    cart.taxes = JSON.parse(localStorage.getItem('cart')).taxes
+    cart.coupons = JSON.parse(localStorage.getItem('cart')).coupons
+    // console.log('CI', cart.items)
   }
 })
 </script>
 
 <template>
   <div class="nav-cart" :class="{ 'has-items': cart.items.length }">
-    <a href="#" class="link" @click="cart.showCartSlideout = true">
+    <a href="#" class="link" @click="appMessage.showCartSlideout = true">
       <IconsCartFill />
       <h3>Your bag</h3>
       <span class="badge">({{ cart.numberOfItems }})</span>

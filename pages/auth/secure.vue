@@ -24,18 +24,33 @@ const signin = async () => {
     })
     auth.user = response.user
     auth.token = response.token
-    const dbCart = cart.cart
-    dbCart.customer = { ...cart.cart.customer, ...response.user }
-    dbCart.cartTotal = cart.total
-    response = await $fetch('/api/v1/cart', {
-      method: 'POST',
-      body: dbCart,
-    })
-    console.log('RES', response)
+
+    appMessage.showCartSlideout = false
+  // if (auth.authenticated) {
+    appMessage.errorMsg = null
+    // try {
+      response = await $fetch('/api/v1/users', { params: { id: auth.user._id } })
+      cart.updateCartCustomer(response)
+    // } catch (error) {
+    //   appMessage.errorMsg = error.data
+    //   return false
+    // }
+    router.push({ name: 'checkout' })
+  // } else {
+  //   router.push({ name: 'auth-secure' })
+  // }
+    // const dbCart = cart.cart
+    // dbCart.customer = { ...cart.cart.customer, ...response.user }
+    // dbCart.cartTotal = cart.total
+    // response = await $fetch('/api/v1/cart', {
+    //   method: 'POST',
+    //   body: dbCart,
+    // })
+    // console.log('RES', response)
   } catch (error) {
     appMessage.errorMsg = error.data
   }
-  router.push({ name: 'checkout' })
+  // router.push({ name: 'checkout' })
 }
 </script>
 

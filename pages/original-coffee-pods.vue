@@ -20,7 +20,7 @@ if (state.errorMsg) {
   products.value = []
 } else {
   for (const prop in response.docs) {
-    console.log(response.docs[prop].categories.map((g) => g.slug).includes('free-samples'))
+    // console.log(response.docs[prop].categories.map((g) => g.slug).includes('free-samples'))
     if (!response.docs[prop].categories.map((g) => g.slug).includes('free-samples'))
       products.value.push(response.docs[prop])
   }
@@ -29,7 +29,7 @@ if (state.errorMsg) {
     showSelectQtys.value[prop] = false
   }
 }
-console.log(products.value)
+// console.log(products.value)
 
 // const pages = computed(() =>
 // 	state.totalItemCount % perPage.value
@@ -95,7 +95,7 @@ const addToCart = (quantity) => {
 }
 
 const handleItemQuantitySelected = (event, i) => {
-  console.log(event.quantity, i)
+  // console.log(event.quantity, i)
   for (const prop in showSelectQtys.value) {
     showSelectQtys.value[prop] = false
   }
@@ -112,6 +112,8 @@ const closeAllSelectQuantity = () => {
 
 <template>
   <div class="oroginal-coffee-pods">
+    <!-- {{ cart.cart }} -->
+
     <section class="offers-carousel">
       <Carousel :slides="slides" indicators controls interval="5" height="10" />
     </section>

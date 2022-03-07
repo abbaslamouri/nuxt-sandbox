@@ -13,10 +13,10 @@ const props = defineProps({
     type: Array,
     required: true,
   },
-  name: {
-    type: String,
-    required: true,
-  },
+  // name: {
+  //   type: String,
+  //   required: true,
+  // },
   vertical: {
     type: Boolean,
     default: false,
@@ -38,15 +38,15 @@ export default {
     <component
       :is="vertical ? 'div' : 'span'"
       v-for="option in options"
-      :key="option._value"
+      :key="option.key"
       class="base-radio"
       :class="{ horizontal: !vertical }"
     >
       <BaseRadio
-        :id="option._value"
-        :label="option.label"
-        :value="option.value"
-        :name="name"
+        :id="option.key"
+        :label="option.name"
+        :value="option.key"
+        :name="option.key"
         :modelValue="modelValue"
         @update:modelValue="$emit('update:modelValue', $event)"
       />
@@ -56,9 +56,12 @@ export default {
 
 <style scoped lang="scss">
 .base-radio-group {
-  // border: 1px solid red;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
 
-  &.horizontal {
+  margin-right: 2rem;
+  &.vertical {
     display: inline-block;
 
     margin-right: 2rem;

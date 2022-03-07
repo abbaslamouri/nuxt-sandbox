@@ -28,7 +28,7 @@ const placeOrderHandler = () => {
     <div v-if="!cart.hasItems" class="empty-cart">Your cart is empty</div>
     <main>
       <div class="order-info">
-        <div class="shipping">
+        <!-- <div class="shipping">
           <h2>Shipping</h2>
           <p>{{ cart.customer.name }}</p>
           <p>{{ cart.customer.shippingAddress.address }}</p>
@@ -38,7 +38,7 @@ const placeOrderHandler = () => {
             {{ cart.customer.shippingAddress.country }}
           </p>
           <p>{{ cart.customer.email }}</p>
-        </div>
+        </div> -->
         <div class="payment-method">
           <h2>Payment Method</h2>
           <p>{{ cart.paymentMethod }}</p>

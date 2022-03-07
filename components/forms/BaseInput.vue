@@ -22,7 +22,7 @@ const props = defineProps({
   },
   hint: {
     type: String,
-    default: "",
+    default: '',
   },
 })
 defineEmits(['update:modelValue'])
@@ -50,7 +50,7 @@ watch(
 
 <script>
 export default {
-  inheritAttrs: false,
+  // inheritAttrs: false,
 }
 </script>
 
@@ -63,7 +63,6 @@ export default {
       :class="{ 'currency-input': currency }"
       :placeholder="placeholder"
       :value="modelValue"
-      v-bind="$attrs"
       :id="`base-input-${uuid}`"
       @input="$emit('update:modelValue', $event.target.value)"
       :aria-describedby="errorMsg ? `base-input-error-${uuid}` : null"
@@ -82,7 +81,7 @@ export default {
       <div class="strength">Strength</div>
       <div class="reasons">Reasons</div>
     </div> -->
-    <div class="hint">{{hint}}</div>
+    <div class="hint">{{ hint }}</div>
   </div>
 </template>
 
