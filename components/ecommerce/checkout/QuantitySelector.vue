@@ -71,7 +71,7 @@ const handleQuantityBtnClick = (qty) => {
   <div class="quantity-selector" :class="{ cart: parentComponent === 'cart' }">
     <button class="btn btn__quantity-selector" @click="setQuantitySelectorPosition">
       <div v-if="btnText">{{ btnText }}</div>
-      <IconsPlus v-else />
+      <IconsPlus v-else  class="fill-slate-50"/>
     </button>
     <div class="selector p1 br3" v-if="showSelectQty" :class="quantitySelectorPosition">
       <ul class="flex-row wrap">

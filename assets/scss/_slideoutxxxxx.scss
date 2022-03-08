@@ -1,0 +1,85 @@
+.slideout {
+  z-index: 99;
+  // color: $slate-800;
+
+  .slideout__wrapper {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9;
+  }
+  &__content {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    background-color: $slate-50;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    max-width: 1024px;
+
+    .slideout__main {
+      flex: 1;
+      height: 100%;
+      width: 100%;
+      overflow-y: auto;
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2rem;
+    width: 100%;
+
+    // .close {
+    // 	border: 1px solid transparent;
+    // 	border-radius: 5px;
+
+    // 	&:hover {
+    // 		border: 1px solid $slate-200;
+    // 		background-color: $stone-200;
+    // 	}
+
+    // 	svg {
+    // 		width: 2rem;
+    // 		height: 2rem;
+    // 	}
+    // }
+  }
+
+  &__footer {
+    // background-color: $slate-300;
+    width: 100%;
+    padding: 2rem;
+  }
+
+  &.cart {
+    .slideout__header {
+      // background-color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 0.25rem;
+      // background-color: $stone-300;
+
+      .title {
+        font-size: 1.8rem;
+      }
+      // svg {
+      // 	fill: $stone-400;
+      // }
+    }
+
+    .slideout__content {
+      width: 415px;
+    }
+
+    .slideout__footer {
+      // background-color: $stone-300;
+    }
+  }
+}

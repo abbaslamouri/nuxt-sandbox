@@ -55,10 +55,9 @@
 
 		&.cart {
 			.slideout__header {
-				background-color: transparent;
 				text-transform: uppercase;
 				letter-spacing: 0.25rem;
-				background-color: $stone-300;
+				background-color: $stone-200;
 				padding: 1rem;
 			}
 
@@ -67,7 +66,7 @@
 			}
 
 			.slideout__footer {
-				background-color: $stone-300;
+				background-color: $stone-200;
 				padding: 1rem;
 			}
 		}

@@ -35,7 +35,7 @@ onMounted(() => {
     <NuxtLayout>
       <NuxtPage />
       <transition name="slideout">
-        <EcommerceCart v-if="appMessage.showCartSlideout" />
+        <EcommerceCheckoutCart v-if="appMessage.showCartSlideout" />
       </transition>
       <SnackBar
         :show="!!appMessage.errorMsg"
