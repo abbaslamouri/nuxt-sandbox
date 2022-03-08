@@ -10,7 +10,7 @@ const heroBgImage = computed(() =>
 
 <template>
   <section
-    class="hero wfull flex-col justify-center gap3 px3 text-slate-50"
+    class="hero wfull flex-col justify-center gap3 px3 text-slate-50 bg-norepeat bg-cover minh-40 uppercase"
     :style="{ backgroundImage: `url(${heroBgImage})` }"
   >
     <div class="links flex-row">
@@ -32,22 +32,10 @@ const heroBgImage = computed(() =>
       <h1 class="text-5xl text-center tracking-widest">The Classic Espresso Experience</h1>
       <NuxtLink class="flex-row items-center gap1" :to="{ name: 'original-coffee-pods', params: { slug: ' ' } }">
         <span class="tracking-wider">Learn more about the original system</span>
-        <IconsChevronRight />
+        <IconsChevronRight class="fill-slate-50" />
       </NuxtLink>
     </div>
   </section>
 </template>
 
-<style lang="scss" scoped>
-@import '@/assets/scss/variables';
-.hero {
-  background-size: cover;
-  background-repeat: no-repeat;
-  min-height: 40rem;
-  text-transform: uppercase;
-
-  svg {
-    fill: $slate-50;
-  }
-}
-</style>
+<style lang="scss" scoped></style>

@@ -82,7 +82,7 @@
 		}
 
 		main {
-			min-height: 70vh;
+			min-height: 82vh;
 			display: flex;
 			flex-direction: column;
 			// border: 10px solid teal;
