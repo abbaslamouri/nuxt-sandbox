@@ -47,68 +47,37 @@
 </script>
 
 <template>
-	<div class="checkout">
-		<div class="wrapper w996">
-			<div class="checkout-steps"><EcommerceCheckoutSteps :step="1" activeColor="#16a34a" /></div>
-			<div class="content flex-row items-start gap2 w996" v-if="cart.items.length">
-				<div class="main flex1 bg-slate-50">
-					<div class="shopping-bag">
-						<EcommerceCheckoutProductList />
-						<nuxt-link class="link continue-shopping" :to="{ name: 'original-coffee-pods' }">
-							<IconsChevronLeft />
-							<div>Continue Shopping</div>
-						</nuxt-link>
-						<EcommerceCheckoutCoupons />
-
-						<div class="footer">
-							<NuxtLink class="link btn btn-primary" :to="{ name: 'shipping' }">
-								<span> Proceed to checkout</span><IconsChevronRight />
-							</NuxtLink>
-							<!-- <button class="btn btn-primary"><span> Proceed to checkout</span><IconsChevronRight /></button> -->
-						</div>
+	<div class="promo-code-total">
+		<div class="promo-code">
+			<div class="header">Promo Code</div>
+			<div class="main">
+				<div class="title">Enter promo code</div>
+				<form>
+					<div class="input">
+						<FormsBaseInput
+							label="Promo Code"
+							placeholder="Promo Code"
+							v-model="promoCode"
+							hint="Please enter a valid coupon code"
+						/>
 					</div>
-				</div>
-				<div class="aside bg-slate-50">
-					<div class="intro">Add Free Sample Pack and Recycling Bag</div>
-					<div class="free-samples">
-						<div v-for="freeSample in freeSamples" :key="freeSample._id">
-							<div class="row" v-if="!cart.items.find((item) => item.product == freeSample._id)">
-								<div class="product">
-									<div class="image">
-										<img
-											v-if="freeSample.gallery[1]"
-											:src="freeSample.gallery[1].path"
-											:alt="`${freeSample.gallery[1].name} Image`"
-										/>
-										<img
-											v-else-if="freeSample.gallery[0]"
-											:src="freeSample.gallery[0].path"
-											:alt="`${freeSample.gallery[0].name} Image`"
-										/>
-										<img v-else src="placeholder.png" :alt="`Placeholder Image`" />
-									</div>
-									<div class="title">
-										<p>{{ freeSample.name }}</p>
-									</div>
-								</div>
-								<div class="quantity">
-									<div class="price">$0.00</div>
-									<button class="btn btn-secondary" @click="cart.addItem(freeSample, 1)"><IconsPlus /></button>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="nyc">
-						<h3>NYC: No Bag Needed</h3>
-						<p>Just place used capsules in your blue recycling bin</p>
-					</div>
-				</div>
+					<button class="btn bttn-secondary">Apply Coupon</button>
+				</form>
 			</div>
-			<div v-else class="empty-cart">
-				<p>You have no items in your bag</p>
-				<NuxtLink class="link btn btn-primary" :to="{ name: 'original-coffee-pods' }">
-					<span>Start Shopping</span>
-				</NuxtLink>
+		</div>
+		<div class="total">
+			<div class="cart-subtotal row">
+				<span> Subtotal</span><span class="currency">${{ cart.total.toFixed(2) }}</span>
+			</div>
+			<div class="cart-taxes row">
+				<span> Estimated Taxes</span>
+				<span v-if="cart.taxes" class="currency">${{ cart.taxes.toFixed(2) }}</span>
+				<span v-else class="currency">$0.00</span>
+			</div>
+			<div class="cart-total row">
+				<span> Total</span>
+				<span v-if="cart.taxes" class="currency">${{ (cart.total + cart.taxes).toFixed }}</span>
+				<span v-else class="currency">${{ cart.total.toFixed(2) }}</span>
 			</div>
 		</div>
 	</div>

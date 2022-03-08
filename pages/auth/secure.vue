@@ -69,8 +69,8 @@
 			<div class="flex1 bg-slate-50 h30 mt4">
 				<h3>I am a New Customers</h3>
 				<div class="main p2 fles-col items-center gap1">
-					<h4>Create a YRL account</h4>
-					<p>and receive these great benefits</p>
+					<h4 class="text-center">Create a YRL account</h4>
+					<p class="text-center">and receive these great benefits</p>
 					<div class="promos flex-row justify-evenly my4 wfull">
 						<div class="promo">
 							<IconsWelcomeGift />
@@ -122,8 +122,14 @@
 		.promo {
 			display: flex;
 			flex-direction: column;
+			align-items: center;
+			justify-content: center;
 			gap: 0.25rem;
 			font-size: 1.4rem;
+
+			p {
+				font-weight: bold;
+			}
 		}
 	}
 </style>

@@ -30,6 +30,10 @@
 	align-items: center;
 }
 
+.items-start {
+	align-items: flex-start;
+}
+
 .items-self-start {
 	align-self: flex-start;
 }
@@ -161,6 +165,14 @@
 	padding-bottom: 2rem;
 }
 
+.pt1 {
+	padding-top: 1rem;
+}
+
+.pb4 {
+	padding-bottom: 4rem;
+}
+
 .mt-1 {
 	margin-top: -1px;
 }
@@ -249,8 +261,12 @@
 	border: 1px solid $slate-400;
 }
 
-.border-slate-400 {
+.border-slate-300 {
 	border-color: $slate-300;
+}
+
+.border-stone-300 {
+	border-color: $stone-300;
 }
 
 .br3 {
