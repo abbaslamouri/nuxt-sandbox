@@ -3,10 +3,10 @@
 	import { useMessage } from '~/store/useMessage'
 
 	const props = defineProps({
-		gallery: {
-			type: Array,
-			required: true,
-		},
+		// gallery: {
+		// 	type: Array,
+		// 	required: true,
+		// },
 		galleryIntro: {
 			type: String,
 		},
@@ -16,6 +16,8 @@
 	})
 
 	defineEmits(['mediaSelectorClicked', 'selectFromProductImages', 'newMediaSelectBtnClicked'])
+
+	const state = inject('state')
 
 	const store = useStore()
 	const appMessage = useMessage()
@@ -67,11 +69,11 @@
 				<p>{{ galleryIntro }}</p>
 			</div>
 			<div class="gallery">
-				<div class="thumbs" v-if="gallery.length">
+				<div class="thumbs" v-if="state.doc.gallery && state.doc.gallery.length">
 					<div
 						class="thumb shadow-md relative"
 						:class="{ product: galleryType === 'product' || galleryType == 'variant' }"
-						v-for="(image, index) in gallery"
+						v-for="(image, index) in state.doc.gallery"
 						:key="image._id"
 						@dragover="handleDragover($event, index)"
 						@drop="handleDrop($event, index)"

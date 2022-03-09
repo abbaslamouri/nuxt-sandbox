@@ -1,84 +1,49 @@
-// const apiFetch = $fetch.create({ baseURL: '/api/v1' })
-// import { useMessage } from '~/store/useMessage'
-// import { useStore } from '~/store/useStore'
+const useFactory = (resource = '') => {
+	const state = useState('errorMsg', () => {
+		return { docs: [], doc: {}, count: 0, totalCount: 0, errorMsg: '', message: '' }
+	})
 
-// const store = useStore()
-// const appMessage = useMessage()
+	const fetchAll = async (params) => {
+		state.value.errorMsg = null
+		state.value.message = null
+		try {
+			const response = await $fetch(`/api/v1/${resource}`, { params })
+			console.log(response)
+			state.value.docs = response.docs
+			state.value.count = response.count
+			state.value.totalCount = response.totalCount
+		} catch (error) {
+			state.value.errorMsg = error.data
+		}
+	}
 
-const useFactory = (collection) => {
-  const state = reactive({
-    errorMsg: '',
-  })
-  const fetchAll = async (params) => {
-    state.errorMsg = null
-    try {
-      const response = await $fetch('/api/v1/products', { params })
-      console.log(response)
-      // store.products = response.docs
-      // store.productsCount = response.count
-      // store.productsTotalCount = response.totalCount
+	const fetchBySlug = async (slug) => {
+		state.value.errorMsg = null
+		state.value.message = null
+		try {
+			const response = await $fetch(`/api/v1/${resource}`, { params: { slug } })
+			console.log(response)
+			state.value.doc = response
+		} catch (error) {
+			state.value.errorMsg = error.data
+		}
+	}
 
-      return {
-        docs: response.docs,
-        count: response.count,
-        totalCount: response.totalCount,
-      }
-    } catch (error) {
-      state.errorMsg = error.data
-    }
-  }
+	// Delete category
+	const deleteById = async (docId) => {
+		state.value.errorMsg = null
+		state.value.message = null
+		try {
+			await $fetch(`/api/v1/${resource}`, {
+				method: 'DELETE',
+				params: { id: docId },
+			})
+		} catch (err) {
+			state.value.errorMsg = err.data
+		}
+	}
 
-  // const fetchCount = async (params) => {
-  //   state.errorMsg = ''
-  //   const { data, error } = await useFetch(`/v1/${collection}/count`, {
-  //     baseURL: state.baseURL,
-  //     method: 'get',
-  //     params: params,
-  //   })
-  //   if (error.value) {
-  //     state.errorMsg = 'Error while fetching docs count'
-  //     // appError.setSnackbar(true, state.errorMsg)
-  //     return false
-  //   } else {
-  //     state.totalItemCount = data.value
-  //     return data.value
-  //   }
-  // }
-
-  // const fetchBySlug = async (slug, params) => {
-  //   state.errorMsg = ''
-  //   const { data, error } = await useFetch(`/v1/${collection}/`, {
-  //     baseURL: state.baseURL,
-  //     method: 'get',
-  //     params: { ...params, slug },
-  //     lazy: true,
-  //   })
-  //   if (error.value) {
-  //     state.errorMsg = 'Error while fetching docs'
-  //     // appError.setSnackbar(true, state.errorMsg)
-  //     return false
-  //   } else {
-  //     state.selectedItem = data.value[0]
-  //     return data.value
-  //   }
-  // }
-
-  // const deleteById = async (id) => {
-  //   state.errorMsg = ''
-  //   try {
-  //     await http.delete(`v1/${collection}/${id}`)
-  //     const index = state.items.findIndex((el) => el._id == id)
-  //     if (index !== -1) state.items.splice(index, 1)
-  //     return true
-  //   } catch (err) {
-  //     // console.log('MyERROR', err.response)
-  //     state.errorMsg = err.response.data.message || err.response.data.statusMessage
-  //     // appError.setSnackbar(true, state.errorMsg)
-  //     return false
-  //   }
-  // }
-
-  return { state, fetchAll }
+	return { state, fetchAll, fetchBySlug, deleteById }
 }
 
 export default useFactory
