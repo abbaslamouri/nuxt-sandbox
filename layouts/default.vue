@@ -82,7 +82,7 @@ const cart = useCart()
   }
 
   main {
-    min-height: 82vh;
+    min-height: 90vh;
     display: flex;
     flex-direction: column;
     // border: 10px solid teal;

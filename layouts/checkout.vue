@@ -34,7 +34,7 @@ const cart = useCart()
               <!-- <LoginDropdown v-if="!auth.authenticated" /> -->
               <!-- <ProfileDropdown v-else /> -->
             </div>
-            <NavCart v-show="route.name != 'checkout' && route.name != 'shipping'" />
+            <EcommerceCheckoutNavCart v-show="route.name != 'checkout' && route.name != 'shipping'" />
             <!-- <EcommerceCartSlideout /> -->
           </div>
         </div>
@@ -86,7 +86,7 @@ const cart = useCart()
   }
 
   main {
-    min-height: 70vh;
+    min-height: 90vh;
     display: flex;
     flex-direction: column;
     // border: 10px solid teal;

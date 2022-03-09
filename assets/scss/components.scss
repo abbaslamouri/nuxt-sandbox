@@ -104,6 +104,14 @@
   width: 6rem;
 }
 
+.w10 {
+  width: 10rem;
+}
+
+.w32 {
+  width: 32rem;
+}
+
 .h2 {
   height: 2rem;
 }
@@ -114,6 +122,10 @@
 
 .h4 {
   height: 4rem;
+}
+
+.h10 {
+  width: 10rem;
 }
 
 .hfull {
@@ -156,6 +168,10 @@
   padding: 2rem;
 }
 
+.p3 {
+  padding: 3rem;
+}
+
 .px1 {
   padding-left: 1rem;
   padding-right: 1rem;
@@ -195,6 +211,11 @@
 
 .ml-1 {
   margin-left: -1px;
+}
+
+.my1 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .mt4 {
@@ -287,6 +308,14 @@
 
 .border-stone-300 {
   border-color: $stone-300;
+}
+
+.border-stone-300 {
+  border-color: $stone-300;
+}
+
+.border-bottom-stone-300 {
+  border-bottom: 1px solid $stone-300;
 }
 
 .br3 {
@@ -423,7 +452,11 @@
     // border-radius: 5px;
     background-color: $green-700;
     color: $slate-50;
-    // padding: 1rem 3rem;
+
+    svg {
+      fill: $slate-50;
+    }
+    padding: 1rem 3rem;
     // font-size: 1.4rem;
     // padding: 1.5rem;
   }
@@ -455,6 +488,10 @@
     &:hover {
       background-color: $green-600;
       color: $slate-50;
+    }
+
+    svg {
+      fill: $slate-50;
     }
   }
 
