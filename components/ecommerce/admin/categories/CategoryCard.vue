@@ -18,21 +18,21 @@ const proceed = () => {
 </script>
 
 <template>
-  <div class="admin-category row shadow-md">
-    <div class="thumb-title td">
-      <div class="thumb">
+  <div class="row border-b-slate-200 p1">
+    <div class="td">
+      <div class="w5 h5">
         <img
+          class="wfull hfull contain"
           v-if="category.gallery.length && category.gallery[0] && category.gallery[0].mimetype.includes('image')"
           :src="`${category.gallery[0].path}`"
         />
-        <img v-else class="thumb" :src="`/placeholder.png`" />
+        <img v-else class="wfull hfull contain" :src="`/placeholder.png`" />
       </div>
       <h3 class="title">{{ category.name }}</h3>
     </div>
-
     <div class="td">{{ category.slug }}</div>
     <div class="td" v-if="category.parent">{{ category.parent.name }}</div>
-    <div class="td" v-else></div>
+    <div class="td" v-else>-</div>
     <div class="actions td">
       <button class="btn" @click.prevent="showActions = !showActions"><IconsMoreHoriz /></button>
       <div class="menu shadow-md" v-show="showActions">
@@ -51,27 +51,4 @@ const proceed = () => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-@import '@/assets/scss/variables';
-
-.admin-category {
-  padding: 1rem;
-
-  .thumb-title {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-
-    .thumb {
-      width: 5rem;
-      height: 5rem;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-      }
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

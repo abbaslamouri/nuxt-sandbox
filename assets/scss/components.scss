@@ -38,6 +38,10 @@
   align-self: flex-start;
 }
 
+.items-self-center {
+  align-self: center;
+}
+
 .items-self-end {
   align-self: flex-end;
 }
@@ -60,6 +64,10 @@
 
 .justify-end {
   justify-content: flex-end;
+}
+
+.justify-self-end {
+  justify-self: flex-end;
 }
 
 .gap1 {
@@ -122,6 +130,10 @@
 
 .h4 {
   height: 4rem;
+}
+
+.h5 {
+  height: 5rem;
 }
 
 .h6 {
@@ -194,6 +206,11 @@
 .py1 {
   padding-top: 1rem;
   padding-bottom: 1rem;
+}
+
+.py05 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .py2 {
@@ -331,6 +348,14 @@
   border-color: $stone-300;
 }
 
+.border-b-slate-300 {
+  border-bottom: 1px solid $slate-300;
+}
+
+.border-b-slate-200 {
+  border-bottom: 1px solid $slate-200;
+}
+
 .border-b-stone-300 {
   border-bottom: 1px solid $stone-300;
 }
@@ -375,6 +400,14 @@
 
 .bg-slate-50 {
   background-color: $slate-50;
+}
+
+.bg-slate-100 {
+  background-color: $slate-100;
+}
+
+.bg-slate-200 {
+  background-color: $slate-200;
 }
 
 .bg-slate-900 {
@@ -450,6 +483,11 @@
   &__primary {
     background-color: $slate-800;
     color: $slate-50;
+
+    &:hover {
+      background-color: $slate-600;
+      color: $slate-50;
+    }
 
     svg {
       fill: $slate-50;

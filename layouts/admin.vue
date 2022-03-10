@@ -17,15 +17,15 @@ if (process.client) {
 </script>
 
 <template>
-  <div class="app admin">
+  <div class="app admin flex-row">
     <transition name="admin-nav">
       <aside class="bg-slate-900" v-show="showAdminSidebar">
         <Branding />
         <AdminNav />
       </aside>
     </transition>
-    <main :class="{ full: !showAdminSidebar }">
-      <header>
+    <main class="flex1" :class="{ full: !showAdminSidebar }">
+      <header class="flex-row items-center justify-between px2 text-slate-50">
         <MobileNavToggler @hideAdminSidebar="showAdminSidebar = !showAdminSidebar" />
         <div class="profile-cart">
           <div class="profile">
@@ -38,7 +38,7 @@ if (process.client) {
       <div class="content">
         <slot />
       </div>
-      <footer><Footer /></footer>
+      <footer class="text-slate-50"><AdminFooter /></footer>
     </main>
   </div>
 </template>
@@ -47,70 +47,35 @@ if (process.client) {
 @import '@/assets/scss/variables';
 
 .app.admin {
-  display: flex;
-
   aside {
     position: sticky;
     top: 0;
     height: 100vh;
     transition: all 0.2s ease-in-out;
-    // color: white;
-    // font-size: 1.4rem;
     min-width: 25rem;
-    // border: 1px solid teal;
-
-    .nav-branding {
-      // display: flex;
-      // align-items: center;
-      // height: 6rem;
-      // padding: 0 1rem;
-      // border-bottom: 1px solid $slate-400;
-      // gap: 1rem;
-
-      // svg {
-      //   width: 2rem;
-      //   height: 2rem;
-      //   fill: white;
-      //   cursor: pointer;
-      // }
-    }
   }
 
   main {
-    flex: 1;
     transition: all 0.2s ease;
-    width: 100%;
-    min-height: 88vh;
     // border: 1px solid red;
-    display: flex;
-    flex-direction: column;
-    // gap: 2rem;
-
     header {
       position: sticky;
       top: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       height: 6rem;
-      background-color: #222;
-      color: white;
-      padding: 0 2rem;
-      z-index: 1;
+      background-color: $stone-900;
     }
 
     .content {
       flex: 1;
+      min-height: 90vh;
       background-color: $slate-100;
+      // border: 10px solid yellow;
       display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     footer {
-      background-color: #000;
-      color: white;
-      padding: 1rem 2rem;
+      background-color: $stone-900;
+      height: 6rem;
     }
   }
 

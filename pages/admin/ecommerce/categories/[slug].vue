@@ -54,24 +54,30 @@ watch(
 </script>
 
 <template>
-  <div class="category">
-    <NuxtLink class="link" :to="{ name: 'admin-ecommerce-categories' }">
-      <IconsArrowWest /><span>Category</span>
-    </NuxtLink>
-    <!-- <pre>{{ state.doc }}</pre> -->
-    <h3 class="header">Edit Category</h3>
-    <div class="columns">
-      <div class="left">
-        <EcommerceAdminCategoryDetails />
-        <EcommerceAdminImageGallery
-          :gallery="state.doc.gallery"
-          :galleryIntro="galleryIntro"
-          galleryType="product"
-          @newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
-        />
-      </div>
-      <div class="right">
-        <EcommerceAdminCategoryRightNav :categories="categories" :category="category" @saveCategory="saveCategory" />
+  <div class="wrapper flex1 flex-col items-center p3">
+    <div class="categories flex1 flex-col gap2">
+      <NuxtLink class="link" :to="{ name: 'admin-ecommerce-categories' }">
+        <IconsArrowWest /><span>Category</span>
+      </NuxtLink>
+      <!-- <pre>{{ state.doc }}</pre> -->
+      <h3 class="items-self-start">Edit Category</h3>
+      <div class="columns wfull">
+        <div class="main">
+          <EcommerceAdminCategoriesDetails />
+          <EcommerceAdminImageGallery
+            :gallery="state.doc.gallery"
+            :galleryIntro="galleryIntro"
+            galleryType="product"
+            @newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
+          />
+        </div>
+        <div class="aside">
+          <EcommerceAdminCategoriesCategoryRightNav
+            :categories="categories"
+            :category="category"
+            @saveCategory="saveCategory"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -80,16 +86,17 @@ watch(
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
 
-.category {
-  width: 100%;
-  max-width: 1280px;
-  min-height: 100vh;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.wrapper {
+  // border: 10px solid green;
+  // justify-content: stretch;
+
+  .categories {
+    max-width: 1280px;
+    // border: 1px solid red;
+  }
 
   .link {
+    align-self: flex-start;
     display: flex;
     align-items: center;
     gap: 0.3rem;
@@ -112,7 +119,7 @@ watch(
       gap: 3rem;
     }
 
-    .right {
+    .aside {
       position: sticky;
       top: 10rem;
       display: flex;

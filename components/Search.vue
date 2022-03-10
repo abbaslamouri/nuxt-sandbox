@@ -18,12 +18,10 @@ const clearSearchField = () => {
 </script>
 
 <template>
-  <form class="search base-input shadow-md" @submit.prevent="emitSearchField">
-    <button type="submit" class="btn">
-      <IconsSearchFill />
-    </button>
+  <form class="search base-input br3 test-sm" @submit.prevent="emitSearchField">
+    <IconsSearch class="search-icon items-self-center border" />
     <input type="text" placeholder="Search" aria-label="Search" v-model="keyword" @input="resetItems" />
-    <button class="btn cancel" @click="clearSearchField">
+    <button class="btn btn__close justify-self-end items-self-center" @click="clearSearchField">
       <IconsClose />
     </button>
   </form>
@@ -36,28 +34,15 @@ const clearSearchField = () => {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
-  gap: 0;
-  border: 1px solid $slate-400;
-  border-radius: 5px;
-  font-size: 1.3rem;
-  height: 4rem;
-  background-color: white;
-  color: #fff;
-  // min-width: 25rem;
 
   input {
     grid-column: 1 / 2;
     grid-row: 1 / 2;
-    border: none;
-    width: 100%;
-    height: 100%;
     color: $slate-600;
     padding: 0 0 0 4rem;
-    &:focus {
-      outline: 3px solid $sky-200;
-    }
   }
 
+  .search-icon,
   .btn {
     grid-column: 1 / 2;
     grid-row: 1 / 2;
@@ -65,16 +50,7 @@ const clearSearchField = () => {
     padding: 0 1rem;
     width: 4rem;
     height: 4rem;
-
-    &.cancel {
-      justify-self: flex-end;
-    }
-
-    svg {
-      fill: $slate-500;
-      width: 2rem;
-      height: 2rem;
-    }
+    fill: $slate-500;
   }
 }
 </style>
