@@ -1,0 +1,68 @@
+/*****************************TYPOGRAPHY*******************************/
+
+.text-xs {
+	font-size: 1.2rem; /* 12px */
+	// line-height: 1rem; /* 16px */
+}
+
+.text-sm {
+	font-size: 1.4rem; /* 14px */
+	// line-height: 2rem; /* 20px */
+}
+
+.text-lg {
+	font-size: 2rem; /* 18px */
+	// line-height: 1.75rem; /* 28px */
+}
+
+.text-5xl {
+	font-size: 5rem; /* 48px */
+	// line-height: 1;
+}
+
+.font-bold {
+	font-weight: 700;
+}
+
+.text-center {
+	text-align: center;
+}
+
+.text-slate-50 {
+	color: $slate-50;
+}
+
+.text-slate-400 {
+	color: $slate-400;
+}
+
+.text-slate-800 {
+	color: $slate-800;
+}
+
+.text-red-700 {
+	color: $red-700;
+}
+
+.text-yellow-700 {
+	color: $yellow-700;
+}
+
+.uppercase {
+	text-transform: uppercase;
+}
+
+.line-through {
+	text-decoration: line-through;
+}
+
+.tracking-wide {
+	letter-spacing: 0.1rem;
+}
+.tracking-wider {
+	letter-spacing: 0.25rem;
+}
+
+.tracking-widest {
+	letter-spacing: 1rem;
+}

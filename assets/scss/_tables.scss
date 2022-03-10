@@ -45,37 +45,37 @@
 		// padding: 1rem;
 	}
 
-	.actions {
-		position: relative;
+	// .actions {
+	// 	position: relative;
 
-		.btn {
-			// padding: 0.3rem;
-			border: none;
+	// 	.btn {
+	// 		// padding: 0.3rem;
+	// 		border: none;
 
-			&.active {
-				border: 2px solid $slate-400;
-				border-radius: 5px;
-			}
-		}
+	// 		&.active {
+	// 			border: 2px solid $slate-400;
+	// 			border-radius: 5px;
+	// 		}
+	// 	}
 
-		.menu {
-			position: absolute;
-			top: -25%;
-			right: 70%;
-			border: 1px solid $slate-300;
-			padding: 1rem;
-			background-color: white;
-			font-size: 1.3rem;
-			font-weight: 600;
-			display: flex;
-			flex-direction: column;
-			gap: 0.5rem;
+	// 	.menu {
+	// 		position: absolute;
+	// 		top: -25%;
+	// 		right: 70%;
+	// 		border: 1px solid $slate-300;
+	// 		padding: 1rem;
+	// 		background-color: white;
+	// 		font-size: 1.3rem;
+	// 		font-weight: 600;
+	// 		display: flex;
+	// 		flex-direction: column;
+	// 		gap: 0.5rem;
 
-			.cancel {
-				color: $red-500;
-			}
-		}
-	}
+	// 		.cancel {
+	// 			color: $red-500;
+	// 		}
+	// 	}
+	// }
 
 	&.admin-product-attributes {
 		.row {
