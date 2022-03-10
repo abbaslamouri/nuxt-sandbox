@@ -20,12 +20,22 @@ defineEmits(['mediaSelectorClicked', 'selectFromProductImages', 'newMediaSelectB
 const state = inject('state')
 
 const store = useStore()
-const appMessage = useMessage()
 const draggableElements = ref([])
 const pickIndex = ref(null)
+const hoveredImage = ref(null)
+
+const mouseEnter = (event, index) => {
+  event.target.classList.add('hovered')
+  hoveredImage.value = state.value.doc.gallery[index]
+}
+
+const mouseLeave = (event, index) => {
+  event.target.classList.remove('hovered')
+  hoveredImage.value = null
+}
 
 const removeGalleryImage = (index) => {
-  props.gallery.splice(index, 1)
+  state.value.doc.gallery.splice(index, 1)
 }
 
 const handleDragstart = (event, index) => {
@@ -47,55 +57,73 @@ const handleDragleave = (event) => {
   event.target.closest('.thumb').classList.remove('over')
 }
 const handleDrop = async (event, index) => {
-  const pickedElement = props.gallery[pickIndex.value]
-  const droppedElement = props.gallery[index]
-  props.gallery[pickIndex.value] = droppedElement
-  props.gallery[index] = pickedElement
+  const pickedElement = state.value.doc.gallery[pickIndex.value]
+  const droppedElement = state.value.doc.gallery[index]
+  state.value.doc.gallery[pickIndex.value] = droppedElement
+  state.value.doc.gallery[index] = pickedElement
   event.target.closest('.thumb').classList.remove('over')
 }
 
 const setFeaturedImage = (event) => {
   console.log(event.target, pickIndex.value)
-  // state.selectedItem.featuredImage = props.gallery[pickIndex.value]
+  // state.selectedItem.featuredImage = state.value.doc.gallery[pickIndex.value]
 }
 </script>
 
+display: flex; align-items: center; gap: 1rem; background-color: $sky-100; padding: 1rem 2rem; border-radius: 5px;
+font-size: 80%;
+
 <template>
-  <section class="admin-image-gallery shadow-md" id="image-gallery">
+  <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
     <header class="admin-section-header">Image Gallery</header>
-    <div class="content">
-      <div class="intro" v-if="galleryIntro">
-        <IconsInfo />
+    <div class="content flex-col items-center gap2">
+      <div class="intro flex-row items-center gap1 bg-slate-200 py1 px2 br3 text-sm" v-if="galleryIntro">
+        <IconsInfo class="w3 h3 fill-sky-600" />
         <p>{{ galleryIntro }}</p>
       </div>
-      <div class="gallery">
-        <div class="thumbs" v-if="state.doc.gallery && state.doc.gallery.length">
+      <div class="bg-slate-200 br3 h4 flex-row items-center">
+        <span class="px3" v-if="hoveredImage">{{ hoveredImage.name }}</span>
+      </div>
+      <div class="gallery" v-if="state.doc.gallery && state.doc.gallery.length">
+        <div
+          class="thumb shadow-md"
+          :class="{ product: galleryType === 'product' || galleryType == 'variant' }"
+          v-for="(image, index) in state.doc.gallery"
+          :key="image._id"
+          @dragover="handleDragover($event, index)"
+          @drop="handleDrop($event, index)"
+          @dragleave="handleDragleave($event, index)"
+          @dragover.prevent
+          @mouseenter="mouseEnter($event, index)"
+          @mouseleave="mouseLeave($event, index)"
+        >
           <div
-            class="thumb shadow-md relative"
-            :class="{ product: galleryType === 'product' || galleryType == 'variant' }"
-            v-for="(image, index) in state.doc.gallery"
-            :key="image._id"
-            @dragover="handleDragover($event, index)"
-            @drop="handleDrop($event, index)"
-            @dragleave="handleDragleave($event, index)"
-            @dragover.prevent
-            @mouseenter="$event.target.classList.add('hovered')"
-            @mouseleave="$event.target.classList.remove('hovered')"
+            class="thumb__draggable"
+            :class="{ first: index == 0 }"
+            :ref="(el) => (draggableElements[index] = el)"
+            draggable="true"
+            @dragstart="handleDragstart($event, index)"
+            @dragend="handleDragend($event, index)"
           >
-            <div
-              class="thumb__draggable"
-              :class="{ first: index == 0 }"
-              :ref="(el) => (draggableElements[index] = el)"
-              draggable="true"
-              @dragstart="handleDragstart($event, index)"
-              @dragend="handleDragend($event, index)"
-            >
-              <img :src="image.path" :alt="`${image.name} Photo`" draggable="false" />
-              <span class="thumb__delete" @click.prevent="removeGalleryImage(index)"><IconsDeleteFill /></span>
-              <span class="thumb__move"><IconsMove /></span>
-            </div>
-            <span class="thumb__index">{{ index + 1 }}</span>
-            <div class="thumb__tooltip">{{ image.name }}</div>
+            <img class="wfull hfull contain" :src="image.path" :alt="`${image.name} Photo`" draggable="false" />
+          </div>
+          <span class="thumb__delete" @click.prevent="removeGalleryImage(index)"><IconsDeleteFill /></span>
+          <div class="thumb__move"><IconsMove /></div>
+          <div class="thumb__index">{{ index + 1 }}</div>
+          <div class="thumb__imageTitle" v-if="index === 0">
+            <span>Thumbnail</span>
+          </div>
+          <div class="thumb__imageTitle" v-if="index === 1">
+            <span>Featured</span>
+          </div>
+          <div class="thumb__imageTitle" v-if="index === 2">
+            <span>Body</span>
+          </div>
+          <div class="thumb__imageTitle" v-if="index === 3">
+            <span>Attributes</span>
+          </div>
+          <div class="thumb__imageTitle" v-if="index === 4">
+            <span>Recipe</span>
           </div>
         </div>
       </div>
@@ -123,229 +151,231 @@ const setFeaturedImage = (event) => {
 @import '@/assets/scss/variables';
 
 .admin-image-gallery {
-  background-color: white;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-
-  .content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 2rem;
+    padding: 2rem;
+    // min-height: 20px;
+    border: 1px solid $slate-200;
+    border-radius: 5px;
 
-    .intro {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background-color: $sky-100;
-      padding: 1rem 2rem;
+    .thumb {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      grid-template-columns: repeat(3, 1fr);
+
+      // gap: 3rem;
+
+      // display: flex;
+      // justify-content: center;
+      // align-items: center;
+      // position: relative;
+      border: 1px solid $slate-200;
+      padding: 1rem;
+      cursor: pointer;
       border-radius: 5px;
-      font-size: 80%;
+      // border: 1px solid red;
 
-      svg {
-        width: 3rem;
-        height: 3rem;
-        fill: $sky-600;
+      &__index {
+        grid-column: 1 / 2;
+        grid-row: 1 / 2;
+        transform: translate(-100%, -100%);
+        background-color: $slate-600;
+        width: 1.8rem;
+        height: 1.8rem;
+        color: $slate-50;
+        border-radius: 50%;
+        font-size: x-small;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
-    }
 
-    .gallery {
-      max-width: 50rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
+      &__draggable {
+        grid-column: 1 / 4;
+        grid-row: 1 / 4;
+      }
 
-      .thumbs {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 1rem;
-        padding: 2rem;
-        min-height: 20px;
-        border: 1px solid $slate-200;
-        border-radius: 5px;
+      &__delete {
+        grid-column: 3 / 4;
+        grid-row: 1 / 2;
+        top: 1rem;
+        right: 1rem;
+        opacity: 0;
+        visibility: hidden;
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-start;
 
-        .thumb {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          position: relative;
-          border: 1px solid $slate-200;
-          padding: 1rem;
-          cursor: pointer;
-          border-radius: 5px;
-
-          &:first-child {
-            grid-column: span 2 / span 2;
-            grid-row: span 2 / span 2;
-          }
-
-          &.product {
-            &:nth-of-type(n) {
-              &::after {
-                // content: 'Featured';
-                position: absolute;
-                top: 0rem;
-                left: 50%;
-                transform: translateX(-50%);
-                font-size: 1rem;
-                background-color: $slate-700;
-                color: $slate-50;
-                padding: 0.25rem 1rem;
-                border-radius: 3px;
-              }
-            }
-            &:nth-of-type(1) {
-              &::after {
-                content: 'Thumb';
-              }
-            }
-
-            &:nth-of-type(2) {
-              grid-column: span 2 / span 2;
-              grid-row: span 2 / span 2;
-              &::after {
-                content: 'Featured';
-              }
-            }
-            &:nth-of-type(3) {
-              grid-column: span 2 / span 2;
-              grid-row: span 2 / span 2;
-              &::after {
-                content: 'Body';
-              }
-            }
-            &:nth-of-type(4) {
-              grid-column: span 2 / span 2;
-              grid-row: span 2 / span 2;
-              &::after {
-                content: 'Attributes';
-              }
-            }
-            &:nth-of-type(5) {
-              grid-column: span 2 / span 2;
-              grid-row: span 2 / span 2;
-              &::after {
-                content: 'Recipe';
-              }
-            }
-          }
-
-          img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-          }
-
-          &__delete {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            opacity: 0;
-            visibility: hidden;
-
-            svg {
-              fill: $slate-50;
-            }
-          }
-
-          &__move {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0;
-            visibility: hidden;
-
-            svg {
-              fill: $slate-50;
-            }
-          }
-
-          &__index {
-            position: absolute;
-            top: 2%;
-            left: 2%;
-            transform: translate(-50%, -50%);
-            background-color: $slate-600;
-            width: 1.5rem;
-            height: 1.5rem;
-            color: $slate-50;
-            border-radius: 50%;
-            font-size: x-small;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-          }
-
-          &__tooltip {
-            position: absolute;
-            top: -1.5rem;
-            left: 50%;
-            transform: translate(-50%, -100%);
-            background-color: $slate-600;
-            display: grid;
-            grid-template-columns: minmax(max-content, 40rem);
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 5px;
-            font-weight: 500;
-            opacity: 0;
-            visibility: hidden;
-
-            &::after {
-              content: '';
-              position: absolute;
-              top: 100%;
-              left: 50%;
-              margin-left: -5px;
-              border-width: 5px;
-              border-style: solid;
-              border-color: $slate-600 transparent transparent transparent;
-            }
-          }
-
-          &.hovered {
-            background-color: $slate-500;
-
-            img {
-              opacity: 0.1;
-            }
-
-            .thumb__tooltip,
-            .thumb__delete,
-            .thumb__move {
-              opacity: 1;
-              visibility: visible;
-            }
-          }
-
-          &.over {
-            opacity: 0.3;
-            border: 2px dashed $slate-600;
-          }
-
-          &.featured-image,
-          &.body-bg-image,
-          &.attributes-image,
-          &.recipe-image,
-          &.thumb-image {
-            // border: 1px solid red;
-            min-width: 10rem;
-            min-height: 10rem;
-          }
+        svg {
+          fill: $slate-50;
         }
       }
-    }
 
-    .image-select-actions {
-      display: flex;
-      gap: 3rem;
+      &__move {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+        opacity: 0;
+        visibility: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        svg {
+          fill: $slate-50;
+        }
+      }
+
+      &__imageTitle {
+        grid-column: 1 / 4;
+        grid-row: 1 / 2;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        transform: translateY(-30%);
+
+        span {
+          background-color: $slate-600;
+          color: $slate-50;
+          padding: 0.5rem 1rem;
+          font-size: 1rem;
+          border-radius: 3px;
+        }
+      }
+
+      &__tooltip {
+        grid-column: 1 / 4;
+        grid-row: 1 / 2;
+        opacity: 0;
+      }
+
+      &:first-child {
+        grid-column: span 2 / span 2;
+        grid-row: span 2 / span 2;
+      }
+
+      &.product {
+        &:nth-of-type(2),
+        &:nth-of-type(3),
+        &:nth-of-type(4),
+        &:nth-of-type(5) {
+          grid-column: span 2 / span 2;
+          grid-row: span 2 / span 2;
+        }
+      }
+
+      // img {
+      //   width: 100%;
+      //   height: 100%;
+      //   object-fit: contain;
+      // }
+
+      // &__delete {
+      //   // position: absolute;
+      //   top: 1rem;
+      //   right: 1rem;
+      //   opacity: 0;
+      //   visibility: hidden;
+
+      //   svg {
+      //     fill: $slate-50;
+      //   }
+      // }
+
+      // &__move {
+      //   // position: absolute;
+      //   top: 50%;
+      //   left: 50%;
+      //   transform: translate(-50%, -50%);
+      //   opacity: 0;
+      //   visibility: hidden;
+
+      //   svg {
+      //     fill: $slate-50;
+      //   }
+      // }
+
+      // &__index {
+      //   // position: absolute;
+      //   top: 2%;
+      //   left: 2%;
+      //   transform: translate(-50%, -50%);
+      //   background-color: $slate-600;
+      //   width: 1.5rem;
+      //   height: 1.5rem;
+      //   color: $slate-50;
+      //   border-radius: 50%;
+      //   font-size: x-small;
+      //   display: flex;
+      //   justify-content: center;
+      //   align-items: center;
+      // }
+
+      // &__tooltip {
+      //   position: absolute;
+      //   top: -1.5rem;
+      //   left: 50%;
+      //   transform: translate(-50%, -100%);
+      //   background-color: $slate-600;
+      //   display: grid;
+      //   grid-template-columns: minmax(max-content, 40rem);
+      //   color: white;
+      //   padding: 1rem 2rem;
+      //   border-radius: 5px;
+      //   font-weight: 500;
+      //   opacity: 0;
+      //   visibility: hidden;
+
+      //   &::after {
+      //     content: '';
+      //     position: absolute;
+      //     top: 100%;
+      //     left: 50%;
+      //     margin-left: -5px;
+      //     border-width: 5px;
+      //     border-style: solid;
+      //     border-color: $slate-600 transparent transparent transparent;
+      //   }
+      // }
+
+      &.hovered {
+        background-color: $slate-500;
+
+        img {
+          opacity: 0.1;
+        }
+
+        .thumb__tooltip,
+        .thumb__delete,
+        .thumb__move {
+          opacity: 1;
+          visibility: visible;
+        }
+      }
+
+      &.over {
+        opacity: 0.3;
+        border: 2px dashed $slate-600;
+      }
+
+      &.featured-image,
+      &.body-bg-image,
+      &.attributes-image,
+      &.recipe-image,
+      &.thumb-image {
+        // border: 1px solid red;
+        min-width: 10rem;
+        min-height: 10rem;
+      }
     }
   }
+  // }
+
+  .image-select-actions {
+    display: flex;
+    gap: 3rem;
+  }
+  // }
 
   // .featured-image {
   //   min-height: 10rem;

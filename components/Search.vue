@@ -18,13 +18,20 @@ const clearSearchField = () => {
 </script>
 
 <template>
-  <form class="search base-input br3 test-sm" @submit.prevent="emitSearchField">
-    <IconsSearch class="search-icon items-self-center border" />
-    <input type="text" placeholder="Search" aria-label="Search" v-model="keyword" @input="resetItems" />
-    <button class="btn btn__close justify-self-end items-self-center" @click="clearSearchField">
-      <IconsClose />
-    </button>
-  </form>
+  <div>
+    <form class="search base-input br3 test-sm" @keydown.enter.prevent="emitSearchField">
+      <IconsSearch class="search-icon items-self-center border" />
+      <input type="text" placeholder="Search" aria-label="Search" v-model="keyword" @input="resetItems" />
+      <button class="btn btn__close justify-self-end items-self-center" @click.prevent="clearSearchField">
+        <IconsClose />
+      </button>
+    </form>
+    <div class="mt2 flex-row items-center gap1 text-xs" v-if="keyword">
+      <div class="uppercase">Filters</div>
+      <div class="bg-slate-50 p1">Text Search: {{ keyword }}</div>
+      <button class="btn btn__primary p1" @click="clearSearchField">Clear</button>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -34,6 +41,7 @@ const clearSearchField = () => {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
+  // border: 1px solid red;
 
   input {
     grid-column: 1 / 2;
@@ -50,7 +58,7 @@ const clearSearchField = () => {
     padding: 0 1rem;
     width: 4rem;
     height: 4rem;
-    fill: $slate-500;
+    fill: $slate-600;
   }
 }
 </style>
