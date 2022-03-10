@@ -1,108 +1,42 @@
 <script setup>
-const props = defineProps({
-  categories: {
-    type: Array,
-  },
-  category: {
-    type: Object,
-    required: true,
-  },
-})
-defineEmits(['saveCategory', 'parentCategorySelected'])
+defineEmits(['saveCategory'])
 
-const categoryParent = props.category.parent ? ref(props.category.parent._id) : ''
+const state = inject('state')
+const fetchAll = inject('fetchAll')
+
+await fetchAll()
 
 const parentCategoryOptions = computed(() => {
-  return props.categories
-    .filter((c) => c._id != props.category._id && (!c.parent || (c.parent && c.parent._id != props.category._id)))
+  return state.value.docs
+    .filter((c) => c._id != state.value.doc._id && (!c.parent || (c.parent && c.parent._id != state.value.doc._id)))
     .map((el) => {
       return { key: el._id, name: el.name }
     })
 })
 </script>
 
+margin-bottom: 2rem; text-transform: uppercase; border-bottom: 1px solid $slate-200; padding-bottom: 0.5rem; display:
+inline-block; font-weight: 500; font-size: 1.4rem; margin-bottom: 1rem;
+
 <template>
-  <div class="admin-right-nav">
-    <div class="save-changes shadow-md">
-      <button class="btn btn-primary" @click.prevent="$emit('saveCategory')">Save Changes</button>
+  <div class="flex-col gap2">
+    <div class="p2 br5 shadow-md">
+      <button class="btn btn__checkout wfull py3" @click.prevent="$emit('saveCategory')">Save Changes</button>
     </div>
-    <section class="parent shadow-md">
+    <section class="bg-white p2 br5 shadow-md">
       <header class="admin-section-header">Parent</header>
-      <div class="content">
-        Please add another category first
-        <div class="parent">
-          <div class="base-select">
-            <select v-model="categoryParent" @change="$emit('parentCategorySelected', categoryParent)">
-              <option value="">Select Category</option>
-              <option v-for="option in parentCategoryOptions" :value="option.key" :key="option.key">
-                {{ option.name }}
-              </option>
-            </select>
-            <label>Category Parent</label>
-          </div>
-        </div>
+      <div class="flex-col gap3">
+        <p v-if="state.docs.length == 0">Please add another category first</p>
+        <FormsBaseSelect
+          v-else
+          v-model="state.doc.parent"
+          label="Parent Category"
+          :options="parentCategoryOptions"
+          nullOption="Select Category"
+        />
       </div>
     </section>
   </div>
 </template>
 
-<style lang="scss" scoped>
-@import '@/assets/scss/variables';
-
-.admin-right-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-
-  .save-changes {
-    display: flex;
-    flex-direction: column;
-    background-color: white;
-    border-radius: 5px;
-    padding: 2rem 2rem;
-
-    .btn {
-      padding: 2rem 3rem;
-      border-radius: 5px;
-      background-color: $green-800;
-      font-size: 1.4rem;
-      letter-spacing: 0.15rem;
-    }
-  }
-  .parent {
-    background-color: white;
-    border-radius: 5px;
-    padding: 2rem 2rem 4rem;
-
-    .content {
-      display: flex;
-      flex-direction: column;
-      gap: 3rem;
-
-      .name-permalink {
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        width: 100%;
-
-        .name,
-        .permalink {
-          flex: 1;
-        }
-      }
-    }
-  }
-
-  .sub-categories {
-    background-color: white;
-    border-radius: 5px;
-    padding: 2rem 2rem 4rem;
-
-    .admin-section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

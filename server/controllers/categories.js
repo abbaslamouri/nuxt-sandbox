@@ -1,30 +1,23 @@
-// const fetchAll = async (req, res) => {
-//   try {
-//     // xxx = 0
-//     // throw new Error('My Error', 400)
-//     // console.log(await useQuery(req))
-//     // const body = await useBody(req)
-//     const params = await useQuery(req)
-//     // console.log('Body', body)
-//     console.log('params', params)
-//     const id = req.url.split('/')[1]
-//     console.log(id)
-//     console.log('RM', req.method)
-//     const docs = await Category.find().populate('gallery')
+import errorHandler from '~/server/utils/errorHandler'
 
-//     // return docs
-//     // const doc = await Category.create(body)
-//     // const doc = await Category.find()
-//     // if (!doc) throw new Error(`We are not able to create a new document`, 404)
-//     // const docs = await Category.find()
-//     res.statusCode = 200
-//     return docs
-//   } catch (error) {
-//     console.log('ERR', error.message)
-//     res.statusCode = 400
-//     res.end(error.message)
-//     // return error
-//   }
-// }
+const fetchBySlug = async (Model, slug) => {
+  try {
+    const doc = await Model.find({ slug }).select('-createdAt -updatedAt -__v').populate({
+      model: 'Media',
+      path: 'gallery',
+      select: '-mimetype -createdAt -updatedAt -size -folder -__v',
+    })
+    if (!doc) {
+      const newError = new Error(`We are not able to create a new document`)
+      newError.customError = true
+      newError.statusCode = 404
+      throw newError
+    }
+    console.log('LLLLL', doc)
+    return doc.length ? doc[0] : {}
+  } catch (error) {
+    return errorHandler(error)
+  }
+}
 
-// export { fetchAll }
+export { fetchBySlug }

@@ -63,7 +63,6 @@
 
 <template>
 	<div class="categories">
-		{{ state }}===
 		<div v-if="state.totalCount" class="main">
 			<header>
 				<h3 class="title">Categories</h3>

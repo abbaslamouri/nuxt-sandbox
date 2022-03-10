@@ -1,204 +1,133 @@
 <script setup>
-	import slugify from 'slugify'
-	import { useMessage } from '~/store/useMessage'
-	import { useStore } from '~/store/useStore'
+import slugify from 'slugify'
 
-	useMeta({
-		title: 'Category | YRL',
-	})
-	definePageMeta({
-		layout: 'admin',
-	})
+useMeta({
+  title: 'Category | YRL',
+})
+definePageMeta({
+  layout: 'admin',
+})
 
-	const { state, fetchBySlug } = useFactory('categories')
-	provide('state', state)
+const { state, fetchAll, fetchBySlug, saveDoc } = useFactory('categories')
+provide('state', state)
+provide('fetchAll', fetchAll)
 
-	const store = useStore()
+const route = useRoute()
+const router = useRouter()
+const categories = ref([])
+const category = ref({})
+const galleryIntro = ref('This image gallery contains all images associated with this category.')
 
-	const route = useRoute()
-	const router = useRouter()
-	const appMessage = useMessage()
-	const categories = ref([])
-	const category = ref({})
-	const showMediaSelector = ref(false) // media selector toggler
-	const galleryIntro = ref('This image gallery contains all images associated with this category.')
+await fetchBySlug(route.params.slug)
 
-	// Set query params
-	const params = computed(() => {
-		return {
-			// fields: 'name, slug, permalink, decsription, parent, gallery',
-		}
-	})
+const saveCategory = async () => {
+  if (!state.value.doc.name) return (state.value.errorMsg = 'Category name is required')
+  state.value.doc.slug = slugify(state.value.doc.name, { lower: true })
+  if (!state.value.doc.permalink) state.value.doc.permalink = slugify(state.value.doc.name, { lower: true })
+  await saveDoc(state.value.doc)
+  router.push({ name: 'admin-ecommerce-categories' })
+}
 
-	// const fetchAll = async () => {
-	// 	appMessage.errorMsg = null
-	// 	try {
-	// 		const response = await $fetch('/api/v1/categories', { slug: params.value })
-	// 		categories.value = response.docs
-	// 		// console.log(response)
-	// 	} catch (error) {
-	// 		appMessage.errorMsg = error.data
-	// 	}
-	// }
+const handleNewMediaSelectBtnClicked = () => {
+  state.value.referenceMedia = 'categoryMedia'
+  state.value.showMediaSelector = true
+}
 
-	// Fetch all
-	// await fetchAll()
-	await fetchBySlug(route.params.slug)
+const selectMediaGallery = async (media) => {
+  if (!state.value.doc.gallery) state.value.doc.gallery = []
+  for (const prop in media) {
+    const index = state.value.doc.gallery.findIndex((el) => el._id === media[prop]._id)
+    if (index === -1) {
+      state.value.doc.gallery.push(media[prop])
+    }
+  }
+}
 
-	// Set category
-	// if (route.params.slug !== ' ') {
-	// 	category.value = categories.value.find((c) => c.slug == route.params.slug)
-	// } else {
-	// 	category.value = {
-	// 		name: '',
-	// 		gallery: [],
-	// 	}
-	// }
-
-	const currentCategory = JSON.stringify(category.value)
-
-	// Set category gallery
-	const selectMedia = async (event) => {
-		// console.log(event)
-		showMediaSelector.value = false
-		for (const prop in event) {
-			const index = category.value.gallery.findIndex((el) => el._id === event[prop]._id)
-			if (index === -1) {
-				category.value.gallery.push(event[prop])
-			}
-		}
-	}
-
-	// Save category
-	const saveCategory = async () => {
-		appMessage.errorMsg = null
-		appMessage.successMsg = null
-		// console.log(category.value._id)
-		try {
-			if (currentCategory !== JSON.stringify(category.value)) {
-				if (category.value._id) {
-					await $fetch('/api/v1/categories', {
-						method: 'PATCH',
-						params: { id: category.value._id },
-						body: category.value,
-					})
-				} else {
-					await $fetch('/api/v1/categories', { method: 'POST', body: category.value })
-				}
-				appMessage.successMsg = `Category ${category.value.name} saved succesfully`
-				router.push({ name: 'admin-ecommerce-categories' })
-			}
-		} catch (error) {
-			appMessage.errorMsg = error.data
-		}
-	}
-
-	//Upfate category details
-	const updateDetails = (event) => {
-		category.value.name = event.name
-		category.value.slug = slugify(category.value.name, { lower: true })
-		category.value.description = event.description
-		if (!event.permalink) {
-			category.value.permalink = slugify(category.value.name, { lower: true })
-		} else {
-			category.value.permalink = slugify(event.permalink, { lower: true })
-		}
-	}
-
-	const handleNewMediaSelectBtnClicked = () => {
-		store.referenceMedia = 'productMedia'
-		store.showMediaSelector = true
-	}
+watch(
+  () => state.value.selectedMedia,
+  (currentVal) => {
+    console.log(currentVal)
+    if (state.value.referenceMedia === 'categoryMedia') selectMediaGallery(currentVal)
+  },
+  { deep: true }
+)
 </script>
 
 <template>
-	<div class="category">
-		<NuxtLink class="link" :to="{ name: 'admin-ecommerce-categories' }">
-			<IconsArrowWest /><span>Category</span>
-		</NuxtLink>
-		<pre>{{ state.doc }}</pre>
-		<h3 class="header">Edit Category</h3>
-		<div class="columns">
-			<div class="left">
-				<EcommerceAdminCategoryDetails />
-				<!-- <EcommerceAdminImageGallery :galleryIntro="galleryIntro" @mediaSelectorClicked="showMediaSelector = true" /> -->
-				<EcommerceAdminImageGallery
-					:gallery="state.doc.gallery"
-					:galleryIntro="galleryIntro"
-					galleryType="product"
-					@newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
-				/>
-			</div>
-			<div class="right">
-				<EcommerceAdminCategoryRightNav
-					:categories="categories"
-					:category="category"
-					@parentCategorySelected="category.parent = $event"
-					@saveCategory="saveCategory"
-				/>
-			</div>
-		</div>
-		<!-- <div class="media-selector" v-if="showMediaSelector">
-			<LazyMediaUploader
-				@mediaSelected="selectMedia"
-				@mediaSelectCancel="showMediaSelector = false"
-				v-if="showMediaSelector"
-			/>
-		</div> -->
-	</div>
+  <div class="category">
+    <NuxtLink class="link" :to="{ name: 'admin-ecommerce-categories' }">
+      <IconsArrowWest /><span>Category</span>
+    </NuxtLink>
+    <!-- <pre>{{ state.doc }}</pre> -->
+    <h3 class="header">Edit Category</h3>
+    <div class="columns">
+      <div class="left">
+        <EcommerceAdminCategoryDetails />
+        <EcommerceAdminImageGallery
+          :gallery="state.doc.gallery"
+          :galleryIntro="galleryIntro"
+          galleryType="product"
+          @newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
+        />
+      </div>
+      <div class="right">
+        <EcommerceAdminCategoryRightNav :categories="categories" :category="category" @saveCategory="saveCategory" />
+      </div>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-	@import '@/assets/scss/variables';
+@import '@/assets/scss/variables';
 
-	.category {
-		width: 100%;
-		max-width: 1280px;
-		min-height: 100vh;
-		padding: 2rem;
-		display: flex;
-		flex-direction: column;
-		gap: 2rem;
+.category {
+  width: 100%;
+  max-width: 1280px;
+  min-height: 100vh;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 
-		.link {
-			display: flex;
-			align-items: center;
-			gap: 0.3rem;
+  .link {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
 
-			svg {
-				width: 1.8rem;
-				height: 1.8rem;
-			}
-		}
+    svg {
+      width: 1.8rem;
+      height: 1.8rem;
+    }
+  }
 
-		.columns {
-			display: grid;
-			grid-template-columns: 1fr 30rem;
-			gap: 2rem;
-			align-items: flex-start;
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 30rem;
+    gap: 2rem;
+    align-items: flex-start;
 
-			.left {
-				display: flex;
-				flex-direction: column;
-				gap: 3rem;
-			}
+    .left {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
 
-			.right {
-				position: sticky;
-				top: 10rem;
-				display: flex;
-				flex-direction: column;
-				gap: 2rem;
-			}
-		}
+    .right {
+      position: sticky;
+      top: 10rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+  }
 
-		.link {
-			font-weight: 500;
-			color: $slate-400;
+  .link {
+    font-weight: 500;
+    color: $slate-400;
 
-			&:hover {
-				color: $slate-800;
-			}
-		}
-	}
+    &:hover {
+      color: $slate-800;
+    }
+  }
+}
 </style>
