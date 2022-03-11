@@ -1,7 +1,7 @@
 <script setup>
 defineEmits(['deleteDocEmitted'])
 
-const state = inject('state')
+const store = inject('store')
 const showActionsKeys = ref([])
 
 const handleActionBtnClicked = (i) => {
@@ -15,8 +15,8 @@ const handleActionBtnClicked = (i) => {
 
 <template>
   <div class="shadow-md">
-    <div class="admin-category-list" v-if="state.totalCount">
-      <div class="table categories">
+    <div v-if="store.totalCount">
+      <div class="table admin-products">
         <div class="table__header text-sm py2 px3">
           <div class="row">
             <div class="th">Product</div>
@@ -27,30 +27,24 @@ const handleActionBtnClicked = (i) => {
           </div>
         </div>
         <div class="table__body bg-slate-50 px2">
-          <!-- <EcommerceAdminProductCard
-            v-for="product in products"
-            :key="product._id"
-            :product="product"
-            @itemToDeleteEmitted="deleteProduct"
-          /> -->
-          <!-- <EcommerceAdminCategoriesCategoryCard
-						v-for="(doc, index) in state.docs"
-						v-if="state.docs.length"
-						:doc="doc"
-						:index="index"
-						:showActionsKeys="showActionsKeys[index]"
-						:key="doc._id"
-						@actionBtnClicked="handleActionBtnClicked"
-						@deleteDocEmitted="$emit('deleteDocEmitted', $event)"
-					/>
-					<h2 v-else>There no items that match your criteria</h2> -->
+          <EcommerceAdminProductsProductCard
+            v-for="(doc, index) in store.docs"
+            v-if="store.docs.length"
+            :doc="doc"
+            :index="index"
+            :showActionsKeys="showActionsKeys[index]"
+            :key="doc._id"
+            @actionBtnClicked="handleActionBtnClicked"
+            @deleteDocEmitted="$emit('deleteDocEmitted', $event)"
+          />
+          <h2 v-else>There no items that match your criteria</h2>
         </div>
       </div>
     </div>
     <div v-else class="h60vh flex-row items-center justify-center shadow-md">
       <div class="empty-categories flex-col gap2 bg-slate-50 p4 br5">
         <h3 class="">Add your first physical or digital product</h3>
-        <div class="">Add your roduct and variants. Products must have at least a name and a price</div>
+        <div class="">Add your product and variants. Products must have at least a name and a price</div>
         <NuxtLink
           class="btn btn__primary btn__pill px3 py05 text-xs items-self-end"
           :to="{ name: 'admin-ecommerce-products-slug', params: { slug: ' ' } }"

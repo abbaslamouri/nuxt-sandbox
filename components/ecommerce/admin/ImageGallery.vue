@@ -1,12 +1,11 @@
 <script setup>
-import { useStore } from '~/store/useStore'
-import { useMessage } from '~/store/useMessage'
+// import { useStore } from '~/store/useStore'
 
 const props = defineProps({
-  // gallery: {
-  // 	type: Array,
-  // 	required: true,
-  // },
+  gallery: {
+    type: Array,
+    default: [],
+  },
   galleryIntro: {
     type: String,
   },
@@ -15,18 +14,28 @@ const props = defineProps({
   },
 })
 
-defineEmits(['mediaSelectorClicked', 'selectFromProductImages', 'newMediaSelectBtnClicked'])
+const emit = defineEmits([
+  'mediaSelectorClicked',
+  'galleryModified',
+  'selectFromProductImages',
+  'newMediaSelectBtnClicked',
+])
 
-const state = inject('state')
+// const state = inject('state')
 
-const store = useStore()
+// const store = useStore()
+const currentGallery = ref([])
 const draggableElements = ref([])
 const pickIndex = ref(null)
 const hoveredImage = ref(null)
 
+for (const prop in props.gallery) {
+  currentGallery.value[prop] = props.gallery[prop]
+}
+
 const mouseEnter = (event, index) => {
   event.target.classList.add('hovered')
-  hoveredImage.value = state.value.doc.gallery[index]
+  hoveredImage.value = currentGallery.value[index]
 }
 
 const mouseLeave = (event, index) => {
@@ -35,7 +44,7 @@ const mouseLeave = (event, index) => {
 }
 
 const removeGalleryImage = (index) => {
-  state.value.doc.gallery.splice(index, 1)
+  currentGallery.value.splice(index, 1)
 }
 
 const handleDragstart = (event, index) => {
@@ -57,23 +66,36 @@ const handleDragleave = (event) => {
   event.target.closest('.thumb').classList.remove('over')
 }
 const handleDrop = async (event, index) => {
-  const pickedElement = state.value.doc.gallery[pickIndex.value]
-  const droppedElement = state.value.doc.gallery[index]
-  state.value.doc.gallery[pickIndex.value] = droppedElement
-  state.value.doc.gallery[index] = pickedElement
+  const pickedElement = currentGallery.value[pickIndex.value]
+  const droppedElement = currentGallery.value[index]
+  currentGallery.value[pickIndex.value] = droppedElement
+  currentGallery.value[index] = pickedElement
   event.target.closest('.thumb').classList.remove('over')
 }
 
 const setFeaturedImage = (event) => {
   console.log(event.target, pickIndex.value)
-  // state.selectedItem.featuredImage = state.value.doc.gallery[pickIndex.value]
+  // state.selectedItem.featuredImage = currentGallery.value[pickIndex.value]
 }
+
+watch(
+  () => currentGallery.value,
+  (currentVal) => {
+    console.log(currentVal)
+    emit('galleryModified', currentGallery.value)
+  },
+  { deep: true }
+)
 </script>
 
 <template>
   <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
-    <header class="admin-section-header">Image Gallery</header>
-    <div class="content flex-col items-center gap2">
+    <div class="flex-row items-center justify-between text-sm mb1">
+      <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Image Gallery</div>
+      <div></div>
+    </div>
+    <!-- <header class="admin-section-header">Image Gallery</header> -->
+    <div class="flex-col flex-col items-center gap2">
       <div class="intro flex-row items-center gap1 bg-slate-200 py1 px2 br3 text-sm" v-if="galleryIntro">
         <IconsInfo class="w3 h3 fill-sky-600" />
         <p>{{ galleryIntro }}</p>
@@ -81,11 +103,11 @@ const setFeaturedImage = (event) => {
       <div class="bg-slate-200 br3 h4 flex-row items-center">
         <span class="px3" v-if="hoveredImage">{{ hoveredImage.name }}</span>
       </div>
-      <div class="gallery" v-if="state.doc.gallery && state.doc.gallery.length">
+      <div class="gallery" v-if="currentGallery && currentGallery.length">
         <div
           class="thumb shadow-md"
           :class="{ product: galleryType === 'product' || galleryType == 'variant' }"
-          v-for="(image, index) in state.doc.gallery"
+          v-for="(image, index) in currentGallery"
           :key="image._id"
           @dragover="handleDragover($event, index)"
           @drop="handleDrop($event, index)"
@@ -138,7 +160,6 @@ const setFeaturedImage = (event) => {
           <span> Select From Product Images </span>
         </button>
       </div>
-
       <p>PNG, JPG, and GIF Accepted</p>
     </div>
   </section>

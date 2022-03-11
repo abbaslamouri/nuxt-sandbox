@@ -64,7 +64,7 @@ const schema = new mongoose.Schema(
     // bodyBgImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
     // attributesImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
     // recipeImage: { type: mongoose.Schema.Types.ObjectId, ref: 'Media' },
-    type: {
+    productType: {
       type: String,
     },
     virtual: {

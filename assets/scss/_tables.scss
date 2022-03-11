@@ -77,6 +77,59 @@
   // 	}
   // }
 
+  &.admin-categories .row {
+    .th,
+    .td {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      // border: 1px solid red;
+
+      &:nth-of-type(1) {
+        grid-column: 1 / 6;
+      }
+      &:nth-of-type(2) {
+        grid-column: 6 / 12;
+      }
+      &:nth-of-type(3) {
+        grid-column: 12 / 20;
+      }
+      &:nth-of-type(4) {
+        grid-column: 20/ 25;
+        justify-self: flex-end;
+      }
+    }
+  }
+
+  &.admin-products .row {
+    .th,
+    .td {
+      // width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      // border: 1px solid red;
+      &:nth-of-type(1) {
+        grid-column: 1 / 13;
+      }
+      &:nth-of-type(2) {
+        grid-column: 13/ 16;
+      }
+      &:nth-of-type(3) {
+        grid-column: 16/ 18;
+      }
+      &:nth-of-type(4) {
+        grid-column: 18/ 22;
+      }
+      &:nth-of-type(5) {
+        grid-column: 22/ 25;
+        justify-self: flex-end;
+      }
+    }
+  }
+
   &.admin-product-attributes {
     .row {
       .th,
@@ -201,59 +254,6 @@
       &:nth-of-type(3) {
         grid-column: 18 / 25;
       }
-    }
-  }
-}
-
-.admin-product-list .table .row {
-  .th,
-  .td {
-    // width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
-    // border: 1px solid red;
-    &:nth-of-type(1) {
-      grid-column: 1 / 13;
-    }
-    &:nth-of-type(2) {
-      grid-column: 13/ 16;
-    }
-    &:nth-of-type(3) {
-      grid-column: 16/ 18;
-    }
-    &:nth-of-type(4) {
-      grid-column: 18/ 22;
-    }
-    &:nth-of-type(5) {
-      grid-column: 22/ 25;
-      justify-self: flex-end;
-    }
-  }
-}
-
-.admin-category-list .table .row {
-  .th,
-  .td {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
-    // border: 1px solid red;
-
-    &:nth-of-type(1) {
-      grid-column: 1 / 6;
-    }
-    &:nth-of-type(2) {
-      grid-column: 6 / 12;
-    }
-    &:nth-of-type(3) {
-      grid-column: 12 / 20;
-    }
-    &:nth-of-type(4) {
-      grid-column: 20/ 25;
-      justify-self: flex-end;
     }
   }
 }

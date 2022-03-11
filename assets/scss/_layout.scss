@@ -1,9 +1,13 @@
 /*****************************LAYOUT*******************************/
 
 .contain {
-	object-fit: contain;
+  object-fit: contain;
 }
 
 .cover {
-	object-fit: cover;
+  object-fit: cover;
+}
+
+.inline-block {
+  display: inline-block;
 }

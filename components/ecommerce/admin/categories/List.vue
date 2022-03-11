@@ -15,8 +15,8 @@ const handleActionBtnClicked = (i) => {
 
 <template>
   <div class="shadow-md">
-    <div class="admin-category-list" v-if="state.totalCount">
-      <div class="table categories">
+    <div v-if="state.totalCount">
+      <div class="table admin-categories">
         <div class="table__header text-sm py2 px3">
           <div class="row">
             <div class="th">Name</div>

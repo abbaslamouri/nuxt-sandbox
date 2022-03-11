@@ -5,6 +5,7 @@ import Model from '~/server/models/product'
 import User from '~/server/models/user'
 import errorHandler from '~/server/utils/errorHandler'
 import ApiFeatures from '~/server/utils/ApiFeatures'
+import { fetchBySlug } from '~/server/controllers/products'
 
 export default async (req, res) => {
   res.statusCode = 200
@@ -42,12 +43,22 @@ export default async (req, res) => {
     return true
   }
 
-  if (req.method === 'GET' && req.url.includes('/slug')) {
-    // console.log('PPPPP', params.slug)
-    const doc = await Model.find({ slug: params.slug })
-    // console.log('DDDDD', doc)
-    return doc.length ? doc[0] : null
+  if (req.method === 'GET' && params.slug) {
+    const doc = await fetchBySlug(Model, params.slug)
+    if (doc.statusCode && doc.statusCode != 200) {
+      res.statusCode = doc.statusCode
+      return doc.message
+    } else {
+      return doc
+    }
   }
+
+  // if (req.method === 'GET' && req.url.includes('/slug')) {
+  //   // console.log('PPPPP', params.slug)
+  //   const doc = await Model.find({ slug: params.slug })
+  //   // console.log('DDDDD', doc)
+  //   return doc.length ? doc[0] : null
+  // }
 
   if (req.method === 'GET') {
     let features

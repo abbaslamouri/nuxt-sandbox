@@ -49,11 +49,11 @@ const handleSearch = async (searchKeyword) => {
 }
 
 const deleteDoc = async (doc) => {
-  const categoryName = doc.name
+  const docName = doc.name
   await deleteById(doc._id)
   if (!state.value.errorMsg) {
     await fetchAll(params.value)
-    state.value.message = `Category ${categoryName} deleted succesfully`
+    state.value.message = `Category ${docName} deleted succesfully`
   }
 }
 </script>

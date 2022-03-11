@@ -1,21 +1,24 @@
 <script setup>
-import { useStore } from '~/store/useStore'
-const store = useStore()
+// import { useStore } from '~/store/useStore'
+// const store = useStore()
+const store = inject('store')
 </script>
 
 <template>
-  <section class="attributes-content shadow-md" id="attributes">
-    <header class="admin-section-header">
-      <p class="title">Attributes</p>
+  <section class="shadow-md wfull bg-white p2 br5" id="attributes">
+    <div class="flex-row items-center justify-between text-sm mb1">
+      <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Attributes</div>
       <button class="btn btn-heading" @click="store.showAttributesSlideout = true">
-        <span v-show="!store.product.attributes.length">Add</span>
-        <span v-show="store.product.attributes.length">Edit</span>
+        <span v-show="!store.doc.attributes.length">Add</span>
+        <span v-show="store.doc.attributes.length">Edit</span>
       </button>
-    </header>
-    <div class="content">
+    </div>
+    <div class="flex-col gap2">
+      content
+      <!-- <div class="content">
       <div>Different attributes for this product (e.g. size, color)</div>
       <div class="attributes">
-        <div class="attribute" v-for="attribute in store.product.attributes" :key="attribute.attribute._id">
+        <div class="attribute" v-for="attribute in store.doc.attributes" :key="attribute.attribute._id">
           <p class="attribute-name">{{ attribute.attribute.name }}:</p>
           <div class="terms">
             <div class="term" v-for="term in attribute.terms" :key="term._id">
@@ -24,8 +27,18 @@ const store = useStore()
           </div>
         </div>
       </div>
+    </div> -->
     </div>
   </section>
+  <!-- <section class="attributes-content shadow-md" id="">
+    <header class="admin-section-header">
+      <p class="title">Attributes</p>
+      <button class="btn btn-heading" @click="store.showAttributesSlideout = true">
+        <span v-show="!store.doc.attributes.length">Add</span>
+        <span v-show="store.doc.attributes.length">Edit</span>
+      </button>
+    </header>
+  </section> -->
 </template>
 
 <style lang="scss" scoped>

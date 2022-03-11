@@ -1,82 +1,91 @@
-const useFactory = (resource = '') => {
-	const state = useState('errorMsg', () => {
-		return {
-			docs: [],
-			doc: {},
-			count: 0,
-			totalCount: 0,
-			errorMsg: '',
-			message: '',
-			referenceMedia: '',
-			selectedMedia: [],
-			showAlert: false,
-			alertHeading: '',
-			alertParagraph: '',
-			alertAction: '',
-			showAlertCancelBtn: true,
-		}
-	})
+const useFactory = () => {
+  const state = useState('errorMsg', () => {
+    return {
+      docs: [],
+      doc: {},
+      count: 0,
+      totalCount: 0,
+      errorMsg: '',
+      message: '',
+      referenceMedia: '',
+      selectedMedia: [],
+      showAlert: false,
+      alertHeading: '',
+      alertParagraph: '',
+      alertAction: '',
+      showAlertCancelBtn: true,
+      showAttributesSlideout: false,
+    }
+  })
+  const errorMsg = useState('errorMsg', () => '')
+  const message = useState('message', () => '')
+  const alert = useState('alert', () => {
+    return {
+      showAlert: false,
+      alertHeading: '',
+      alertParagraph: '',
+      alertAction: '',
+      showAlertCancelBtn: true,
+      showAttributesSlideout: false,
+    }
+  })
 
-	const fetchAll = async (params) => {
-		state.value.errorMsg = null
-		state.value.message = null
-		try {
-			const response = await $fetch(`/api/v1/${resource}`, { params })
-			// console.log(response)
-			state.value.docs = response.docs
-			state.value.count = response.count
-			state.value.totalCount = response.totalCount
-		} catch (error) {
-			state.value.errorMsg = error.data
-		}
-	}
+  const fetchAllDocs = async (resource, params) => {
+    errorMsg.value = null
+    message.value = null
+    try {
+      const response = await $fetch(`/api/v1/${resource}`, { params })
+      return response
+    } catch (error) {
+      errorMsg.value = error.data
+    }
+  }
 
-	const fetchBySlug = async (slug) => {
-		state.value.errorMsg = null
-		state.value.message = null
-		try {
-			const response = await $fetch(`/api/v1/${resource}`, { params: { slug } })
-			// console.log(response)
-			state.value.doc = response
-		} catch (error) {
-			state.value.errorMsg = error.data
-		}
-	}
+  const fetchBySlug = async (resource, slug) => {
+    errorMsg.value = null
+    message.value = null
+    try {
+      const response = await $fetch(`/api/v1/${resource}`, { params: { slug } })
+      return response
+    } catch (error) {
+      errorMsg.value = error.data
+    }
+  }
 
-	const saveDoc = async (doc) => {
-		state.value.errorMsg = null
-		state.value.message = null
-		// console.log('KKKKKK', resource)
-		try {
-			if (doc._id) {
-				await $fetch(`/api/v1/${resource}`, {
-					method: 'PATCH',
-					params: { id: doc._id },
-					body: doc,
-				})
-			} else {
-				await $fetch(`/api/v1/${resource}`, { method: 'POST', body: doc })
-			}
-			state.valuemessage = `Category ${doc.name} saved succesfully`
-		} catch (error) {
-			state.value.errorMsg = error.data
-		}
-	}
+  const saveDoc = async (resource, doc) => {
+    errorMsg.value = null
+    message.value = null
+    // console.log('KKKKKK', resource)
+    try {
+      if (doc._id) {
+        await $fetch(`/api/v1/${resource}`, {
+          method: 'PATCH',
+          params: { id: doc._id },
+          body: doc,
+        })
+      } else {
+        await $fetch(`/api/v1/${resource}`, { method: 'POST', body: doc })
+      }
+      message.value = `Category ${doc.name} saved succesfully`
+    } catch (error) {
+      errorMsg.value = error.data
+    }
+  }
 
-	const deleteById = async (docId) => {
-		state.value.errorMsg = null
-		state.value.message = null
-		try {
-			await $fetch(`/api/v1/${resource}`, {
-				method: 'DELETE',
-				params: { id: docId },
-			})
-		} catch (err) {
-			state.value.errorMsg = err.data
-		}
-	}
+  const deleteById = async (resource, docId) => {
+    errorMsg.value = null
+    message.value = null
+    try {
+      await $fetch(`/api/v1/${resource}`, {
+        method: 'DELETE',
+        params: { id: docId },
+      })
+    } catch (err) {
+      errorMsg.value = err.data
+    }
+  }
 
-	return { state, fetchAll, saveDoc, fetchBySlug, deleteById }
+  return { state, errorMsg, message, alert, fetchAllDocs, saveDoc, fetchBySlug, deleteById }
 }
 
 export default useFactory

@@ -1,5 +1,5 @@
 <script setup>
-import { useMessage } from '~/store/useMessage'
+// import { useMessage } from '~/store/useMessage'
 
 useMeta({
   title: 'Products | YRL',
@@ -8,16 +8,16 @@ definePageMeta({
   layout: 'admin',
 })
 
-const { state, fetchAll, deleteSingle } = useProduct()
+// const { store, fetchAll, deleteSingle } = useProduct()
 
-// const { state, fetchAll, deleteById } = useFactory('products')
-// provide('state', state)
-// provide('deleteById', deleteById)
+const { store, fetchAll, deleteById } = useStore()
+provide('store', store)
+provide('deleteById', deleteById)
 
-const appMessage = useMessage()
-const products = ref([])
-const count = ref(null) // item count taking into account params
-const totalCount = ref(null) // Total item count in the database
+// const appMessage = useMessage()
+// const products = ref([])
+// const count = ref(null) // item count taking into account params
+// const totalCount = ref(null) // Total item count in the database
 const keyword = ref(null)
 const page = ref(1)
 const perPage = ref(6)
@@ -25,7 +25,9 @@ const sortField = ref('createdAt')
 const sortOrder = ref('-')
 
 const pages = computed(() =>
-  count.value % perPage.value ? parseInt(count.value / perPage.value) + 1 : parseInt(count.value / perPage.value)
+  store.value.count % perPage.value
+    ? parseInt(store.value.count / perPage.value) + 1
+    : parseInt(store.value.count / perPage.value)
 )
 
 // Set query params
@@ -39,50 +41,59 @@ const params = computed(() => {
   }
 })
 
-// Fetch all
-const updateProducts = async () => {
-  const response = await fetchAll(params.value)
-  if (state.errorMsg) {
-    appMessage.errorMsg = state.errorMsg
-  } else {
-    products.value = response.docs
-    count.value = response.count
-    totalCount.value = response.totalCount
-  }
-}
-
-// Search
-const handleSearch = async (event) => {
-  keyword.value = event
-  page.value = 1
-  await updateProducts()
-}
+await fetchAll(params.value)
 
 // Set current page
 const setPage = async (currentPage) => {
   page.value = currentPage
-  await updateProducts()
+  await fetchAll()
 }
 
-// Delete product
-const deleteProduct = async (id) => {
-  await deleteSingle(id)
-  if (state.errorMsg) {
-    appMessage.errorMsg = state.errorMsg
-  } else {
-    appMessage.successMsg = 'Product deleted succesfully'
-    await updateProducts()
-  }
+// Fetch all
+// const fetchAll = async () => {
+//   const response = await fetchAll(params.value)
+//   if (store.errorMsg) {
+//     appMessage.errorMsg = store.errorMsg
+//   } else {
+//     products.value = response.docs
+//     store.value.count = response.count
+//     totalstore.value.Count = response.totalCount
+//   }
+// }
+
+const handleSearch = async (searchKeyword) => {
+  keyword.value = searchKeyword
+  page.value = 1
+  await fetchAll(params.value)
 }
 
-await updateProducts()
+// // Search
+// const handleSearch = async (event) => {
+//   keyword.value = event
+//   page.value = 1
+//   await fetchAll()
+// }
+
+// // Delete product
+// const deleteProduct = async (id) => {
+//   await deleteSingle(id)
+//   if (store.errorMsg) {
+//     appMessage.errorMsg = store.errorMsg
+//   } else {
+//     appMessage.successMsg = 'Product deleted succesfully'
+//     await fetchAll()
+//   }
+// }
+
+// await fetchAll()
 
 const deleteDoc = async (doc) => {
-  const categoryName = doc.name
+  const docName = doc.name
   await deleteById(doc._id)
-  if (!state.value.errorMsg) {
+  if (!store.value.errorMsg) {
     await fetchAll(params.value)
-    state.value.message = `Category ${categoryName} deleted succesfully`
+    store.value.message = `Category ${docName} deleted succesfully`
+    // ******Need to delete variants
   }
 }
 </script>
@@ -101,10 +112,10 @@ const deleteDoc = async (doc) => {
     </header>
     <main class="flex1 max-width-130 wfull flex-col gap3">
       <div class="content shadow-md bg-slate-200 flex-col br5">
-        <div class="border-b-slate-300 p2" v-if="state.totalCount">
+        <div class="border-b-slate-300 p2" v-if="store.totalCount">
           <Search @searchKeywordSelected="handleSearch" />
         </div>
-        <!-- <EcommerceAdminProductsList @deleteDocEmitted="deleteDoc" /> -->
+        <EcommerceAdminProductsList @deleteDocEmitted="deleteDoc" />
       </div>
     </main>
     <footer class="wfull max-width-130">
