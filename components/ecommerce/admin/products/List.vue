@@ -19,34 +19,41 @@ const handleActionBtnClicked = (i) => {
       <div class="table categories">
         <div class="table__header text-sm py2 px3">
           <div class="row">
-            <div class="th">Name</div>
-            <div class="th">Slug</div>
-            <div class="th">Parent</div>
+            <div class="th">Product</div>
+            <div class="th">Stock Qty.</div>
+            <div class="th">Orders</div>
+            <div class="th">Sales</div>
             <div class="th">actions</div>
           </div>
         </div>
         <div class="table__body bg-slate-50 px2">
-          <EcommerceAdminCategoriesCategoryCard
-            v-for="(doc, index) in state.docs"
-            v-if="state.docs.length"
-            :doc="doc"
-            :index="index"
-            :showActionsKeys="showActionsKeys[index]"
-            :key="doc._id"
-            @actionBtnClicked="handleActionBtnClicked"
-            @deleteDocEmitted="$emit('deleteDocEmitted', $event)"
-          />
-          <h2 v-else>There no items that match your criteria</h2>
+          <!-- <EcommerceAdminProductCard
+            v-for="product in products"
+            :key="product._id"
+            :product="product"
+            @itemToDeleteEmitted="deleteProduct"
+          /> -->
+          <!-- <EcommerceAdminCategoriesCategoryCard
+						v-for="(doc, index) in state.docs"
+						v-if="state.docs.length"
+						:doc="doc"
+						:index="index"
+						:showActionsKeys="showActionsKeys[index]"
+						:key="doc._id"
+						@actionBtnClicked="handleActionBtnClicked"
+						@deleteDocEmitted="$emit('deleteDocEmitted', $event)"
+					/>
+					<h2 v-else>There no items that match your criteria</h2> -->
         </div>
       </div>
     </div>
     <div v-else class="h60vh flex-row items-center justify-center shadow-md">
       <div class="empty-categories flex-col gap2 bg-slate-50 p4 br5">
-        <h3 class="">Add categories and subcategories</h3>
-        <div class="">Create nested product categories with category images and descriptions</div>
+        <h3 class="">Add your first physical or digital product</h3>
+        <div class="">Add your roduct and variants. Products must have at least a name and a price</div>
         <NuxtLink
           class="btn btn__primary btn__pill px3 py05 text-xs items-self-end"
-          :to="{ name: 'admin-ecommerce-categories-slug', params: { slug: ' ' } }"
+          :to="{ name: 'admin-ecommerce-products-slug', params: { slug: ' ' } }"
         >
           <IconsPlus class="w2 h2" />
           <span>Add</span>

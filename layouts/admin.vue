@@ -24,15 +24,12 @@ if (process.client) {
         <AdminNav />
       </aside>
     </transition>
-    <main class="flex1" :class="{ full: !showAdminSidebar }">
+    <main class="" :class="{ full: !showAdminSidebar }">
       <header class="flex-row items-center justify-between px2 text-slate-50">
         <MobileNavToggler @hideAdminSidebar="showAdminSidebar = !showAdminSidebar" />
-        <div class="profile-cart">
-          <div class="profile">
-            <LoginDropdown v-if="!auth.authenticated" />
-            <ProfileDropdown v-else />
-          </div>
-          <!-- <NavCart /> -->
+        <div>
+          <LoginDropdown v-if="!auth.authenticated" />
+          <ProfileDropdown v-else />
         </div>
       </header>
       <div class="content">
@@ -56,26 +53,33 @@ if (process.client) {
   }
 
   main {
+    flex: 1;
     transition: all 0.2s ease;
-    // border: 1px solid red;
+    display: flex;
+    flex-direction: column;
+    // justify-content: space-between;
     header {
       position: sticky;
       top: 0;
       height: 6rem;
       background-color: $stone-900;
+      z-index: 1;
+      // border: 3px solid red;
     }
 
     .content {
       flex: 1;
-      min-height: 90vh;
+      // min-height: 90vh;
+      width: 100%;
       background-color: $slate-100;
       // border: 10px solid yellow;
-      display: flex;
+      // display: flex;
     }
 
     footer {
       background-color: $stone-900;
       height: 6rem;
+      // border: 3px solid red;
     }
   }
 

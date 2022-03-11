@@ -10,6 +10,10 @@ definePageMeta({
 
 const { state, fetchAll, deleteSingle } = useProduct()
 
+// const { state, fetchAll, deleteById } = useFactory('products')
+// provide('state', state)
+// provide('deleteById', deleteById)
+
 const appMessage = useMessage()
 const products = ref([])
 const count = ref(null) // item count taking into account params
@@ -72,23 +76,57 @@ const deleteProduct = async (id) => {
 }
 
 await updateProducts()
+
+const deleteDoc = async (doc) => {
+  const categoryName = doc.name
+  await deleteById(doc._id)
+  if (!state.value.errorMsg) {
+    await fetchAll(params.value)
+    state.value.message = `Category ${categoryName} deleted succesfully`
+  }
+}
 </script>
 
+<!-- <template> -->
 <template>
-  <div class="admin-products">
-    <header>
+  <div class="hfull flex-col items-center gap2 p3">
+    <header class="flex-row items-center justify-between wfull max-width-130">
       <h3 class="title">Products</h3>
       <NuxtLink class="link" :to="{ name: 'admin-ecommerce-products-slug', params: { slug: ' ' } }">
-        <button class="btn btn-primary">
-          <IconsPlus />
+        <button class="btn btn__primary btn__pill px2 py05 text-xs">
+          <IconsPlus class="w2 h2" />
           <span>Add</span>
         </button>
       </NuxtLink>
     </header>
-    <div class="main" v-if="products.length">
+    <main class="flex1 max-width-130 wfull flex-col gap3">
+      <div class="content shadow-md bg-slate-200 flex-col br5">
+        <div class="border-b-slate-300 p2" v-if="state.totalCount">
+          <Search @searchKeywordSelected="handleSearch" />
+        </div>
+        <!-- <EcommerceAdminProductsList @deleteDocEmitted="deleteDoc" /> -->
+      </div>
+    </main>
+    <footer class="wfull max-width-130">
+      <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" />
+    </footer>
+  </div>
+</template>
+
+<!-- <div class="admin-products"> -->
+<!-- <header> -->
+<!-- <h3 class="title">Products</h3> -->
+<!-- <NuxtLink class="link" :to="{ name: 'admin-ecommerce-products-slug', params: { slug: ' ' } }">
+        <button class="btn btn-primary">
+          <IconsPlus />
+          <span>Add</span>
+        </button>
+      </NuxtLink> -->
+<!-- </header> -->
+<!-- <div class="main" v-if="products.length">
       <div class="content">
-        <Search @searchKeywordSelected="handleSearch" />
-        <div class="admin-product-list">
+        <Search @searchKeywordSelected="handleSearch" /> -->
+<!-- <div class="admin-product-list">
           <div class="table">
             <div class="table__header">
               <div class="row">
@@ -108,13 +146,13 @@ await updateProducts()
               />
             </div>
           </div>
-        </div>
-      </div>
-      <footer>
-        <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" />
-      </footer>
-    </div>
-    <div class="admin-no-products" v-else>
+        </div> -->
+<!-- </div> -->
+<!-- <footer> -->
+<!-- <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" /> -->
+<!-- </footer> -->
+<!-- </div> -->
+<!-- <div class="admin-no-products" v-else>
       <div class="inner">
         <h3 class="">Add your first physical or digital product</h3>
         <div class="">Add your roduct and variants. Products must have at least a name and a price</div>
@@ -125,9 +163,9 @@ await updateProducts()
           </button>
         </NuxtLink>
       </div>
-    </div>
-  </div>
-</template>
+    </div> -->
+<!-- </div> -->
+<!-- </template> -->
 
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';

@@ -42,14 +42,14 @@ const handleItemQuantitySelected = (event, i) => {
         </NuxtLink>
       </div>
       <div class="flex-row wrap">
-        <EcommerceProductsProductCard
+        <!-- <EcommerceProductsProductCard
           v-for="(product, i) in products"
           :key="product._id"
           :product="product"
           :listType="listType"
           @itemQuantitySelected="handleItemQuantitySelected($event, i)"
           :showSelectQty="showSelectQtys[i]"
-        />
+        /> -->
       </div>
     </div>
   </div>

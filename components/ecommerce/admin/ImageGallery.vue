@@ -70,9 +70,6 @@ const setFeaturedImage = (event) => {
 }
 </script>
 
-display: flex; align-items: center; gap: 1rem; background-color: $sky-100; padding: 1rem 2rem; border-radius: 5px;
-font-size: 80%;
-
 <template>
   <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
     <header class="admin-section-header">Image Gallery</header>
@@ -243,11 +240,11 @@ font-size: 80%;
         }
       }
 
-      &__tooltip {
-        grid-column: 1 / 4;
-        grid-row: 1 / 2;
-        opacity: 0;
-      }
+      // &__tooltip {
+      //   grid-column: 1 / 4;
+      //   grid-row: 1 / 2;
+      //   opacity: 0;
+      // }
 
       &:first-child {
         grid-column: span 2 / span 2;

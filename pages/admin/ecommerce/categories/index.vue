@@ -12,7 +12,7 @@ provide('deleteById', deleteById)
 
 const keyword = ref(null)
 const page = ref(1)
-const perPage = ref(6)
+const perPage = ref(3)
 const sortField = ref('createdAt')
 const sortOrder = ref('-')
 
@@ -59,14 +59,14 @@ const deleteDoc = async (doc) => {
 </script>
 
 <template>
-  <div class="flex1 flex-col items-center gap2 p2">
+  <div class="hfull flex-col items-center gap2 p3">
     <header class="flex-row items-center justify-between wfull max-width-130">
       <h3 class="title">Categories</h3>
       <NuxtLink class="link" :to="{ name: 'admin-ecommerce-categories-slug', params: { slug: ' ' } }">
         <button class="btn btn__primary btn__pill px2 py05 text-xs"><IconsPlus class="w2 h2" /><span>Add</span></button>
       </NuxtLink>
     </header>
-    <main class="flex1 wfull max-width-130 flex-col gap3">
+    <main class="flex1 max-width-130 wfull flex-col gap3">
       <div class="content shadow-md bg-slate-200 flex-col br5">
         <div class="border-b-slate-300 p2" v-if="state.totalCount">
           <Search @searchKeywordSelected="handleSearch" />
@@ -80,6 +80,4 @@ const deleteDoc = async (doc) => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-@import '@/assets/scss/variables';
-</style>
+<style lang="scss" scoped></style>

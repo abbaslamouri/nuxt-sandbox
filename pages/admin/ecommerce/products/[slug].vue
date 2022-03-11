@@ -93,9 +93,9 @@
 
 <template>
 	<div class="product-details">
-		<Html>
+		<!-- <Html>
 			<Head><Title>Product</Title></Head>
-		</Html>
+		</Html> -->
 
 		<div class="go-back" id="product-go-back">
 			<NuxtLink class="link" :to="{ name: 'admin-ecommerce-products' }">

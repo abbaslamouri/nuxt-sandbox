@@ -89,12 +89,86 @@ export default {
 @import '@/assets/scss/variables';
 
 .base-input {
+  position: relative;
+  --size: 0.5em;
+  border-radius: 0.25rem;
+  border: 1px solid $slate-200;
+  box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
+  background-color: white;
+  height: 5rem;
+  // z-index: 0;
   width: v-bind(inputWidth);
 
+  cursor: text;
+
+  .currency {
+    position: absolute;
+    top: 2rem;
+    font-size: 80%;
+    left: 2rem;
+  }
+
   input {
+    display: inline-block;
+    padding: 2rem 1rem 1rem 2rem;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+
+    &.currency-input {
+      padding: 2rem 1rem 1rem 3rem;
+    }
+
+    &.invalid {
+      &:focus {
+        border: 3px solid $red-200;
+      }
+    }
+
+    &:focus {
+      border: 3px solid $sky-200;
+
+      &:placeholder-shown + label {
+        transform: translateY(-0.5rem);
+        font-size: 80%;
+      }
+
+      & + label {
+        transform: translateY(-0.5rem);
+        font-size: 80%;
+      }
+    }
+
     &::placeholder {
       color: v-bind(placeholderColor);
     }
+
+    // &::placeholder {
+    //   color: v-bind(placeholderColor);
+    // }
+
+    &:placeholder-shown + label {
+      transform: translateY(0.75rem);
+    }
+  }
+
+  label {
+    position: absolute;
+    top: 0.75rem;
+    left: 2rem;
+    font-size: 80%;
+    color: lighten($color: $color-primary, $amount: 50);
+    transition: all 0.3s ease;
+    transform: translateY(-0.5rem);
+    cursor: text;
+  }
+
+  .hint {
+    position: absolute;
+    color: $slate-600;
+    bottom: -2rem;
+    left: 1rem;
+    font-size: 80%;
   }
 }
 </style>
