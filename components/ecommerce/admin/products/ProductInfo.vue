@@ -1,5 +1,5 @@
 <script setup>
-const store = inject('store')
+const { product } = useStore()
 </script>
 
 <template>
@@ -9,7 +9,7 @@ const store = inject('store')
       <div></div>
     </div>
     <div class="flex-col gap2">
-      <FormsBaseInput label="Name" placeholder="Name" required v-model="store.doc.name" />
+      <FormsBaseInput label="Name" placeholder="Name" required v-model="product.name" />
       <FormsBaseSelect
         nullOption="Select Product Type"
         label="Product Type"
@@ -17,18 +17,18 @@ const store = inject('store')
           { key: 'variable', name: 'Variable' },
           { key: 'simple', name: 'Simple' },
         ]"
-        v-model="store.doc.productType"
+        v-model="product.productType"
       />
       <div class="flex-row gap2 items-center">
         <div class="flex1">
-          <FormsBaseInput label="SKU" placeholder="SKU" v-model="store.doc.sku" />
+          <FormsBaseInput label="SKU" placeholder="SKU" v-model="product.sku" />
         </div>
         <div class="text-sm">
           <div class="flex-row gap1">
             <h4>Available Stock:</h4>
-            <span>{{ store.doc.stockQty || 0 }}</span>
+            <span>{{ product.stockQty || 0 }}</span>
           </div>
-          <FormsBaseToggle v-model="store.doc.manageInventory" label="Manage Inventory" />
+          <FormsBaseToggle v-model="product.manageInventory" label="Manage Inventory" />
         </div>
       </div>
     </div>

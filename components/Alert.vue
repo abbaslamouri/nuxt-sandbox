@@ -2,7 +2,7 @@
 defineProps({
   outerBoxWidth: {
     type: Number,
-    default: 40,
+    default: 50,
   },
   outerBoxHeight: {
     type: Number,
@@ -23,7 +23,7 @@ defineEmits(['cancel', 'ok'])
 </script>
 
 <template>
-  <div class="alert">
+  <div class="alert text-sm">
     <div class="overlay"></div>
     <div class="wrapper" @click.self="$emit('cancel')">
       <div class="content" :style="{ width: `${outerBoxWidth}%`, 'min-height': `${outerBoxHeight}%` }">
@@ -66,7 +66,7 @@ defineEmits(['cancel', 'ok'])
       text-align: center;
       line-height: 2.5rem;
       letter-spacing: 0.1rem;
-      font-size: 1.5rem;
+      // font-size: 1.5rem;
 
       footer {
         display: flex;

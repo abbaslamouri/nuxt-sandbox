@@ -18,6 +18,8 @@ const useStore = () => {
     }
   })
 
+  const product = useState('product', () => {})
+
   const fetchAll = async (params) => {
     store.value.errorMsg = null
     store.value.message = null
@@ -78,7 +80,7 @@ const useStore = () => {
     }
   }
 
-  return { store, fetchAll, saveDoc, fetchBySlug, deleteById }
+  return { product, store, fetchAll, saveDoc, fetchBySlug, deleteById }
 }
 
 export default useStore

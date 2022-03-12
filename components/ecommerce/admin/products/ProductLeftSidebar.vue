@@ -1,5 +1,5 @@
 <script setup>
-const store = inject('store')
+const { product } = useStore()
 </script>
 
 <template>
@@ -9,8 +9,8 @@ const store = inject('store')
     <li><a href="#image-gallery">Image Gallery</a></li>
 
     <li><a href="#details">Details</a></li>
-    <li v-if="store.doc._id"><a href="#attributes">Attributes</a></li>
-    <li v-if="store.doc._id && store.doc.attributes.length"><a href="#variants">Variants</a></li>
+    <li v-if="product._id"><a href="#attributes">Attributes</a></li>
+    <li v-if="product._id && product.attributes.length"><a href="#variants">Variants</a></li>
     <li><a href="#shipping-options">Shipping Options</a></li>
     <li><a href="#digital-delivery">Digital Delivery</a></li>
     <li><a href="#extra-fields">Extra Fields</a></li>

@@ -7,13 +7,20 @@
 // const appMessage = useMessage()
 
 const { store } = useStore()
+const { message, errorMsg, alert, alertHeading, alertParagraph } = useFactory()
 // const {store} = useStore()
 
 const hideSnackbar = () => {
-  store.value.errorMsg = null
-  store.value.message = null
-  // if (process.client && localStorage.getItem('cart')) cart= localStorage.getItem('cart')
-  // console.log('CC', cart)
+  errorMsg.value = null
+  message.value = null
+}
+
+const cancelAlert = () => {
+  alert.value = { show: false, heading: '', paragraph: '', action: '' }
+}
+
+const proceedAlert = () => {
+  // alert.value = { show: 'ok', heading: '', paragraph: '', action: alert.value.action }
 }
 
 // const setSelectedMedia = (event) => {
@@ -44,29 +51,24 @@ const hideSnackbar = () => {
       </transition>
       <client-only></client-only>
       <SnackBar
-        :show="!!store.errorMsg || !!store.message"
-        :message="store.errorMsg ? store.errorMsg : store.message ? store.message : ''"
-        :snackbarType="store.errorMsg ? 'Error' : 'Success'"
-        duration="5"
+        :show="!!errorMsg || !!message"
+        :message="errorMsg ? errorMsg : message ? message : ''"
+        :snackbarType="errorMsg ? 'Error' : 'Success'"
+        duration="0"
         @hideSnackbar="hideSnackbar"
       />
 
       <!-- <SnackBar
-				:show="!!store.message"
-				:message="store.message"
+				:show="!!message"
+				:message="message"
 				snackbarType="Success"
 				duration="0"
-				@hideSnackbar="store.message = null"
+				@hideSnackbar="message = null"
 			/> -->
 
-      <Alert
-        v-if="store.showAlert"
-        @ok="store.showAlert = 'ok'"
-        @cancel="store.showAlert = false"
-        :showCancelBtn="store.showAlertCancelBtn"
-      >
-        <h3>{{ store.alertHeading }}</h3>
-        <p>{{ store.alertParagraph }}</p>
+      <Alert v-if="alert.show" @ok="alert.show = 'ok'" @cancel="cancelAlert" :showCancelBtn="alert.showCancelBtn">
+        <h3>{{ alert.heading }}</h3>
+        <p>{{ alert.paragraph }}</p>
       </Alert>
 
       <div class="media-selector" v-if="store.showMediaSelector">

@@ -40,7 +40,7 @@ const proceed = () => {
     <div class="td">{{ doc.slug }}</div>
     <div class="td" v-if="doc.parent">{{ doc.parent.name }}</div>
     <div class="td" v-else>-</div>
-    <div class="td flex-row justify-end gap1 minw-12">
+    <div class="td flex-row justify-end gap1 minw12">
       <div class="menu shadow-md p1 border border-stone-300 font-bold" v-if="showActionsKeys">
         <NuxtLink class="link" :to="{ name: 'admin-ecommerce-categories-slug', params: { slug: doc.slug } }">
           Edit

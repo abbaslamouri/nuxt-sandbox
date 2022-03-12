@@ -1,5 +1,5 @@
 <script setup>
-const store = inject('store')
+const { product } = useStore()
 </script>
 
 <template>
@@ -9,14 +9,14 @@ const store = inject('store')
       <div></div>
     </div>
     <div class="flex-col gap2">
-      <FormsBaseTextarea v-model="store.doc.excerpt" label="Excerpt" placeholder="Excerpt" rows="2" />
-      <FormsBaseTextarea v-model="store.doc.description" label="Description" placeholder="Description" rows="4" />
+      <FormsBaseTextarea v-model="product.excerpt" label="Excerpt" placeholder="Excerpt" rows="2" />
+      <FormsBaseTextarea v-model="product.description" label="Description" placeholder="Description" rows="4" />
       <div class="flex-row gap2">
         <div>
-          <FormsBaseInput type="number" label="Intensity" placeholder="Intensity" v-model="store.doc.intensity" />
+          <FormsBaseInput type="number" label="Intensity" placeholder="Intensity" v-model="product.intensity" />
         </div>
         <div class="flex1">
-          <FormsBaseInput label="Roastiness" placeholder="Roastiness" v-model="store.doc.roastiness" />
+          <FormsBaseInput label="Roastiness" placeholder="Roastiness" v-model="product.roastiness" />
         </div>
       </div>
     </div>

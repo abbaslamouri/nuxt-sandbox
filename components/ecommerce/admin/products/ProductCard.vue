@@ -40,7 +40,7 @@ const proceed = () => {
     <div class="stock td">{{ doc.stockQty }}</div>
     <div class="stock td">{{ doc.orders }}</div>
     <div class="stock td">{{ doc.sales }}</div>
-    <div class="td flex-row justify-end gap1 minw-12">
+    <div class="td flex-row justify-end gap1 minw12">
       <div class="menu shadow-md p1 border border-stone-300 font-bold" v-if="showActionsKeys">
         <NuxtLink class="link" :to="{ name: 'admin-ecommerce-products-slug', params: { slug: doc.slug } }">
           Edit

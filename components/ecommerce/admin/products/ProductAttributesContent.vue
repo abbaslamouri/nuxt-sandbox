@@ -1,16 +1,17 @@
 <script setup>
 // import { useStore } from '~/store/useStore'
 // const store = useStore()
-const store = inject('store')
+defineEmits(['showAttributesSlideout'])
+const { product } = useStore()
 </script>
 
 <template>
   <section class="shadow-md wfull bg-white p2 br5" id="attributes">
     <div class="flex-row items-center justify-between text-sm mb1">
       <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Attributes</div>
-      <button class="btn btn-heading" @click="store.showAttributesSlideout = true">
-        <span v-show="!store.doc.attributes.length">Add</span>
-        <span v-show="store.doc.attributes.length">Edit</span>
+      <button class="btn btn-heading" @click="$emit('showAttributesSlideout', true)">
+        <span v-show="!product.attributes.length">Add</span>
+        <span v-show="product.attributes.length">Edit</span>
       </button>
     </div>
     <div class="flex-col gap2">
@@ -18,7 +19,7 @@ const store = inject('store')
       <!-- <div class="content">
       <div>Different attributes for this product (e.g. size, color)</div>
       <div class="attributes">
-        <div class="attribute" v-for="attribute in store.doc.attributes" :key="attribute.attribute._id">
+        <div class="attribute" v-for="attribute in product.attributes" :key="attribute.attribute._id">
           <p class="attribute-name">{{ attribute.attribute.name }}:</p>
           <div class="terms">
             <div class="term" v-for="term in attribute.terms" :key="term._id">
@@ -34,8 +35,8 @@ const store = inject('store')
     <header class="admin-section-header">
       <p class="title">Attributes</p>
       <button class="btn btn-heading" @click="store.showAttributesSlideout = true">
-        <span v-show="!store.doc.attributes.length">Add</span>
-        <span v-show="store.doc.attributes.length">Edit</span>
+        <span v-show="!product.attributes.length">Add</span>
+        <span v-show="product.attributes.length">Edit</span>
       </button>
     </header>
   </section> -->

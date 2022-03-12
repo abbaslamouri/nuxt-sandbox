@@ -1,32 +1,23 @@
 <script setup>
-// import { useStore } from '~/store/useStore'
-import { useMessage } from '~/store/useMessage'
-
 defineEmits(['saveVariants', 'slideoutEventEmitted'])
 
-// const { store: attstore, fetchAll: fetchAtts } = useAttribute()
-// const { store: attTermstore, fetchAll: fetchAttTerms } = useAttributeTerm()
-// provide('attstore'.attstore)
-// provide('attTermstore'.attTermstore)
-
-const store = inject('store')
+// const store = inject('store')
+const { product } = useStore()
+const { errorMsg, fetchAll } = useFactory()
 
 // const { store, fetchAttributes, fetchAttributeTerms } = useProduct()
 // const saveProduct = inject('saveProduct')
 
 // const store = useStore()
-const appMessage = useMessage()
 const showAlert = ref(false)
+const showActionKeys = ref([])
 const showDeleteAllAttributesAlert = ref(false)
 const deletedTerms = ref([])
 const current = ref(null)
 let response = null
 
-response = await $fetch(`/api/v1/attributes`, { fields: 'name, slug' })
-const allAttributes = response.docs
-
-response = await $fetch(`/api/v1/attributeterms`, { fields: 'name, slug, parent' })
-const allAttributeTerms = response.docs
+const allAttributes = (await $fetch(`/api/v1/attributes`, { fields: 'name, slug' })).docs
+const allAttributeTerms = (await $fetch(`/api/v1/attributeterms`, { fields: 'name, slug, parent' })).docs
 
 //     variantParams: {
 //       fields: 'product, attrTerms, gallery, price, salePrice, sku, stockQty, enabled',
@@ -54,7 +45,7 @@ console.log(allAttributeTerms)
 // 	store.attributeTerms = response.docs
 // }
 
-current.value = JSON.stringify(store.value.doc.attributes)
+current.value = JSON.stringify(product.value.attributes)
 
 const removeVariantByTermId = (termId) => {
   // let j = 0
@@ -70,9 +61,9 @@ const removeVariantByTermId = (termId) => {
 }
 
 const insertEmptyAttribute = (attribute, terms, defaultTerm) => {
-  if (store.value.doc.attributes.length == allAttributes.length)
-    return (store.errorMsg = 'You have used all available attributes')
-  store.value.doc.attributes.push({
+  if (product.value.attributes.length >= allAttributes.length)
+    return (errorMsg.value = 'You have used up all available attributes')
+  product.value.attributes.push({
     attribute,
     terms,
     defaultTerm,
@@ -93,7 +84,7 @@ const addAllAttributes = () => {
 }
 
 const closeSlideout = () => {
-  if (current.value !== JSON.stringify(store.value.doc.attributes)) {
+  if (current.value !== JSON.stringify(product.value.attributes)) {
     store.value.alertHeading = 'You have unsaved changes'
     store.value.alertParagraph =
       'Please save your changes before closing this window or click cancel to exit without saving'
@@ -112,35 +103,43 @@ const handleShowDeleteAttributesAlert = () => {
 }
 
 const updateAttributes = async () => {
-  // if (current.value == JSON.stringify(store.value.doc.attributes)) return (store.showAttributesSlideout = false)
+  // if (current.value == JSON.stringify(product.value.attributes)) return (store.showAttributesSlideout = false)
   // const newAttributes = []
   // let errorMsg = ''
-  // for (const prop in store.value.doc.attributes) {
-  //   if (Object.values(store.value.doc.attributes[prop].attribute).length) {
-  //     newAttributes.push(store.value.doc.attributes[prop])
+  // for (const prop in product.value.attributes) {
+  //   if (Object.values(product.value.attributes[prop].attribute).length) {
+  //     newAttributes.push(product.value.attributes[prop])
   //   } else {
   //     errorMsg = `You must select attribute terms.  Please select a value for attribute ${prop * 1 + 1} `
   //     break
   //   }
   // }
   // if (errorMsg) return (appMessage.errorMsg = errorMsg)
-  // store.value.doc.attributes = newAttributes
+  // product.value.attributes = newAttributes
   // for (const prop in deletedTerms.value) {
   //   removeVariantByTermId(deletedTerms.value[prop])
   // }
   // saveProduct(store.product)
-  // current.value = JSON.stringify(store.value.doc.attributes)
+  // current.value = JSON.stringify(product.value.attributes)
   // store.showAttributesSlideout = false
 }
 
 const cancelAttributesUpdate = () => {
-  // store.value.doc.attributes = JSON.parse(current.value)
+  // product.value.attributes = JSON.parse(current.value)
   // store.showAttributesSlideout = false
 }
 
 const deleteAllAttributes = () => {
-  // store.value.doc.attributes = []
+  // product.value.attributes = []
   // showDeleteAllAttributesAlert.value = false
+}
+
+const resetActions = (payload) => {
+  console.log(product.value.attributes)
+  for (const prop in product.value.attributes) {
+    showActionKeys.value[prop] = false
+  }
+  showActionKeys.value[payload.index] = payload.action
 }
 
 // watch(
@@ -166,7 +165,6 @@ const deleteAllAttributes = () => {
         <!-- <pre style="font-size: 1rem">{{ store.doc }}</pre> -->
         <header>
           <h2>Attributes</h2>
-          {{ appMessage.showAlert }}
           <div class="actions">
             <button class="btn btn-primary" @click="insertEmptyAttribute({}, [], {})">Add Attribute</button>
             <button class="btn btn-primary" @click="addAllAttributes">Add All Attributes</button>
@@ -176,12 +174,12 @@ const deleteAllAttributes = () => {
           </div>
         </header>
         <main>
-          <div v-if="!store.doc.attributes.length">
+          <div v-if="!product.attributes.length">
             <EcommerceAdminProductEmptyAttributesMsg @slideoutEventEmitted="$emit('slideoutEventEmitted', $event)" />
           </div>
-          <div v-else class="table admin-product-attributes">
-            <div class="table__header">
-              <div class="row">
+          <div v-else class="table admin-product-attributes shadow-md">
+            <div class="table__header bg-slate-200 ">
+              <div class="row py2 px1">
                 <div class="th">ID</div>
                 <div class="th">Attribute</div>
                 <div class="th">Enable</div>
@@ -193,11 +191,13 @@ const deleteAllAttributes = () => {
             </div>
             <div class="table__body">
               <EcommerceAdminProductsProductAttributeCard
-                v-for="(attribute, index) in store.doc.attributes"
+                v-for="(attribute, index) in product.attributes"
                 :index="index"
+                :showActions="showActionKeys[index]"
                 :allAttributes="allAttributes"
                 :allAttributeTerms="allAttributeTerms"
                 @termToDeleteUpdated="deletedTerms.push($event)"
+                @resetActions="resetActions"
               />
             </div>
           </div>
@@ -210,7 +210,7 @@ const deleteAllAttributes = () => {
         <button
           class="btn btn-primary"
           @click.prevent="updateAttributes"
-          :disabled="current == JSON.stringify(store.doc.attributes)"
+          :disabled="current == JSON.stringify(product.attributes)"
         >
           Save Changes
         </button>

@@ -147,12 +147,12 @@ watch(
         </div>
       </div>
       <div class="image-select-actions">
-        <button class="btn btn-image-select" @click.prevent="$emit('newMediaSelectBtnClicked')">
+        <button class="btn btn__image-select" @click.prevent="$emit('newMediaSelectBtnClicked')">
           <IconsImage />
           <span> Select New Images </span>
         </button>
         <button
-          v-if="galleryType === 'variant' && store.product.gallery.length"
+          v-if="galleryType === 'variant' && product.gallery.length"
           class="btn btn-image-select"
           @click.prevent="$emit('selectFromProductImages')"
         >
@@ -160,7 +160,7 @@ watch(
           <span> Select From Product Images </span>
         </button>
       </div>
-      <p>PNG, JPG, and GIF Accepted</p>
+      <p class="text-sm">PNG, JPG, and GIF Accepted</p>
     </div>
   </section>
 </template>

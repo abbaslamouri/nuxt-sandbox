@@ -1,5 +1,5 @@
 <script setup>
-const store = inject('store')
+const { product } = useStore()
 </script>
 
 <template>
@@ -9,8 +9,8 @@ const store = inject('store')
       <div></div>
     </div>
     <div class="flex-col gap2">
-      <div><FormsBaseInput label="Price" required currency v-model="store.doc.price" /></div>
-      <div><FormsBaseInput label="Sale Price" currency v-model="store.doc.salePrice" /></div>
+      <div><FormsBaseInput label="Price" required currency v-model="product.price" /></div>
+      <div><FormsBaseInput label="Sale Price" currency v-model="product.salePrice" /></div>
     </div>
   </section>
 </template>

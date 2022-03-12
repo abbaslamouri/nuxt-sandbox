@@ -58,26 +58,35 @@ export default {
 
 <template>
   <div class="listbox-area">
-    <!-- {{ modelValue }}==={{ items }} -->
-    <button class="select" @click="showListBox = !showListBox">
+    <button class="select p1 bg-transparent wfull cursor-pointer" @click="showListBox = !showListBox">
       <div class="label" v-if="!items.length" role="label">Select Categories</div>
-      <div class="selected-options" v-else>
-        <span class="option" v-for="item in items" :key="item"> {{ options.find((c) => c.key == item).name }}</span>
+      <div class="selected-options flex-row wrap gap05" v-else>
+        <span class="bg-slate-700 text-slate-50 px05 py02 br3" v-for="item in items" :key="item">
+          {{ options.find((c) => c.key == item).name }}</span
+        >
       </div>
-      <IconsChevronUp v-if="showListBox" />
-      <IconsChevronDown v-else />
+      <IconsChevronUp class="icon" v-show="showListBox" />
+      <IconsChevronDown class="icon" v-show="!showListBox" />
     </button>
-    <div class="dropdown-options shadow-md" role="listbox" tabindex="-1" v-show="showListBox">
+    <div
+      class="dropdown-options shadow-md border border-slate-400 mt-1"
+      role="listbox"
+      tabindex="-1"
+      v-show="showListBox"
+    >
       <div
         v-for="(option, index) in options"
-        class="list-item"
+        class="list-item p1 border-b-slate-300"
         :id="`list-item-${uuid}-${option.key}`"
         role="option"
         :key="option.key"
         tabindex="0"
         :aria-selected="items.includes(option.key)"
       >
-        <label class="form-control" :class="{ disabled: inputRefs[index] && inputRefs[index].disabled }">
+        <label
+          class="options flex-row items-center gap1 cursor-pointer"
+          :class="{ disabled: inputRefs[index] && inputRefs[index].disabled }"
+        >
           <input
             :ref="(el) => (inputRefs[index] = el)"
             readonly
@@ -97,22 +106,12 @@ export default {
 @import '@/assets/scss/variables';
 
 .listbox-area {
-  display: flex;
-  flex-direction: column;
-
   .select {
     display: grid;
-    grid-template-rows: 2fr;
+    grid-template-rows: 1fr;
     grid-template-columns: 1fr 2rem;
     gap: 1rem;
-    align-items: center;
-    padding: 1rem;
-    width: 100%;
-    background-color: transparent;
-    border: 2px solid $slate-500;
     border-radius: 5px 5px 0 0;
-    cursor: pointer;
-    border: 1px solid red;
 
     .label {
       grid-row: 1 / 2;
@@ -122,50 +121,21 @@ export default {
     .selected-options {
       grid-row: 1 / 2;
       grid-column: 1 / 2;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      font-size: 1.4rem;
-
-      .option {
-        background-color: $slate-700;
-        color: $slate-50;
-        padding: 0.2rem 0.5rem;
-        border-radius: 5px;
-      }
     }
 
-    svg {
+    .icon {
       grid-row: 1 / 2;
       grid-column: 2 / 3;
-      width: 2rem;
-      height: 2rem;
-      display: inline-block;
     }
   }
 
   .dropdown-options {
-    gap: 1rem;
-    border: 1px solid $slate-400;
-    border-top: none;
-    border-radius: 0 0 5px 5px;
-
     .list-item {
-      padding: 1rem 1rem;
-      border-bottom: 1px solid $slate-300;
-
       &:hover {
         background-color: $slate-200;
       }
 
-      .form-control {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5em;
-
+      .options {
         &.disabled {
           color: $slate-400;
           cursor: not-allowed;
@@ -175,13 +145,9 @@ export default {
           display: grid;
           place-content: center;
           appearance: none;
-          background-color: #fff;
-          margin: 0;
-          font: inherit;
-          color: currentColor;
           width: 1.75rem;
           height: 1.75rem;
-          border: 0.15rem solid currentColor;
+          border: 0.1rem solid currentColor;
           border-radius: 0.15rem;
           cursor: pointer;
 
@@ -210,14 +176,4 @@ export default {
     }
   }
 }
-
-// .base-select {
-//   display: flex;
-//   align-items: center;
-//   gap: 1rem;
-
-//   select {
-//     padding: 0.5rem 1rem;
-//   }
-// }
 </style>

@@ -19,18 +19,22 @@ const useFactory = () => {
   })
   const errorMsg = useState('errorMsg', () => '')
   const message = useState('message', () => '')
+  const selectedMedia = useState('selectedMedia', () => [])
+  const mediaReference = useState('mediaReference', () => [])
+  const alertHeading = useState('alertHeading', () => [])
+  const alertParagraph = useState('alertParagraph', () => [])
   const alert = useState('alert', () => {
     return {
-      showAlert: false,
-      alertHeading: '',
-      alertParagraph: '',
-      alertAction: '',
-      showAlertCancelBtn: true,
-      showAttributesSlideout: false,
+      show: false,
+      heading: '',
+      paragraph: '',
+      action: '',
+      showCancelBtn: true,
+      // showAttributesSlideout: false,
     }
   })
 
-  const fetchAllDocs = async (resource, params) => {
+  const fetchAll = async (resource, params) => {
     errorMsg.value = null
     message.value = null
     try {
@@ -38,17 +42,22 @@ const useFactory = () => {
       return response
     } catch (error) {
       errorMsg.value = error.data
+      return []
     }
   }
 
   const fetchBySlug = async (resource, slug) => {
     errorMsg.value = null
     message.value = null
+    let response = null
     try {
-      const response = await $fetch(`/api/v1/${resource}`, { params: { slug } })
+      if (slug) response = await $fetch(`/api/v1/${resource}`, { params: { slug } })
+      else response = {}
       return response
     } catch (error) {
       errorMsg.value = error.data
+      console.log('E', errorMsg.value)
+      return {}
     }
   }
 
@@ -85,7 +94,7 @@ const useFactory = () => {
     }
   }
 
-  return { state, errorMsg, message, alert, fetchAllDocs, saveDoc, fetchBySlug, deleteById }
+  return { state, errorMsg, message, selectedMedia, mediaReference, alert, fetchAll, saveDoc, fetchBySlug, deleteById }
 }
 
 export default useFactory

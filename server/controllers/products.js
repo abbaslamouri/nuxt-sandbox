@@ -2,6 +2,8 @@ import fs from 'fs'
 // import slugify from 'slugify'
 // import ApiFeatures from '~/server/utils/ApiFeatures'
 import asyncHandler from '~/server/utils/asyncHandler'
+import errorHandler from '~/server/utils/errorHandler'
+
 import AppError from '~/server/utils/AppError'
 import Product from '~/server/models/product'
 
@@ -9,11 +11,46 @@ import Product from '~/server/models/product'
 
 const fetchBySlug = async (Model, slug) => {
   try {
-    const doc = await Model.find({ slug }).select('-createdAt -updatedAt -__v').populate({
-      model: 'Media',
-      path: 'gallery',
-      select: '-mimetype -createdAt -updatedAt -size -folder -__v',
-    })
+    const doc = await Model.find({ slug })
+      .select('-createdAt -updatedAt -__v')
+      .populate({ path: 'gallery', model: 'Media' })
+      .populate({ path: 'categories', model: 'Category' })
+      // .populate('', { name: 1, slug: 1 })
+      .populate({
+        path: 'attributes',
+        model: 'Attribute',
+        populate: {
+          path: 'attribute',
+          model: 'Attribute',
+        },
+      })
+      // .populate('attributes.attribute', { name: 1, slug: 1 })
+      .populate({
+        path: 'attributes',
+        model: 'Attribute',
+        populate: {
+          path: 'terms',
+          model: 'Attributeterm',
+          populate: {
+            path: 'parent',
+            model: 'Attribute',
+            // select: 'name slug',
+          },
+        },
+      })
+      .populate({
+        path: 'attributes',
+        model: 'Attribute',
+        populate: {
+          path: 'defaultTerm',
+          model: 'Attributeterm',
+          populate: {
+            path: 'parent',
+            model: 'Attribute',
+            // select: 'name slug',
+          },
+        },
+      })
     if (!doc) {
       const newError = new Error(`We are not able to create a new document`)
       newError.customError = true

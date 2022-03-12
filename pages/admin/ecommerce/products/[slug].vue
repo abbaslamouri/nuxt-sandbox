@@ -10,8 +10,9 @@ definePageMeta({
   layout: 'admin',
 })
 
-const { store, fetchAll, fetchBySlug, saveDoc } = useStore()
-provide('store', store)
+const { product } = useStore()
+const { errorMsg, selectedMedia, mediaReference, fetchBySlug } = useFactory()
+// provide('store', store)
 // provide('fetchAll', fetchAll)
 
 // const { store, save, fetchSingle, fetchCategories, saveVariants, deleteVariants } = useProduct()
@@ -20,15 +21,16 @@ const route = useRoute()
 const router = useRouter()
 // const store = useStore()
 const appMessage = useMessage()
-const product = ref({})
+// const product = ref({})
 const variants = ref([])
 const showAttributesSlideout = ref(false)
 const showMediaSelector = ref(false) // media selector toggler
 const galleryIntro = ref('This image gallery contains all images associated with this product including its variants.')
 const slug = route.params.slug === ' ' ? null : route.params.slug
 
-await fetchBySlug(route.params.slug)
-store.value.doc.productType = 'variable'
+product.value = await fetchBySlug('products', slug)
+product.value.productType = 'variable'
+console.log('PPP', product.value)
 
 // let response = await fetchSingle(slug)
 // if (store.errorMsg) {
@@ -83,14 +85,14 @@ const handleNewMediaSelectBtnClicked = () => {
 
 const updateStoreGallery = (gallery) => {
   console.log(gallery)
-  store.value.docs.gallery = gallery
+  product.value.gallery = gallery
 }
 
 watch(
-  () => store.selectedMedia,
+  () => selectedMedia,
   (currentVal) => {
     console.log(currentVal)
-    if (store.referenceMedia === 'productMedia') selectMedia(currentVal)
+    if (mediaReference.value === 'productMedia') selectMedia(currentVal)
     // store.showMediaSelector = false
     // store.selectedMedia = []
   },
@@ -110,30 +112,33 @@ provide('saveProduct', saveProduct)
       </div>
       <h3 class="header">Edit Product</h3>
     </header>
-    <!-- {{ store.doc }} -->
+    <!-- {{ product }} -->
     <main class="main flex1 max-width-130 wfull border-pink">
       <!-- <div class="columns"> -->
       <div class="left-sidebar shadow-md">
-        <EcommerceAdminProductsProductLeftSidebar :product="product" />
+        <EcommerceAdminProductsProductLeftSidebar />
       </div>
 
-      <div class="main border-orange">
+      <div class="flex-col gap2 border-orange">
         <EcommerceAdminProductsProductInfo />
         <EcommerceAdminProductsProductPrice />
         <EcommerceAdminImageGallery
-          :gallery="store.doc.gallery"
+          :gallery="product.gallery"
           :galleryIntro="galleryIntro"
           galleryType="product"
           @galleryModified="updateStoreGallery"
           @newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
         />
 
-        <EcommerceAdminProductsProductAttributesContent v-if="store.doc._id && store.doc.productType === 'variable'" />
-        <EcommerceAdminProductsProductAttributesSlideout v-if="store.showAttributesSlideout" />
+        <EcommerceAdminProductsProductAttributesContent
+          v-if="product._id && product.productType === 'variable'"
+          @showAttributesSlideout="showAttributesSlideout = $event"
+        />
+        <EcommerceAdminProductsProductAttributesSlideout v-if="showAttributesSlideout" />
         <!-- <EcommerceAdminProductsProductAttributesSlideout
           v-if="store.showAttributesSlideout"
-          :productAttributes="store.doc.attributes"
-          :productId="store.doc._id"
+          :productAttributes="product.attributes"
+          :productId="product._id"
           :showAttributesSlideout="showAttributesSlideout"
           @slideoutEventEmitted="showAttributesSlideout = $event"
         /> -->
@@ -141,7 +146,7 @@ provide('saveProduct', saveProduct)
         <section
           class="variants"
           id="variants"
-          v-if="store.doc._id && store.doc.type === 'variable' && store.doc.attributes.length"
+          v-if="product._id && product.type === 'variable' && product.attributes.length"
         >
           <!-- <EcommerceAdminProductVariantsContent
 						:productVariants="variants"
@@ -160,9 +165,11 @@ provide('saveProduct', saveProduct)
         <!-- <EcommerceAdminProductMisc /> -->
         <EcommerceAdminProductsProductDetails />
       </div>
-      <div class="right-sidebar border-green">
-        Right
-        <!-- <EcommerceAdminProductRightSidebar @productStatusUpdated="product.status = $event" @saveProduct="saveProduct" /> -->
+      <div class="right-sidebar">
+        <EcommerceAdminProductsProductRightSidebar
+          @productStatusUpdated="product.status = $event"
+          @saveProduct="saveProduct"
+        />
       </div>
       <!-- </div> -->
 
@@ -208,11 +215,11 @@ provide('saveProduct', saveProduct)
     padding: 2rem 0.5rem;
   }
 
-  .main {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-  }
+  // .main {
+  //   display: flex;
+  //   flex-direction: column;
+  //   gap: 3rem;
+  // }
 
   .right-sidebar {
     position: sticky;
