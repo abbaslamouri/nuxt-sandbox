@@ -19,8 +19,11 @@ const setDefaultTerm = (event) => {
 
 <template>
   <div class="default-term td">
-    <div class="base-select border border-slate-300 p1" v-if="Object.keys(product.attributes[index].attribute).length">
-      <select @change="setDefaultTerm" :disabled="!product.attributes[index].enabled">
+    <div
+      class="base-select border border-slate-300 p1"
+      v-if="Object.keys(product.attributes[index].attribute).length"
+    >
+      <select class="text-xs" @change="setDefaultTerm" :disabled="!product.attributes[index].enabled">
         <option value="">Select Default Term</option>
         <option
           v-for="option in allAttributeTerms

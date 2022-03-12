@@ -100,10 +100,25 @@
   min-height: 100%;
 }
 
+.minw8 {
+  min-width: 8rem;
+}
+
+.minw9 {
+  min-width: 9rem;
+}
+
+.maxw10 {
+  min-width: 10rem;
+}
+
+.maxw11 {
+  min-width: 11rem;
+}
 .minw12 {
   min-width: 12rem;
 }
 
-.maxw12 {
-  min-width: 12rem;
+.maxw60 {
+  max-width: 60rem;
 }

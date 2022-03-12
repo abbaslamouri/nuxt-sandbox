@@ -76,15 +76,15 @@ watch(
       v-if="Object.keys(product.attributes[index].attribute).length"
       class="terms flex-row gap1 border border-slate-300 p1 br3 text-xs"
     >
-      <div class="term-actions flex-col gap05 minw12">
+      <div class="term-actions flex-col gap05">
         <button
-          class="text-xs border bg-slate-400 text-slate-50 uppercase px1 py02 br3 cursor-pointer"
+          class="text-xs border bg-slate-400 text-slate-50 px1 py02 br3 cursor-pointer"
           @click.prevent="addAllTerms()"
         >
           Select All
         </button>
         <button
-          class="text-xs border bg-slate-400 text-slate-50 uppercase px1 py02 br3 cursor-pointer"
+          class="text-xs minw12 border bg-slate-400 text-slate-50 px1 py02 br3 cursor-pointer"
           @click.prevent="
             setAlert({
               alertAction: 'removeAllTerms',
@@ -96,7 +96,7 @@ watch(
           Select None
         </button>
         <div class="border border-slate-400 py02 px05 br3">
-          <select v-model="termSelectId" @change="addTerm" class="wfull">
+          <select v-model="termSelectId" @change="addTerm" class="wfull text-xs">
             <option value="">Add term</option>
             <option
               v-for="term in allAttributeTerms.filter((t) => t.parent._id == product.attributes[index].attribute._id)"

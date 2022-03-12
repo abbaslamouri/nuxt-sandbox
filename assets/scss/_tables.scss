@@ -133,13 +133,13 @@
   &.admin-product-attributes .row {
     .th,
     .td {
-      width: 100%;
+      // width: 100%;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
       gap: 1rem;
-      // border:1px solid red;
+      // border: 1px solid red;
       &:nth-of-type(1) {
         grid-column: 1 / 2;
         justify-self: center;
@@ -154,16 +154,16 @@
         grid-column: 8/ 10;
       }
       &:nth-of-type(5) {
-        grid-column: 10/ 15;
+        grid-column: 10/ 14;
       }
       &:nth-of-type(6) {
-        grid-column: 15 / 23;
+        grid-column: 14 / 22;
         justify-self: stretch;
         // border:1px solid green;
       }
       &:nth-of-type(7) {
-        grid-column: 23/ 25;
-        justify-self: flex-end;
+        grid-column: 22/ 25;
+        justify-self: end;
       }
     }
   }

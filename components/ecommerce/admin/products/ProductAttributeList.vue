@@ -1,9 +1,9 @@
 <script setup>
-defineEmits(['saveVariants', 'slideoutEventEmitted'])
+defineEmits(['removeAttribute', 'saveVariants', 'slideoutEventEmitted'])
 
 // const store = inject('store')
 const { product } = useStore()
-const { errorMsg, alert } = useFactory()
+const { errorMsg, fetchAll } = useFactory()
 
 // const { store, fetchAttributes, fetchAttributeTerms } = useProduct()
 // const saveProduct = inject('saveProduct')
@@ -11,7 +11,6 @@ const { errorMsg, alert } = useFactory()
 // const store = useStore()
 const showAlert = ref(false)
 const showActionKeys = ref([])
-const attributeToDelteIndex = ref(null)
 const showDeleteAllAttributesAlert = ref(false)
 const deletedTerms = ref([])
 const current = ref(null)
@@ -74,11 +73,14 @@ const insertEmptyAttribute = (attribute, terms, defaultTerm) => {
 }
 
 const addAllAttributes = () => {
-  for (const prop in allAttributes) {
-    const attribute = allAttributes[prop]
-    const terms = allAttributeTerms.filter((t) => t.parent._id == allAttributes[prop]._id)
-    insertEmptyAttribute(attribute, terms, terms[0])
-  }
+  // console.log(allAttributes)
+  // console.log(store.attributeTerms)
+  // for (const prop in allAttributes) {
+  //   console.log(console.log(store.attributeTerms.filter((t) => t.parent._id == allAttributes[prop]._id)))
+  //   const attribute = allAttributes[prop]
+  //   const terms = store.attributeTerms.filter((t) => t.parent._id == allAttributes[prop]._id)
+  //   insertEmptyAttribute(attribute, terms, terms[0])
+  // }
 }
 
 const closeSlideout = () => {
@@ -140,36 +142,6 @@ const resetActions = (payload) => {
   showActionKeys.value[payload.index] = payload.action
 }
 
-const removeAttribute = () => {
-  // const attributeId = product.value.attributes[props.index].attribute._id
-  // for (const prop in product.value.variants) {
-  //   const i = product.value.variants[prop].attrTerms.findIndex((t) => t.parent._id == attributeId)
-  //   if (i !== -1) product.value.variants[prop].attrTerms.splice(i, 1)
-  // }
-  product.value.attributes.splice(attributeToDelteIndex.value, 1)
-  // emit('resetActions', { index: props.index, action: false })
-  alert.value.show = false
-  alert.value.action = ''
-}
-
-const setAlert = (alertPayload, i) => {
-  attributeToDelteIndex.value = i
-  alert.value.action = alertPayload.alertAction
-  alert.value.heading = alertPayload.alertHeading
-  alert.value.paragraph = alertPayload.alertParagraph
-  alert.value.show = true
-  console.log('A', alertPayload, i)
-}
-
-watch(
-  () => alert.value,
-  (currentVal) => {
-    console.log('W', currentVal)
-    if (currentVal.show === 'ok' && currentVal.action === 'removeAttribute') removeAttribute()
-  },
-  { deep: true }
-)
-
 // watch(
 //   () => appMessage.showAlert,
 //   (currentVal) => {
@@ -184,60 +156,31 @@ watch(
 </script>
 
 <template>
-  <Slideout @closeSlideout="closeSlideout" class="attributes">
-    <template v-slot:header>
-      <h3 class="title">Edit Attributes</h3>
-    </template>
-    <template v-slot:default>
-      <div class="attributes-details">
-        <!-- <pre style="font-size: 1rem">{{ store.doc }}</pre> -->
-        <header>
-          <h2>Attributes</h2>
-          <div class="actions">
-            <button class="btn btn__primary py05 px2 text-xs" @click="insertEmptyAttribute({}, [], {})">
-              Add Attribute
-            </button>
-            <button class="btn btn__primary py05 px2 text-xs" @click="addAllAttributes">Add All Attributes</button>
-            <button class="btn btn__secondary py05 px2 text-xs" @click="handleShowDeleteAttributesAlert">
-              Delete All Attributes
-            </button>
-          </div>
-        </header>
-        <main>
-          <EcommerceAdminProductsProductEmptyAttributesMsg
-            v-if="!product.attributes.length"
-            :allAttributes="allAttributes"
-            @slideoutEventEmitted="$emit('slideoutEventEmitted', $event)"
-          />
-          <EcommerceAdminProductsProductAttributeList
-            v-else
-            @removeAttribute="
-              setAlert(
-                {
-                  alertAction: 'removeAttribute',
-                  alertHeading: 'Are you sure you want to delete this attribute?',
-                  alertParagraph: 'All product variants associated with this attribute will also be removed.',
-                },
-                $event
-              )
-            "
-          />
-        </main>
+  <div class="table admin-product-attributes shadow-md">
+    <div class="table__header bg-slate-200">
+      <div class="row py2 px1">
+        <div class="th">ID</div>
+        <div class="th">Attribute</div>
+        <div class="th">Enable</div>
+        <div class="th">Variation</div>
+        <div class="th">Default Term</div>
+        <div class="th">Terms</div>
+        <div class="th">Actions</div>
       </div>
-    </template>
-    <template v-slot:footer>
-      <div class="actions">
-        <button class="btn btn-secondary" @click.prevent="cancelAttributesUpdate">Cancel</button>
-        <button
-          class="btn btn-primary"
-          @click.prevent="updateAttributes"
-          :disabled="current == JSON.stringify(product.attributes)"
-        >
-          Save Changes
-        </button>
-      </div>
-    </template>
-  </Slideout>
+    </div>
+    <div class="table__body">
+      <EcommerceAdminProductsProductAttributeCard
+        v-for="(attribute, index) in product.attributes"
+        :index="index"
+        :showActions="showActionKeys[index]"
+        :allAttributes="allAttributes"
+        :allAttributeTerms="allAttributeTerms"
+        @termToDeleteUpdated="deletedTerms.push($event)"
+        @removeAttribute="$emit('removeAttribute', $event)"
+        @resetActions="resetActions"
+      />
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
@@ -257,6 +200,10 @@ watch(
       justify-content: space-between;
       padding: 2rem;
       background-color: $slate-300;
+    }
+
+    .delete-all-attributes {
+      align-self: flex-end;
     }
   }
 

@@ -28,11 +28,9 @@ const updateAttribute = (event) => {
 </script>
 
 <template>
-  <!-- <div class="admin-product-attribute row"> -->
-  <!-- <div class="td">{{ index * 1 + 1 }}</div> -->
   <div class="attribute td">
     <div class="base-select border border-slate-300 p1">
-      <select @change="updateAttribute" class="centered">
+      <select @change="updateAttribute" class="text-xs">
         <option value="">Select Attribute</option>
         <option
           v-for="option in allAttributes.map((a) => {
@@ -48,7 +46,6 @@ const updateAttribute = (event) => {
       </select>
     </div>
   </div>
-  <!-- </div> -->
 </template>
 
 <style lang="scss" scoped></style>
