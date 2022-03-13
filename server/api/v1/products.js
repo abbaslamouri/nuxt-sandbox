@@ -154,6 +154,44 @@ export default async (req, res) => {
         new: true,
         runValidators: true,
       })
+        .populate({ path: 'gallery', model: 'Media' })
+        .populate({ path: 'categories', model: 'Category' })
+        // .populate('', { name: 1, slug: 1 })
+        .populate({
+          path: 'attributes',
+          model: 'Attribute',
+          populate: {
+            path: 'attribute',
+            model: 'Attribute',
+          },
+        })
+        // .populate('attributes.attribute', { name: 1, slug: 1 })
+        .populate({
+          path: 'attributes',
+          model: 'Attribute',
+          populate: {
+            path: 'terms',
+            model: 'Attributeterm',
+            populate: {
+              path: 'parent',
+              model: 'Attribute',
+              // select: 'name slug',
+            },
+          },
+        })
+        .populate({
+          path: 'attributes',
+          model: 'Attribute',
+          populate: {
+            path: 'defaultTerm',
+            model: 'Attributeterm',
+            populate: {
+              path: 'parent',
+              model: 'Attribute',
+              // select: 'name slug',
+            },
+          },
+        })
       if (!doc) {
         const newError = new Error(`We can't find a document with ID = ${params.id}`)
         newError.customError = true

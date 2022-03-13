@@ -7,7 +7,7 @@
 // const appMessage = useMessage()
 
 const { store } = useStore()
-const { message, errorMsg, alert, alertHeading, alertParagraph } = useFactory()
+const { message, errorMsg, alert, showMediaSelector } = useFactory()
 // const {store} = useStore()
 
 const hideSnackbar = () => {
@@ -71,8 +71,8 @@ const proceedAlert = () => {
         <p>{{ alert.paragraph }}</p>
       </Alert>
 
-      <div class="media-selector" v-if="store.showMediaSelector">
-        <LazyMediaUploader @mediaSelectCancel="store.showMediaSelector = false" />
+      <div class="media-selector" v-if="showMediaSelector">
+        <LazyMediaUploader @mediaSelectCancel="showMediaSelector = false" />
       </div>
     </NuxtLayout>
   </div>

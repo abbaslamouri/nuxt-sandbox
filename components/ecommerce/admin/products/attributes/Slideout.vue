@@ -1,5 +1,5 @@
 <script setup>
-defineEmits(['saveVariants', 'slideoutEventEmitted'])
+const emit = defineEmits(['saveAttributes', 'closeSlideout'])
 
 // const store = inject('store')
 const { product } = useStore()
@@ -9,7 +9,7 @@ const { errorMsg, alert } = useFactory()
 // const saveProduct = inject('saveProduct')
 
 // const store = useStore()
-const showAlert = ref(false)
+// const showAlert = ref(false)
 const showActionKeys = ref([])
 const attributeToDelteIndex = ref(null)
 const showDeleteAllAttributesAlert = ref(false)
@@ -83,14 +83,15 @@ const addAllAttributes = () => {
 
 const closeSlideout = () => {
   if (current.value !== JSON.stringify(product.value.attributes)) {
-    store.value.alertHeading = 'You have unsaved changes'
-    store.value.alertParagraph =
-      'Please save your changes before closing this window or click cancel to exit without saving'
-    store.value.showAlertCancelBtn = false
-    // store.value.alertAction = 'closeAlert'
-    return (store.value.showAlert = true)
+    showAlert(
+      'You have unsaved changes',
+      'Please save your changes before closing this window or click cancel to exit without saving.',
+      'closeSlideout',
+      false
+    )
+  } else {
+    emit('closeSlideout')
   }
-  store.value.showAttributesSlideout = false
 }
 
 const handleShowDeleteAttributesAlert = () => {
@@ -101,30 +102,32 @@ const handleShowDeleteAttributesAlert = () => {
 }
 
 const updateAttributes = async () => {
-  // if (current.value == JSON.stringify(product.value.attributes)) return (store.showAttributesSlideout = false)
-  // const newAttributes = []
-  // let errorMsg = ''
-  // for (const prop in product.value.attributes) {
-  //   if (Object.values(product.value.attributes[prop].attribute).length) {
-  //     newAttributes.push(product.value.attributes[prop])
-  //   } else {
-  //     errorMsg = `You must select attribute terms.  Please select a value for attribute ${prop * 1 + 1} `
-  //     break
-  //   }
-  // }
+  if (current.value == JSON.stringify(product.value.attributes)) return emit('closeSlideout')
+
+  const newAttributes = []
+  for (const prop in product.value.attributes) {
+    if (Object.values(product.value.attributes[prop].attribute).length) {
+      newAttributes.push(product.value.attributes[prop])
+    } else {
+      errorMsg.value = `You must select attribute terms.  Please select a value for attribute ${prop * 1 + 1} `
+      return
+    }
+  }
   // if (errorMsg) return (appMessage.errorMsg = errorMsg)
-  // product.value.attributes = newAttributes
+  product.value.attributes = newAttributes
   // for (const prop in deletedTerms.value) {
   //   removeVariantByTermId(deletedTerms.value[prop])
   // }
   // saveProduct(store.product)
   // current.value = JSON.stringify(product.value.attributes)
+  emit('saveAttributes')
+
   // store.showAttributesSlideout = false
 }
 
 const cancelAttributesUpdate = () => {
-  // product.value.attributes = JSON.parse(current.value)
-  // store.showAttributesSlideout = false
+  product.value.attributes = JSON.parse(current.value)
+  emit('closeSlideout')
 }
 
 const deleteAllAttributes = () => {
@@ -140,6 +143,16 @@ const resetActions = (payload) => {
   showActionKeys.value[payload.index] = payload.action
 }
 
+const showRemoveAttributeAlert = (attributeIndex) => {
+  attributeToDelteIndex.value = attributeIndex
+  showAlert(
+    'Are you sure you want to delete this attribute?',
+    'All product variants associated with this attribute will also be removed.',
+    'removeAttribute',
+    true
+  )
+}
+
 const removeAttribute = () => {
   // const attributeId = product.value.attributes[props.index].attribute._id
   // for (const prop in product.value.variants) {
@@ -152,13 +165,22 @@ const removeAttribute = () => {
   alert.value.action = ''
 }
 
-const setAlert = (alertPayload, i) => {
-  attributeToDelteIndex.value = i
-  alert.value.action = alertPayload.alertAction
-  alert.value.heading = alertPayload.alertHeading
-  alert.value.paragraph = alertPayload.alertParagraph
+// const setAlertss = (alertPayload, i = null) => {
+//   attributeToDelteIndex.value = i
+//   alert.value.action = alertPayload.alertAction
+//   alert.value.heading = alertPayload.alertHeading
+//   alert.value.paragraph = alertPayload.alertParagraph
+//   alert.value.showCancelBtn = alertPayload.alertParagraph
+//   alert.value.show = true
+//   console.log('A', alertPayload, i)
+// }
+
+const showAlert = (heading, paragraph, action, showCancelBtn) => {
+  alert.value.heading = heading
+  alert.value.paragraph = paragraph
+  alert.value.action = action
+  alert.value.showCancelBtn = showCancelBtn
   alert.value.show = true
-  console.log('A', alertPayload, i)
 }
 
 watch(
@@ -166,6 +188,7 @@ watch(
   (currentVal) => {
     console.log('W', currentVal)
     if (currentVal.show === 'ok' && currentVal.action === 'removeAttribute') removeAttribute()
+    if (currentVal.show === 'ok' && currentVal.action === 'closeSlideout') alert.value.show = false
   },
   { deep: true }
 )
@@ -184,16 +207,16 @@ watch(
 </script>
 
 <template>
-  <Slideout @closeSlideout="closeSlideout" class="attributes">
+  <Slideout class="attributes" @closeSlideout="closeSlideout">
     <template v-slot:header>
-      <h3 class="title">Edit Attributes</h3>
+      <h3>Edit Attributes</h3>
     </template>
     <template v-slot:default>
-      <div class="attributes-details">
+      <div class="flex-col gap2 p2">
         <!-- <pre style="font-size: 1rem">{{ store.doc }}</pre> -->
-        <header>
+        <header class="flex-row items-center justify-between bg-slate-200 p2">
           <h2>Attributes</h2>
-          <div class="actions">
+          <div class="flex-row gap2">
             <button class="btn btn__primary py05 px2 text-xs" @click="insertEmptyAttribute({}, [], {})">
               Add Attribute
             </button>
@@ -207,31 +230,18 @@ watch(
           <EcommerceAdminProductsProductEmptyAttributesMsg
             v-if="!product.attributes.length"
             :allAttributes="allAttributes"
-            @slideoutEventEmitted="$emit('slideoutEventEmitted', $event)"
           />
-          <EcommerceAdminProductsProductAttributeList
-            v-else
-            @removeAttribute="
-              setAlert(
-                {
-                  alertAction: 'removeAttribute',
-                  alertHeading: 'Are you sure you want to delete this attribute?',
-                  alertParagraph: 'All product variants associated with this attribute will also be removed.',
-                },
-                $event
-              )
-            "
-          />
+          <EcommerceAdminProductsProductAttributeList v-else @removeAttribute="showRemoveAttributeAlert" />
         </main>
       </div>
     </template>
     <template v-slot:footer>
-      <div class="actions">
-        <button class="btn btn-secondary" @click.prevent="cancelAttributesUpdate">Cancel</button>
+      <div class="flex-row items-center justify-end gap2">
+        <button class="btn btn_secondary py05 px3" @click.prevent="cancelAttributesUpdate">Cancel</button>
         <button
-          class="btn btn-primary"
+          class="btn btn__primary py05 px3"
+          :class="{ disabled: current == JSON.stringify(product.attributes) }"
           @click.prevent="updateAttributes"
-          :disabled="current == JSON.stringify(product.attributes)"
         >
           Save Changes
         </button>
@@ -240,38 +250,4 @@ watch(
   </Slideout>
 </template>
 
-<style lang="scss" scoped>
-@import '@/assets/scss/variables';
-
-.attributes {
-  .attributes-details {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    overflow: auto;
-    padding: 2rem;
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 2rem;
-      background-color: $slate-300;
-    }
-  }
-
-  .actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 2rem;
-
-    .btn {
-      &:disabled {
-        background-color: $slate-400;
-        cursor: not-allowed;
-      }
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

@@ -19,10 +19,10 @@ const useFactory = () => {
   })
   const errorMsg = useState('errorMsg', () => '')
   const message = useState('message', () => '')
-  const selectedMedia = useState('selectedMedia', () => [])
+  const selectedFiles = useState('selectedFiles', () => [])
   const mediaReference = useState('mediaReference', () => [])
-  const alertHeading = useState('alertHeading', () => [])
-  const alertParagraph = useState('alertParagraph', () => [])
+  const showMediaSelector = useState('showMediaSelector', () => false)
+
   const alert = useState('alert', () => {
     return {
       show: false,
@@ -56,7 +56,7 @@ const useFactory = () => {
       return response
     } catch (error) {
       errorMsg.value = error.data
-      console.log('E', errorMsg.value)
+      // console.log('E', errorMsg.value)
       return {}
     }
   }
@@ -64,10 +64,10 @@ const useFactory = () => {
   const saveDoc = async (resource, doc) => {
     errorMsg.value = null
     message.value = null
-    // console.log('KKKKKK', resource)
+    let response = null
     try {
       if (doc._id) {
-        await $fetch(`/api/v1/${resource}`, {
+        response = await $fetch(`/api/v1/${resource}`, {
           method: 'PATCH',
           params: { id: doc._id },
           body: doc,
@@ -75,9 +75,11 @@ const useFactory = () => {
       } else {
         await $fetch(`/api/v1/${resource}`, { method: 'POST', body: doc })
       }
-      message.value = `Category ${doc.name} saved succesfully`
+      message.value = `${doc.name} saved succesfully`
+      return response
     } catch (error) {
       errorMsg.value = error.data
+      return null
     }
   }
 
@@ -94,7 +96,19 @@ const useFactory = () => {
     }
   }
 
-  return { state, errorMsg, message, selectedMedia, mediaReference, alert, fetchAll, saveDoc, fetchBySlug, deleteById }
+  return {
+    state,
+    errorMsg,
+    message,
+    selectedFiles,
+    mediaReference,
+    showMediaSelector,
+    alert,
+    fetchAll,
+    saveDoc,
+    fetchBySlug,
+    deleteById,
+  }
 }
 
 export default useFactory

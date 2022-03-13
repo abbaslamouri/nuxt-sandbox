@@ -6,7 +6,7 @@ defineProps({
 })
 const { product } = useStore()
 
-defineEmits(['slideoutEventEmitted'])
+// defineEmits(['slideoutEventEmitted'])
 </script>
 
 <template>

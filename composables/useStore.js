@@ -19,6 +19,7 @@ const useStore = () => {
   })
 
   const product = useState('product', () => {})
+  const variants = useState('variants', () => {})
 
   const fetchAll = async (params) => {
     store.value.errorMsg = null
@@ -35,7 +36,6 @@ const useStore = () => {
   }
 
   const fetchBySlug = async (slug) => {
-    console.log(slug)
     store.value.errorMsg = null
     store.value.message = null
     try {
@@ -80,7 +80,7 @@ const useStore = () => {
     }
   }
 
-  return { product, store, fetchAll, saveDoc, fetchBySlug, deleteById }
+  return { product, variants, store, fetchAll, saveDoc, fetchBySlug, deleteById }
 }
 
 export default useStore

@@ -1,0 +1,31 @@
+<script setup>
+defineProps({
+  showAction: {
+    type: Boolean,
+  },
+  showEdit: {
+    type: Boolean,
+    default: false,
+  },
+})
+
+const emit = defineEmits(['moreHoriz', 'editAction', 'deleteAction'])
+</script>
+
+<template>
+  <div class="td">
+    <div class="shadow-md p1 border border-slate-300 flex-col gap05" v-show="showAction">
+      <a href="#" class="link" @click.prevent="$emit('editAction')" v-if="showEdit">
+        <div class="cancel">Edit</div>
+      </a>
+      <a href="#" class="link" @click.prevent="$emit('deleteAction')">
+        <div>Delete</div>
+      </a>
+    </div>
+    <button class="btn btn__close p05" @click.prevent="$emit('moreHoriz')">
+      <IconsMoreHoriz />
+    </button>
+  </div>
+</template>
+
+<style lang="scss" scoped></style>

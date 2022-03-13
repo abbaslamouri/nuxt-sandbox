@@ -2,7 +2,8 @@
 import { useMessage } from '~/store/useMessage'
 import { useStore } from '~/store/useStore'
 
-const { state } = useFactory()
+// const { state } = useFactory()
+const { selectedFiles, showMediaSelector } = useFactory()
 
 const store = useStore()
 const route = useRoute()
@@ -201,8 +202,8 @@ const handleSearch = async (event) => {
 }
 
 const setSelectedMedia = () => {
-  state.value.selectedMedia = selectedMedia.value
-  state.value.showMediaSelector = false
+  selectedFiles.value = selectedMedia.value
+  showMediaSelector.value = false
 }
 </script>
 

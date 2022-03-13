@@ -10,8 +10,8 @@ definePageMeta({
   layout: 'admin',
 })
 
-const { product } = useStore()
-const { errorMsg, selectedMedia, mediaReference, fetchBySlug } = useFactory()
+const { product, variants } = useStore()
+const { errorMsg, selectedFiles, mediaReference, showMediaSelector, fetchBySlug, fetchAll, saveDoc } = useFactory()
 // provide('store', store)
 // provide('fetchAll', fetchAll)
 
@@ -22,13 +22,21 @@ const router = useRouter()
 // const store = useStore()
 const appMessage = useMessage()
 // const product = ref({})
-const variants = ref([])
+// const variants = ref([])
 const showAttributesSlideout = ref(false)
-const showMediaSelector = ref(false) // media selector toggler
+const showVariantsSlideout = ref(false)
+// const showMediaSelector = ref(false) // media selector toggler
+// let response = null
 const galleryIntro = ref('This image gallery contains all images associated with this product including its variants.')
 const slug = route.params.slug === ' ' ? null : route.params.slug
 
 product.value = await fetchBySlug('products', slug)
+variants.value = (
+  await fetchAll('variants', {
+    fields: 'product, attrattributeTerms, gallery',
+    product: product.value._id,
+  })
+).docs
 product.value.productType = 'variable'
 console.log('PPP', product.value)
 
@@ -48,39 +56,44 @@ console.log('PPP', product.value)
 // }
 
 // Set category gallery
-const selectMedia = async (event) => {
-  // console.log('mediap', event)
-  // // showMediaSelector.value = false
-  // for (const prop in event) {
-  //   const index = store.product.gallery.findIndex((el) => el._id === event[prop]._id)
-  //   if (index === -1) {
-  //     store.product.gallery.push(event[prop])
-  //   }
-  // }
+const setProductMedia = async (media) => {
+  console.log('mediap', media.value)
+  // showMediaSelector.value = false
+  for (const prop in media.value) {
+    const index = product.value.gallery.findIndex((el) => el._id == media.value[prop]._id)
+    if (index === -1) {
+      product.value.gallery.push(media.value[prop])
+    }
+  }
+  console.log(product.value.gallery)
 }
 
 const saveProduct = async () => {
-  // store.product.slug = slugify(store.product.name, { lower: true })
-  // if (!store.product.permalink) store.product.permalink = slugify(store.product.name, { lower: true })
-  // response = await save(store.product)
-  // if (store.errorMsg) return (appMessage.errorMsg = store.errorMsg)
-  // store.product._id = response._id
-  // await deleteVariants(store.product._id)
-  // if (store.errorMsg) return (appMessage = store.errorMsg)
-  // if (!store.variants.length) {
-  //   router.push({ name: 'admin-ecommerce-products-slug', params: { slug: store.product.slug } })
+  console.log(product.value)
+  product.value.slug = slugify(product.value.name, { lower: true })
+  if (!product.value.permalink) product.value.permalink = slugify(product.value.name, { lower: true })
+  const response = await saveDoc('products', product.value)
+  console.log('SAVE', response)
+  if (!response) return
+  product.value = response
+  // await deleteVariants(product.value._id)
+  // if (errorMsg.value) return
+  // if (!variants.value.length) {
+  //   router.push({ name: 'admin-ecommerce-products-slug', params: { slug: product.value.slug } })
   //   return (appMessage.successMsg = 'product saved succesfully')
   // }
   // console.log('SV', store.variants)
-  // await saveVariants(store.variants)
+  // await saveVariants(variants.value)
   // if (store.errorMsg) return (appMessage = store.errorMsg)
   // appMessage.successMsg = 'product and variants saved succesfully'
-  // router.push({ name: 'admin-ecommerce-products-slug', params: { slug: store.product.slug } })
+  // router.push({ name: 'admin-ecommerce-products-slug', params: { slug: product.value.slug } })
+
+  showAttributesSlideout.value = false
 }
 
 const handleNewMediaSelectBtnClicked = () => {
-  // store.referenceMedia = 'productMedia'
-  // store.showMediaSelector = true
+  mediaReference.value = 'productMedia'
+  showMediaSelector.value = true
 }
 
 const updateStoreGallery = (gallery) => {
@@ -89,12 +102,12 @@ const updateStoreGallery = (gallery) => {
 }
 
 watch(
-  () => selectedMedia,
+  () => selectedFiles,
   (currentVal) => {
     console.log(currentVal)
-    if (mediaReference.value === 'productMedia') selectMedia(currentVal)
+    if (mediaReference.value === 'productMedia') setProductMedia(currentVal)
     // store.showMediaSelector = false
-    // store.selectedMedia = []
+    // store.selectedFiles = []
   },
   { deep: true }
 )
@@ -103,7 +116,7 @@ provide('saveProduct', saveProduct)
 </script>
 
 <template>
-  <div class="hfull flex-col items-center gap2 p3 border-red">
+  <div class="hfull flex-col items-center gap2 p3">
     <header class="flex-col gap2 wfull max-width-130">
       <div class="go-back" id="product-go-back">
         <NuxtLink class="admin-link" :to="{ name: 'admin-ecommerce-products' }">
@@ -113,13 +126,13 @@ provide('saveProduct', saveProduct)
       <h3 class="header">Edit Product</h3>
     </header>
     <!-- {{ product }} -->
-    <main class="main flex1 max-width-130 wfull border-pink">
+    <main class="main flex1 max-width-130 wfull">
       <!-- <div class="columns"> -->
       <div class="left-sidebar shadow-md">
         <EcommerceAdminProductsProductLeftSidebar />
       </div>
 
-      <div class="flex-col gap2 border-orange">
+      <div class="flex-col gap2">
         <EcommerceAdminProductsProductInfo />
         <EcommerceAdminProductsProductPrice />
         <EcommerceAdminImageGallery
@@ -130,34 +143,31 @@ provide('saveProduct', saveProduct)
           @newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
         />
 
-        <EcommerceAdminProductsProductAttributesContent
+        <EcommerceAdminProductsAttributesContent
           v-if="product._id && product.productType === 'variable'"
           @showAttributesSlideout="showAttributesSlideout = $event"
         />
-        <EcommerceAdminProductsProductAttributesSlideout v-if="showAttributesSlideout" />
-        <!-- <EcommerceAdminProductsProductAttributesSlideout
-          v-if="store.showAttributesSlideout"
-          :productAttributes="product.attributes"
-          :productId="product._id"
-          :showAttributesSlideout="showAttributesSlideout"
-          @slideoutEventEmitted="showAttributesSlideout = $event"
-        /> -->
-        <!-- </section> -->
-        <section
+        <EcommerceAdminProductsAttributesSlideout
+          v-if="showAttributesSlideout"
+          @closeSlideout="showAttributesSlideout = false"
+          @saveAttributes="saveProduct"
+        />
+
+        <!-- <section
           class="variants"
           id="variants"
-          v-if="product._id && product.type === 'variable' && product.attributes.length"
-        >
-          <!-- <EcommerceAdminProductVariantsContent
-						:productVariants="variants"
-						@slideoutEventEmitted="store.showVariantsSlideout = $event"
-					/> -->
-          <!-- <EcommerceAdminProductVariantsSlideout
-						v-if="store.showVariantsSlideout"
-						@slideoutEventEmitted="store.showVariantsSlideout = $event"
-						@saveProduct="saveProduct"
-					/> -->
-        </section>
+          v-if="product._id && product.productType === 'variable' && product.attributes.length"
+        > -->
+        <EcommerceAdminProductsVariantsContent
+          @showVariantsSlideout="showVariantsSlideout = $event"
+          v-if="product._id && product.productType === 'variable' && product.attributes.length"
+        />
+        <EcommerceAdminProductsVariantsSlideout
+          v-if="showVariantsSlideout"
+          @closeSlideout="showVariantsSlideout = false"
+          @saveVariants="saveProduct"
+        />
+        <!-- </section> -->
         <!-- <EcommerceAdminProductShippingOptions /> -->
         <!-- <EcommerceAdminProductDigitalDelivery /> -->
         <!-- <EcommerceAdminProductExtraFields /> -->
@@ -182,7 +192,7 @@ provide('saveProduct', saveProduct)
 
         <!-- <div class="media-selector" v-if="showMediaSelector">
 			<LazyMediaUploader
-				@mediaSelected="selectMedia"
+				@mediaSelected="setProductMedia"
 				@mediaSelectCancel="showMediaSelector = false"
 				v-if="showMediaSelector"
 			/>

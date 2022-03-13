@@ -3,7 +3,7 @@ const props = defineProps({
   index: {
     type: Number,
   },
-  showActions: {
+  showAction: {
     type: Boolean,
   },
   allAttributes: {
@@ -68,13 +68,13 @@ const updateAttribute = (event) => {
       :allAttributes="allAttributes"
       :allAttributeTerms="allAttributeTerms"
     />
-    <div class="active td">
+    <div class="td">
       <FormsBaseToggle
         v-model="product.attributes[index].enabled"
         v-if="Object.keys(product.attributes[index].attribute).length"
       />
     </div>
-    <div class="variation td">
+    <div class="td">
       <FormsBaseToggle
         v-model="product.attributes[index].variation"
         v-if="Object.keys(product.attributes[index].attribute).length && product.attributes[index].enabled"
@@ -86,16 +86,23 @@ const updateAttribute = (event) => {
       :index="index"
     />
     <EcommerceAdminProductsProductAttributeTerms class="td" :index="index" :allAttributeTerms="allAttributeTerms" />
-    <div class="td">
-      <div class="shadow-md p1 border border-slate-300 flex-col gap05" v-show="showActions">
+    <EcommerceAdminActions
+      class="td"
+      :showAction="showAction"
+      :showEdit="false"
+      @moreHoriz="$emit('resetActions', { index: index, action: !showAction })"
+      @deleteAction="$emit('removeAttribute', index)"
+    />
+    <!-- <div class="td">
+      <div class="shadow-md p1 border border-slate-300 flex-col gap05" v-show="showAction">
         <a href="#" class="link" @click.prevent="$emit('removeAttribute', index)">
           <div class="cancel">Delete</div>
         </a>
       </div>
-      <button class="btn btn__close p05" @click.prevent="$emit('resetActions', { index: index, action: !showActions })">
+      <button class="btn btn__close p05" @click.prevent="$emit('resetActions', { index: index, action: !showAction })">
         <IconsMoreHoriz />
       </button>
-    </div>
+    </div> -->
   </div>
 </template>
 

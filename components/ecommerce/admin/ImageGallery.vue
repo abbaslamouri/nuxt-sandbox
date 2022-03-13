@@ -151,14 +151,14 @@ watch(
           <IconsImage />
           <span> Select New Images </span>
         </button>
-        <button
+        <!-- <button
           v-if="galleryType === 'variant' && product.gallery.length"
           class="btn btn-image-select"
           @click.prevent="$emit('selectFromProductImages')"
         >
           <IconsImage />
           <span> Select From Product Images </span>
-        </button>
+        </button> -->
       </div>
       <p class="text-sm">PNG, JPG, and GIF Accepted</p>
     </div>

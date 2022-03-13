@@ -135,7 +135,7 @@ const deleteAllAttributes = () => {
 }
 
 const resetActions = (payload) => {
-  console.log(product.value.attributes)
+  // console.log(product.value.attributes)
   for (const prop in product.value.attributes) {
     showActionKeys.value[prop] = false
   }
@@ -172,7 +172,7 @@ const resetActions = (payload) => {
       <EcommerceAdminProductsProductAttributeCard
         v-for="(attribute, index) in product.attributes"
         :index="index"
-        :showActions="showActionKeys[index]"
+        :showAction="showActionKeys[index]"
         :allAttributes="allAttributes"
         :allAttributeTerms="allAttributeTerms"
         @termToDeleteUpdated="deletedTerms.push($event)"
