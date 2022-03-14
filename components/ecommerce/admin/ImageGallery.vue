@@ -15,27 +15,29 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'mediaSelectorClicked',
-  'galleryModified',
-  'selectFromProductImages',
-  'newMediaSelectBtnClicked',
+  'setGalleryImage',
+  'removeGalleryImage',
+  // 'mediaSelectorClicked',
+  // 'galleryModified',
+  // 'selectFromProductImages',
+  // 'newMediaSelectBtnClicked',
 ])
 
 // const state = inject('state')
 
 // const store = useStore()
-const currentGallery = ref([])
+// const currentGallery = ref([])
 const draggableElements = ref([])
 const pickIndex = ref(null)
 const hoveredImage = ref(null)
 
-for (const prop in props.gallery) {
-  currentGallery.value[prop] = props.gallery[prop]
-}
+// for (const prop in props.gallery) {
+//   currentGallery.value[prop] = props.gallery[prop]
+// }
 
 const mouseEnter = (event, index) => {
   event.target.classList.add('hovered')
-  hoveredImage.value = currentGallery.value[index]
+  hoveredImage.value = props.gallery[index]
 }
 
 const mouseLeave = (event, index) => {
@@ -43,9 +45,10 @@ const mouseLeave = (event, index) => {
   hoveredImage.value = null
 }
 
-const removeGalleryImage = (index) => {
-  currentGallery.value.splice(index, 1)
-}
+// const removeGalleryImage = (index) => {
+// emit('removeGalleryImage', index)
+// currentGallery.value.splice(index, 1)
+// }
 
 const handleDragstart = (event, index) => {
   pickIndex.value = index
@@ -66,10 +69,12 @@ const handleDragleave = (event) => {
   event.target.closest('.thumb').classList.remove('over')
 }
 const handleDrop = async (event, index) => {
-  const pickedElement = currentGallery.value[pickIndex.value]
-  const droppedElement = currentGallery.value[index]
-  currentGallery.value[pickIndex.value] = droppedElement
-  currentGallery.value[index] = pickedElement
+  const pickedElement = props.gallery[pickIndex.value]
+  const droppedElement = props.gallery[index]
+  emit('setGalleryImage', { index: pickIndex.value, value: droppedElement })
+  emit('setGalleryImage', { index: index, value: pickedElement })
+  // currentGallery.value[pickIndex.value] = pickedElement
+  // currentGallery.value[index] = pickedElement
   event.target.closest('.thumb').classList.remove('over')
 }
 
@@ -78,89 +83,63 @@ const setFeaturedImage = (event) => {
   // state.selectedItem.featuredImage = currentGallery.value[pickIndex.value]
 }
 
-watch(
-  () => currentGallery.value,
-  (currentVal) => {
-    console.log(currentVal)
-    emit('galleryModified', currentGallery.value)
-  },
-  { deep: true }
-)
+// watch(
+//   () => currentGallery.value,
+//   (currentVal) => {
+//     console.log(currentVal)
+//     emit('galleryModified', currentGallery.value)
+//   },
+//   { deep: true }
+// )
 </script>
 
 <template>
-  <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
-    <div class="flex-row items-center justify-between text-sm mb1">
-      <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Image Gallery</div>
-      <div></div>
+  <section class="flex-col gap2">
+    <div class="image-name br3 h4 flex-row items-center">
+      <span class="px3 text-xs" v-if="hoveredImage">{{ hoveredImage.name }}</span>
     </div>
-    <!-- <header class="admin-section-header">Image Gallery</header> -->
-    <div class="flex-col flex-col items-center gap2">
-      <div class="intro flex-row items-center gap1 bg-slate-200 py1 px2 br3 text-sm" v-if="galleryIntro">
-        <IconsInfo class="w3 h3 fill-sky-600" />
-        <p>{{ galleryIntro }}</p>
-      </div>
-      <div class="bg-slate-200 br3 h4 flex-row items-center">
-        <span class="px3" v-if="hoveredImage">{{ hoveredImage.name }}</span>
-      </div>
-      <div class="gallery" v-if="currentGallery && currentGallery.length">
+    <div class="gallery" v-if="gallery.length">
+      <div
+        class="thumb shadow-md border border-slate-200 p1 br5 cursor-pointer"
+        :class="{ product: galleryType === 'product' || galleryType == 'variant' }"
+        v-for="(image, index) in gallery"
+        :key="image._id"
+        @dragover="handleDragover($event, index)"
+        @drop="handleDrop($event, index)"
+        @dragleave="handleDragleave($event, index)"
+        @dragover.prevent
+        @mouseenter="mouseEnter($event, index)"
+        @mouseleave="mouseLeave($event, index)"
+      >
         <div
-          class="thumb shadow-md"
-          :class="{ product: galleryType === 'product' || galleryType == 'variant' }"
-          v-for="(image, index) in currentGallery"
-          :key="image._id"
-          @dragover="handleDragover($event, index)"
-          @drop="handleDrop($event, index)"
-          @dragleave="handleDragleave($event, index)"
-          @dragover.prevent
-          @mouseenter="mouseEnter($event, index)"
-          @mouseleave="mouseLeave($event, index)"
+          class="thumb__draggable"
+          :class="{ first: index == 0 }"
+          :ref="(el) => (draggableElements[index] = el)"
+          draggable="true"
+          @dragstart="handleDragstart($event, index)"
+          @dragend="handleDragend($event, index)"
         >
-          <div
-            class="thumb__draggable"
-            :class="{ first: index == 0 }"
-            :ref="(el) => (draggableElements[index] = el)"
-            draggable="true"
-            @dragstart="handleDragstart($event, index)"
-            @dragend="handleDragend($event, index)"
-          >
-            <img class="wfull hfull contain" :src="image.path" :alt="`${image.name} Photo`" draggable="false" />
-          </div>
-          <span class="thumb__delete" @click.prevent="removeGalleryImage(index)"><IconsDeleteFill /></span>
-          <div class="thumb__move"><IconsMove /></div>
-          <div class="thumb__index">{{ index + 1 }}</div>
-          <div class="thumb__imageTitle" v-if="index === 0">
-            <span>Thumbnail</span>
-          </div>
-          <div class="thumb__imageTitle" v-if="index === 1">
-            <span>Featured</span>
-          </div>
-          <div class="thumb__imageTitle" v-if="index === 2">
-            <span>Body</span>
-          </div>
-          <div class="thumb__imageTitle" v-if="index === 3">
-            <span>Attributes</span>
-          </div>
-          <div class="thumb__imageTitle" v-if="index === 4">
-            <span>Recipe</span>
-          </div>
+          <img class="wfull hfull contain" :src="image.path" :alt="`${image.name} Photo`" draggable="false" />
+        </div>
+        <span class="thumb__delete" @click.prevent="$emit('removeGalleryImage', index)"><IconsDeleteFill /></span>
+        <div class="thumb__move"><IconsMove /></div>
+        <div class="thumb__index">{{ index + 1 }}</div>
+        <div class="thumb__imageTitle" v-if="index === 0">
+          <span>Thumbnail</span>
+        </div>
+        <div class="thumb__imageTitle" v-if="index === 1">
+          <span>Featured</span>
+        </div>
+        <div class="thumb__imageTitle" v-if="index === 2">
+          <span>Body</span>
+        </div>
+        <div class="thumb__imageTitle" v-if="index === 3">
+          <span>Attributes</span>
+        </div>
+        <div class="thumb__imageTitle" v-if="index === 4">
+          <span>Recipe</span>
         </div>
       </div>
-      <div class="image-select-actions">
-        <button class="btn btn__image-select" @click.prevent="$emit('newMediaSelectBtnClicked')">
-          <IconsImage />
-          <span> Select New Images </span>
-        </button>
-        <!-- <button
-          v-if="galleryType === 'variant' && product.gallery.length"
-          class="btn btn-image-select"
-          @click.prevent="$emit('selectFromProductImages')"
-        >
-          <IconsImage />
-          <span> Select From Product Images </span>
-        </button> -->
-      </div>
-      <p class="text-sm">PNG, JPG, and GIF Accepted</p>
     </div>
   </section>
 </template>
@@ -168,237 +147,228 @@ watch(
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
 
-.admin-image-gallery {
-  .gallery {
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+  border: 1px solid $slate-200;
+  border-radius: 5px;
+
+  .thumb {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 2rem;
-    padding: 2rem;
-    // min-height: 20px;
-    border: 1px solid $slate-200;
-    border-radius: 5px;
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
 
-    .thumb {
-      display: grid;
-      grid-template-rows: repeat(3, 1fr);
-      grid-template-columns: repeat(3, 1fr);
+    // border: 1px solid red;
 
-      // gap: 3rem;
+    &__index {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+      transform: translate(-100%, -100%);
+      background-color: $slate-600;
+      width: 1.8rem;
+      height: 1.8rem;
+      color: $slate-50;
+      border-radius: 50%;
+      font-size: x-small;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-      // display: flex;
-      // justify-content: center;
-      // align-items: center;
-      // position: relative;
-      border: 1px solid $slate-200;
-      padding: 1rem;
-      cursor: pointer;
-      border-radius: 5px;
-      // border: 1px solid red;
+    &__draggable {
+      grid-column: 1 / 4;
+      grid-row: 1 / 4;
+    }
 
-      &__index {
-        grid-column: 1 / 2;
-        grid-row: 1 / 2;
-        transform: translate(-100%, -100%);
+    &__delete {
+      grid-column: 3 / 4;
+      grid-row: 1 / 2;
+      top: 1rem;
+      right: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+
+      svg {
+        fill: $slate-50;
+      }
+    }
+
+    &__move {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      opacity: 0;
+      visibility: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      svg {
+        fill: $slate-50;
+      }
+    }
+
+    &__imageTitle {
+      grid-column: 1 / 4;
+      grid-row: 1 / 2;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      transform: translateY(-30%);
+
+      span {
         background-color: $slate-600;
-        width: 1.8rem;
-        height: 1.8rem;
         color: $slate-50;
-        border-radius: 50%;
-        font-size: x-small;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border-radius: 3px;
       }
+    }
 
-      &__draggable {
-        grid-column: 1 / 4;
-        grid-row: 1 / 4;
-      }
+    // &__tooltip {
+    //   grid-column: 1 / 4;
+    //   grid-row: 1 / 2;
+    //   opacity: 0;
+    // }
 
-      &__delete {
-        grid-column: 3 / 4;
-        grid-row: 1 / 2;
-        top: 1rem;
-        right: 1rem;
-        opacity: 0;
-        visibility: hidden;
-        display: flex;
-        justify-content: flex-end;
-        align-items: flex-start;
+    &:first-child {
+      grid-column: span 2 / span 2;
+      grid-row: span 2 / span 2;
+    }
 
-        svg {
-          fill: $slate-50;
-        }
-      }
-
-      &__move {
-        grid-column: 2 / 3;
-        grid-row: 2 / 3;
-        opacity: 0;
-        visibility: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        svg {
-          fill: $slate-50;
-        }
-      }
-
-      &__imageTitle {
-        grid-column: 1 / 4;
-        grid-row: 1 / 2;
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        transform: translateY(-30%);
-
-        span {
-          background-color: $slate-600;
-          color: $slate-50;
-          padding: 0.5rem 1rem;
-          font-size: 1rem;
-          border-radius: 3px;
-        }
-      }
-
-      // &__tooltip {
-      //   grid-column: 1 / 4;
-      //   grid-row: 1 / 2;
-      //   opacity: 0;
-      // }
-
-      &:first-child {
+    &.product {
+      &:nth-of-type(2),
+      &:nth-of-type(3),
+      &:nth-of-type(4),
+      &:nth-of-type(5) {
         grid-column: span 2 / span 2;
         grid-row: span 2 / span 2;
       }
+    }
 
-      &.product {
-        &:nth-of-type(2),
-        &:nth-of-type(3),
-        &:nth-of-type(4),
-        &:nth-of-type(5) {
-          grid-column: span 2 / span 2;
-          grid-row: span 2 / span 2;
-        }
+    // img {
+    //   width: 100%;
+    //   height: 100%;
+    //   object-fit: contain;
+    // }
+
+    // &__delete {
+    //   // position: absolute;
+    //   top: 1rem;
+    //   right: 1rem;
+    //   opacity: 0;
+    //   visibility: hidden;
+
+    //   svg {
+    //     fill: $slate-50;
+    //   }
+    // }
+
+    // &__move {
+    //   // position: absolute;
+    //   top: 50%;
+    //   left: 50%;
+    //   transform: translate(-50%, -50%);
+    //   opacity: 0;
+    //   visibility: hidden;
+
+    //   svg {
+    //     fill: $slate-50;
+    //   }
+    // }
+
+    // &__index {
+    //   // position: absolute;
+    //   top: 2%;
+    //   left: 2%;
+    //   transform: translate(-50%, -50%);
+    //   background-color: $slate-600;
+    //   width: 1.5rem;
+    //   height: 1.5rem;
+    //   color: $slate-50;
+    //   border-radius: 50%;
+    //   font-size: x-small;
+    //   display: flex;
+    //   justify-content: center;
+    //   align-items: center;
+    // }
+
+    // &__tooltip {
+    //   position: absolute;
+    //   top: -1.5rem;
+    //   left: 50%;
+    //   transform: translate(-50%, -100%);
+    //   background-color: $slate-600;
+    //   display: grid;
+    //   grid-template-columns: minmax(max-content, 40rem);
+    //   color: white;
+    //   padding: 1rem 2rem;
+    //   border-radius: 5px;
+    //   font-weight: 500;
+    //   opacity: 0;
+    //   visibility: hidden;
+
+    //   &::after {
+    //     content: '';
+    //     position: absolute;
+    //     top: 100%;
+    //     left: 50%;
+    //     margin-left: -5px;
+    //     border-width: 5px;
+    //     border-style: solid;
+    //     border-color: $slate-600 transparent transparent transparent;
+    //   }
+    // }
+
+    &.hovered {
+      background-color: $slate-500;
+
+      img {
+        opacity: 0.1;
       }
 
-      // img {
-      //   width: 100%;
-      //   height: 100%;
-      //   object-fit: contain;
-      // }
-
-      // &__delete {
-      //   // position: absolute;
-      //   top: 1rem;
-      //   right: 1rem;
-      //   opacity: 0;
-      //   visibility: hidden;
-
-      //   svg {
-      //     fill: $slate-50;
-      //   }
-      // }
-
-      // &__move {
-      //   // position: absolute;
-      //   top: 50%;
-      //   left: 50%;
-      //   transform: translate(-50%, -50%);
-      //   opacity: 0;
-      //   visibility: hidden;
-
-      //   svg {
-      //     fill: $slate-50;
-      //   }
-      // }
-
-      // &__index {
-      //   // position: absolute;
-      //   top: 2%;
-      //   left: 2%;
-      //   transform: translate(-50%, -50%);
-      //   background-color: $slate-600;
-      //   width: 1.5rem;
-      //   height: 1.5rem;
-      //   color: $slate-50;
-      //   border-radius: 50%;
-      //   font-size: x-small;
-      //   display: flex;
-      //   justify-content: center;
-      //   align-items: center;
-      // }
-
-      // &__tooltip {
-      //   position: absolute;
-      //   top: -1.5rem;
-      //   left: 50%;
-      //   transform: translate(-50%, -100%);
-      //   background-color: $slate-600;
-      //   display: grid;
-      //   grid-template-columns: minmax(max-content, 40rem);
-      //   color: white;
-      //   padding: 1rem 2rem;
-      //   border-radius: 5px;
-      //   font-weight: 500;
-      //   opacity: 0;
-      //   visibility: hidden;
-
-      //   &::after {
-      //     content: '';
-      //     position: absolute;
-      //     top: 100%;
-      //     left: 50%;
-      //     margin-left: -5px;
-      //     border-width: 5px;
-      //     border-style: solid;
-      //     border-color: $slate-600 transparent transparent transparent;
-      //   }
-      // }
-
-      &.hovered {
-        background-color: $slate-500;
-
-        img {
-          opacity: 0.1;
-        }
-
-        .thumb__tooltip,
-        .thumb__delete,
-        .thumb__move {
-          opacity: 1;
-          visibility: visible;
-        }
+      .thumb__tooltip,
+      .thumb__delete,
+      .thumb__move {
+        opacity: 1;
+        visibility: visible;
       }
 
-      &.over {
-        opacity: 0.3;
-        border: 2px dashed $slate-600;
-      }
-
-      &.featured-image,
-      &.body-bg-image,
-      &.attributes-image,
-      &.recipe-image,
-      &.thumb-image {
-        // border: 1px solid red;
-        min-width: 10rem;
-        min-height: 10rem;
+      .thumb__delete {
+        z-index: 1;
       }
     }
-  }
-  // }
 
-  .image-select-actions {
-    display: flex;
-    gap: 3rem;
-  }
-  // }
+    &.over {
+      opacity: 0.3;
+      border: 2px dashed $slate-600;
+    }
 
-  // .featured-image {
-  //   min-height: 10rem;
-  //   min-width: 1orem;
-  //   border: 1px solid red;
-  // }
+    &.featured-image,
+    &.body-bg-image,
+    &.attributes-image,
+    &.recipe-image,
+    &.thumb-image {
+      // border: 1px solid red;
+      min-width: 10rem;
+      min-height: 10rem;
+    }
+  }
 }
+// }
+
+.image-select-actions {
+  display: flex;
+  gap: 3rem;
+}
+// }
+
+// .featured-image {
+//   min-height: 10rem;
+//   min-width: 1orem;
+//   border: 1px solid red;
+// }
 </style>

@@ -15,7 +15,7 @@ const props = defineProps({
 const emit = defineEmits(['slideoutEventEmitted'])
 
 const { product, variants } = useStore()
-const { selectedMedia, mediaReference } = useFactory()
+const { galleryMedia, mediaReference, showMediaSelector } = useFactory()
 
 const allAttributes = inject('allAttributes')
 const allAttributeTerms = inject('allAttributeTerms')
@@ -23,8 +23,10 @@ const allAttributeTerms = inject('allAttributeTerms')
 // const store = useStore()
 const appMessage = useMessage()
 const showAlert = ref(false)
-const showMediaSelector = ref(false) // media selector toggler
+// const showMediaSelector = ref(false) // media selector toggler
 const showProductGallery = ref(false)
+const galleryIntro = ref('This image gallery contains all images associated with this product variant.')
+
 const current = JSON.stringify(variants.value[props.index])
 
 const getVariantAttribute = (term, j) => {
@@ -101,7 +103,7 @@ const updateVariant = () => {
 }
 
 const handleNewMediaSelectBtnClicked = () => {
-  referenceMedia.value = 'variantMedia'
+  mediaReference.value = 'variantMedia'
   showMediaSelector.value = true
 }
 
@@ -116,12 +118,12 @@ const handleNewMediaSelectBtnClicked = () => {
 // )
 
 watch(
-  () => selectedMedia.value,
+  () => galleryMedia.value,
   (currentVal) => {
     console.log(currentVal)
-    if (referenceMedia.value === 'variantMedia') updateVariantMedia(currentVal)
+    if (mediaReference.value === 'variantMedia') updateVariantMedia(currentVal)
     // store.showMediaSelector = false
-    // store.selectedMedia = []
+    // store.galleryMedia = []
   },
   { deep: true }
 )
@@ -139,59 +141,107 @@ watch(
       </div>
     </template>
     <template v-slot:default>
-      <div class="variant-edit-details">
-        <!-- <pre style="font-size: 1rem">{{ variants[index] }}</pre> -->
-        <h3>Variant Options</h3>
-        <div class="attribute-terms">
-          <div class="term" v-for="(term, j) in variants[index].attrTerms" :key="term._id">
-            {{ variants[index].attrTerms[j]._id }}
-            <FormsBaseSelect
-              v-model="variants[index].attrTerms[j]._id"
-              :label="getVariantAttribute(term, j).name"
-              @update:modelValue="setAttributeTerm(j, $event)"
-              :options="getVariantAttributeTerm(term, j)"
-            />
-          </div>
+      <div class="variant-edit-details border-red bg-slate-100">
+      <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
+        <div class="flex-row items-center justify-between text-sm mb1">
+          <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Variant Options</div>
+          <div></div>
         </div>
-        <div class="enabled">
-          <FormsBaseToggle v-model="variants[index].enabled" label="Enabled" />
-        </div>
-        <EcommerceAdminImageGallery
-          :gallery="variants[index].gallery"
-          galleryType="variant"
-          @newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
-          @selectFromProductImages="showProductGallery = true"
-        />
-        <EcommerceAdminImageGallerySelect
-          :index="index"
-          :showProductGallery="showProductGallery"
-          @productGalleryEventEmitted="showProductGallery = $event"
-        />
-
-        <div class="sku-stock">
-          <div class="sku">
-            <FormsBaseInput label="SKU" placeholder="SKU" v-model="variants[index].sku" />
-          </div>
-          <div class="stock">
-            <FormsBaseInput
-              label="Stck Qty"
-              placeholder="Stock Qty"
-              v-model="variants[index].stockQty"
-              v-if="product.manageInventory"
-            />
-            <div class="base-input" v-else>
-              <input type="text" placeholder="stock Qty." disabled />
-              <label>Enable product manageInventory to set Stock Qty.</label>
+        <div class="flex-col gap2">
+          <!-- <div> -->
+          <div class="attribute-terms flex-row gap2">
+            <div class="term" v-for="(term, j) in variants[index].attrTerms" :key="term._id">
+              <FormsBaseSelect
+                v-model="variants[index].attrTerms[j]._id"
+                :label="getVariantAttribute(term, j).name"
+                @update:modelValue="setAttributeTerm(j, $event)"
+                :options="getVariantAttributeTerm(term, j)"
+              />
             </div>
           </div>
+          <div class="enabled">
+            <FormsBaseToggle v-model="variants[index].enabled" label="Enabled" />
+          </div>
         </div>
-        <div class="price">
-          <FormsBaseInput label="Price" placeholder="Price" currency v-model="variants[index].price" />
-          <FormsBaseInput label="Sale Price" placeholder="Sale Price" currency v-model="variants[index].salePrice" />
+        <!-- </div> -->
+      </section>
+
+      <!-- <pre style="font-size: 1rem">{{ variants[index] }}</pre> -->
+
+      <!-- <div class="maxw60 items-self-center">
+          <EcommerceAdminImageGallery
+            :gallery="variants[index].gallery"
+            :galleryIntro="galleryIntro"
+            galleryType="variant"
+            @newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
+            @selectFromProductImages="showProductGallery = true"
+            @removeGalleryImage="product.gallery.splice($event, 1)"
+            @setGalleryImage="product.gallery[$event.index] = $event.value"
+          />
+        </div> -->
+      <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
+        <div class="flex-row items-center justify-between text-sm mb1">
+          <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Image Gallery</div>
+          <div></div>
         </div>
-        <div class="description">
-          <FormsBaseInput label="Description" placeholder="Description" v-model="variants[index].description" />
+        <div class="flex-col gap2">
+          <div class="items-self-center flex-col items-center gap2 maxw60">
+            <div class="intro flex-row items-center gap1 bg-slate-200 py1 px2 br3 text-sm" v-if="galleryIntro">
+              <IconsInfo class="w3 h3 fill-sky-600" />
+              <p>{{ galleryIntro }}</p>
+            </div>
+            <EcommerceAdminImageGallery
+              :gallery="variants[index].gallery"
+              :galleryIntro="galleryIntro"
+              galleryType="variant"
+              @removeGalleryImage="variants[index].gallery.splice($event, 1)"
+              @setGalleryImage="variants[index].gallery[$event.index] = $event.value"
+            />
+            <div class="flex-row gap2">
+              <button class="btn btn__image-select" @click.prevent="handleNewMediaSelectBtnClicked">
+                <IconsImage />
+                <span> Select New Images </span>
+              </button>
+              <button class="btn btn__image-select" @click.prevent="showProductGallery = true">
+                <IconsImage />
+                <span> Select From Product Images </span>
+              </button>
+            </div>
+            <p class="text-sm">PNG, JPG, and GIF Accepted</p>
+          </div>
         </div>
+      </section>
+
+      <EcommerceAdminProductsVariantsSelectExisting
+        :index="index"
+        :showProductGallery="showProductGallery"
+        @productGalleryEventEmitted="showProductGallery = $event"
+      />
+
+      <div class="sku-stock">
+        <div class="sku">
+          <FormsBaseInput label="SKU" placeholder="SKU" v-model="variants[index].sku" />
+        </div>
+        <div class="stock">
+          <FormsBaseInput
+            label="Stck Qty"
+            placeholder="Stock Qty"
+            v-model="variants[index].stockQty"
+            v-if="product.manageInventory"
+          />
+          <div class="base-input" v-else>
+            <input type="text" placeholder="stock Qty." disabled />
+            <label>Enable product manageInventory to set Stock Qty.</label>
+          </div>
+        </div>
+      </div>
+      <div class="price">
+        <FormsBaseInput label="Price" placeholder="Price" currency v-model="variants[index].price" />
+        <FormsBaseInput label="Sale Price" placeholder="Sale Price" currency v-model="variants[index].salePrice" />
+      </div>
+      <div class="description">
+        <FormsBaseInput label="Description" placeholder="Description" v-model="variants[index].description" />
+      </div>
       </div>
     </template>
     <template v-slot:footer>
@@ -221,7 +271,7 @@ watch(
     font-size: 1.4rem;
     font-weight: 400;
   }
-  .variant-edit-details {
+  .variant-edit-detailsx {
     width: 100%;
     display: flex;
     flex-direction: column;

@@ -19,7 +19,7 @@ const useFactory = () => {
   })
   const errorMsg = useState('errorMsg', () => '')
   const message = useState('message', () => '')
-  const selectedFiles = useState('selectedFiles', () => [])
+  const galleryMedia = useState('galleryMedia', () => [])
   const mediaReference = useState('mediaReference', () => [])
   const showMediaSelector = useState('showMediaSelector', () => false)
 
@@ -100,7 +100,7 @@ const useFactory = () => {
     state,
     errorMsg,
     message,
-    selectedFiles,
+    galleryMedia,
     mediaReference,
     showMediaSelector,
     alert,

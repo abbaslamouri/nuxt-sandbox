@@ -11,7 +11,7 @@ definePageMeta({
 })
 
 const { product, variants } = useStore()
-const { errorMsg, selectedFiles, mediaReference, showMediaSelector, fetchBySlug, fetchAll, saveDoc } = useFactory()
+const { errorMsg, galleryMedia, mediaReference, showMediaSelector, fetchBySlug, fetchAll, saveDoc } = useFactory()
 // provide('store', store)
 // provide('fetchAll', fetchAll)
 
@@ -56,13 +56,13 @@ console.log('PPP', product.value)
 // }
 
 // Set category gallery
-const setProductMedia = async (media) => {
-  console.log('mediap', media.value)
+const setImageGallery = async (media) => {
+  console.log('mediap', media)
   // showMediaSelector.value = false
-  for (const prop in media.value) {
-    const index = product.value.gallery.findIndex((el) => el._id == media.value[prop]._id)
+  for (const prop in media) {
+    const index = product.value.gallery.findIndex((el) => el._id == media[prop]._id)
     if (index === -1) {
-      product.value.gallery.push(media.value[prop])
+      product.value.gallery.push(media[prop])
     }
   }
   console.log(product.value.gallery)
@@ -102,12 +102,12 @@ const updateStoreGallery = (gallery) => {
 }
 
 watch(
-  () => selectedFiles,
+  () => galleryMedia.value,
   (currentVal) => {
     console.log(currentVal)
-    if (mediaReference.value === 'productMedia') setProductMedia(currentVal)
+    if (mediaReference.value === 'productMedia') setImageGallery(currentVal)
     // store.showMediaSelector = false
-    // store.selectedFiles = []
+    // store.galleryMedia = []
   },
   { deep: true }
 )
@@ -135,13 +135,41 @@ provide('saveProduct', saveProduct)
       <div class="flex-col gap2">
         <EcommerceAdminProductsProductInfo />
         <EcommerceAdminProductsProductPrice />
-        <EcommerceAdminImageGallery
-          :gallery="product.gallery"
-          :galleryIntro="galleryIntro"
-          galleryType="product"
-          @galleryModified="updateStoreGallery"
-          @newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
-        />
+
+        <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
+          <div class="flex-row items-center justify-between text-sm mb1">
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Image Gallery</div>
+            <div></div>
+          </div>
+          <div class="flex-col flex-col items-center gap2">
+            <div class="intro flex-row items-center gap1 bg-slate-200 py1 px2 br3 text-sm" v-if="galleryIntro">
+              <IconsInfo class="w3 h3 fill-sky-600" />
+              <p>{{ galleryIntro }}</p>
+            </div>
+            <EcommerceAdminImageGallery
+              :gallery="product.gallery"
+              :galleryIntro="galleryIntro"
+              galleryType="product"
+              @removeGalleryImage="product.gallery.splice($event, 1)"
+              @setGalleryImage="product.gallery[$event.index] = $event.value"
+            />
+            <div class="image-select-actions">
+              <button class="btn btn__image-select" @click.prevent="handleNewMediaSelectBtnClicked">
+                <IconsImage />
+                <span> Select New Images </span>
+              </button>
+              <!-- <button
+              v-if="galleryType === 'variant' && product.gallery.length"
+              class="btn btn-image-select"
+              @click.prevent="$emit('selectFromProductImages')"
+            >
+              <IconsImage />
+              <span> Select From Product Images </span>
+            </button> -->
+            </div>
+            <p class="text-sm">PNG, JPG, and GIF Accepted</p>
+          </div>
+        </section>
 
         <EcommerceAdminProductsAttributesContent
           v-if="product._id && product.productType === 'variable'"
@@ -192,7 +220,7 @@ provide('saveProduct', saveProduct)
 
         <!-- <div class="media-selector" v-if="showMediaSelector">
 			<LazyMediaUploader
-				@mediaSelected="setProductMedia"
+				@mediaSelected="setImageGallery"
 				@mediaSelectCancel="showMediaSelector = false"
 				v-if="showMediaSelector"
 			/>
