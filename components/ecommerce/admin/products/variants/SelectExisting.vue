@@ -6,9 +6,9 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-  showProductGallery: {
-    type: Boolean,
-  },
+  // showProductGallery: {
+  //   type: Boolean,
+  // },
 })
 
 const emit = defineEmits(['productGalleryEventEmitted'])
@@ -38,7 +38,7 @@ const cancelSelectedImages = () => {
 </script>
 
 <template>
-  <div class="variant-select-existing" v-if="showProductGallery">
+  <div class="variant-select-existing" >
     <div class="overlay"></div>
     <div class="wrapper">
       <div class="content shadow-md">

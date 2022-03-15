@@ -9,11 +9,13 @@ const selectedCategoryIds = ref([])
 const allCategories = (await fetchAll(`categories`, { fields: 'name, slug, permalink, description, parent, gallery' }))
   .docs
 
-selectedCategoryIds.value = [
-  ...product.value.categories.map((c) => {
-    return c._id
-  }),
-]
+selectedCategoryIds.value = product.value.categories
+  ? [
+      ...product.value.categories.map((c) => {
+        return c._id
+      }),
+    ]
+  : []
 
 // Update product categories
 const updateProductCategories = (event) => {

@@ -132,116 +132,128 @@ watch(
 <template>
   <Slideout @closeSlideout="closeSlideout" class="variant-edit">
     <template v-slot:header>
-      <div class="title">
-        <div>Edit Variant:</div>
-        <div class="attribute-terms" v-for="(term, j) in variants[index].attrTerms" :key="`term-${j}`">
-          <span class="attribute">{{ getVariantAttribute(term, j).name }}:</span>
-          <span class="term" v-if="Object.keys(term).length">{{ term.name }}</span>
+      <div class="flex-row gap2 ietms-center">
+        <div class="text-md font-bold">Edit Variant:</div>
+        <div class="flex-row items-center gap1" v-for="(term, j) in variants[index].attrTerms" :key="`term-${j}`">
+          <span class="font-bold">{{ getVariantAttribute(term, j).name }}:</span>
+          <span v-if="Object.keys(term).length">{{ term.name }}</span>
         </div>
       </div>
     </template>
     <template v-slot:default>
-      <div class="variant-edit-details border-red bg-slate-100">
-      <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
-        <div class="flex-row items-center justify-between text-sm mb1">
-          <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Variant Options</div>
-          <div></div>
-        </div>
-        <div class="flex-col gap2">
-          <!-- <div> -->
-          <div class="attribute-terms flex-row gap2">
-            <div class="term" v-for="(term, j) in variants[index].attrTerms" :key="term._id">
-              <FormsBaseSelect
-                v-model="variants[index].attrTerms[j]._id"
-                :label="getVariantAttribute(term, j).name"
-                @update:modelValue="setAttributeTerm(j, $event)"
-                :options="getVariantAttributeTerm(term, j)"
+      <div class="flex-col gap2 p2">
+        {{ variants[index] }}
+        <EcommerceAdminProductsVariantsOptions :index="index" />
+        <!-- <section class="shadow-md wfull bg-white p2 br5" id="details">
+          <div class="flex-row items-center justify-between text-sm mb1">
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Variant Options</div>
+            <div></div>
+          </div>
+          <div class="flex-col gap2">
+            <div class="flex-row gap2">
+              <div class="flex1" v-for="(term, j) in variants[index].attrTerms" :key="term._id">
+                <FormsBaseSelect
+                  v-model="variants[index].attrTerms[j]._id"
+                  :label="getVariantAttribute(term, j).name"
+                  @update:modelValue="setAttributeTerm(j, $event)"
+                  :options="getVariantAttributeTerm(term, j)"
+                />
+              </div>
+            </div>
+            <div class="enabled">
+              <FormsBaseToggle v-model="variants[index].enabled" label="Enabled" />
+            </div>
+          </div>
+        </section> -->
+        <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
+          <div class="flex-row items-center justify-between text-sm mb1">
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Image Gallery</div>
+            <div></div>
+          </div>
+          <div class="flex-col gap2">
+            <div class="items-self-center flex-col items-center gap2 maxw60">
+              <div class="intro flex-row items-center gap1 bg-slate-200 py1 px2 br3 text-sm" v-if="galleryIntro">
+                <IconsInfo class="w3 h3 fill-sky-600" />
+                <p>{{ galleryIntro }}</p>
+              </div>
+              <EcommerceAdminImageGallery
+                v-if="!showProductGallery"
+                :gallery="variants[index].gallery"
+                :galleryIntro="galleryIntro"
+                galleryType="variant"
+                @removeGalleryImage="variants[index].gallery.splice($event, 1)"
+                @setGalleryImage="variants[index].gallery[$event.index] = $event.value"
+              />
+              <EcommerceAdminProductsVariantsSelectExisting
+                v-else
+                :index="index"
+                @productGalleryEventEmitted="showProductGallery = $event"
+              />
+              <div class="flex-row gap2">
+                <button class="btn btn__image-select" @click.prevent="handleNewMediaSelectBtnClicked">
+                  <IconsImage />
+                  <span> Select New Images </span>
+                </button>
+                <button class="btn btn__image-select" @click.prevent="showProductGallery = true">
+                  <IconsImage />
+                  <span> Select From Product Images </span>
+                </button>
+              </div>
+              <p class="text-sm">PNG, JPG, and GIF Accepted</p>
+            </div>
+          </div>
+        </section>
+        <section class="shadow-md wfull bg-white p2 br5" id="details">
+          <div class="flex-row items-center justify-between text-sm mb1">
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Price</div>
+            <div></div>
+          </div>
+          <div class="flex-col gap2">
+            <div class="flex-row gap2">
+              <FormsBaseInput label="Price" placeholder="Price" currency v-model="variants[index].price" />
+              <FormsBaseInput
+                label="Sale Price"
+                placeholder="Sale Price"
+                currency
+                v-model="variants[index].salePrice"
               />
             </div>
           </div>
-          <div class="enabled">
-            <FormsBaseToggle v-model="variants[index].enabled" label="Enabled" />
+        </section>
+        <section class="shadow-md wfull bg-white p2 br5" id="details">
+          <div class="flex-row items-center justify-between text-sm mb1">
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Stock Management</div>
+            <div></div>
           </div>
-        </div>
-        <!-- </div> -->
-      </section>
-
-      <!-- <pre style="font-size: 1rem">{{ variants[index] }}</pre> -->
-
-      <!-- <div class="maxw60 items-self-center">
-          <EcommerceAdminImageGallery
-            :gallery="variants[index].gallery"
-            :galleryIntro="galleryIntro"
-            galleryType="variant"
-            @newMediaSelectBtnClicked="handleNewMediaSelectBtnClicked"
-            @selectFromProductImages="showProductGallery = true"
-            @removeGalleryImage="product.gallery.splice($event, 1)"
-            @setGalleryImage="product.gallery[$event.index] = $event.value"
-          />
-        </div> -->
-      <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
-        <div class="flex-row items-center justify-between text-sm mb1">
-          <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Image Gallery</div>
-          <div></div>
-        </div>
-        <div class="flex-col gap2">
-          <div class="items-self-center flex-col items-center gap2 maxw60">
-            <div class="intro flex-row items-center gap1 bg-slate-200 py1 px2 br3 text-sm" v-if="galleryIntro">
-              <IconsInfo class="w3 h3 fill-sky-600" />
-              <p>{{ galleryIntro }}</p>
-            </div>
-            <EcommerceAdminImageGallery
-              :gallery="variants[index].gallery"
-              :galleryIntro="galleryIntro"
-              galleryType="variant"
-              @removeGalleryImage="variants[index].gallery.splice($event, 1)"
-              @setGalleryImage="variants[index].gallery[$event.index] = $event.value"
-            />
+          <div class="flex-col gap2">
             <div class="flex-row gap2">
-              <button class="btn btn__image-select" @click.prevent="handleNewMediaSelectBtnClicked">
-                <IconsImage />
-                <span> Select New Images </span>
-              </button>
-              <button class="btn btn__image-select" @click.prevent="showProductGallery = true">
-                <IconsImage />
-                <span> Select From Product Images </span>
-              </button>
+              <FormsBaseInput label="SKU" placeholder="SKU" v-model="variants[index].sku" />
+              <div class="stock">
+                <FormsBaseInput
+                  label="Stck Qty"
+                  placeholder="Stock Qty"
+                  v-model="variants[index].stockQty"
+                  v-if="product.manageInventory"
+                />
+                <div class="base-input" v-else>
+                  <input type="text" placeholder="stock Qty." disabled />
+                  <label>Enable product manageInventory to set Stock Qty.</label>
+                </div>
+              </div>
             </div>
-            <p class="text-sm">PNG, JPG, and GIF Accepted</p>
           </div>
-        </div>
-      </section>
-
-      <EcommerceAdminProductsVariantsSelectExisting
-        :index="index"
-        :showProductGallery="showProductGallery"
-        @productGalleryEventEmitted="showProductGallery = $event"
-      />
-
-      <div class="sku-stock">
-        <div class="sku">
-          <FormsBaseInput label="SKU" placeholder="SKU" v-model="variants[index].sku" />
-        </div>
-        <div class="stock">
-          <FormsBaseInput
-            label="Stck Qty"
-            placeholder="Stock Qty"
-            v-model="variants[index].stockQty"
-            v-if="product.manageInventory"
-          />
-          <div class="base-input" v-else>
-            <input type="text" placeholder="stock Qty." disabled />
-            <label>Enable product manageInventory to set Stock Qty.</label>
+        </section>
+        <section class="shadow-md wfull bg-white p2 br5" id="details">
+          <div class="flex-row items-center justify-between text-sm mb1">
+            <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Description</div>
+            <div></div>
           </div>
-        </div>
-      </div>
-      <div class="price">
-        <FormsBaseInput label="Price" placeholder="Price" currency v-model="variants[index].price" />
-        <FormsBaseInput label="Sale Price" placeholder="Sale Price" currency v-model="variants[index].salePrice" />
-      </div>
-      <div class="description">
-        <FormsBaseInput label="Description" placeholder="Description" v-model="variants[index].description" />
-      </div>
+          <div class="flex-col gap2">
+            <div class="flex-row gap2">
+              <FormsBaseInput label="Description" placeholder="Description" v-model="variants[index].description" />
+            </div>
+          </div>
+        </section>
       </div>
     </template>
     <template v-slot:footer>

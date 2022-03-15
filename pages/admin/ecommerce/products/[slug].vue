@@ -31,13 +31,15 @@ const galleryIntro = ref('This image gallery contains all images associated with
 const slug = route.params.slug === ' ' ? null : route.params.slug
 
 product.value = await fetchBySlug('products', slug)
-variants.value = (
-  await fetchAll('variants', {
-    fields: 'product, attrattributeTerms, gallery',
-    product: product.value._id,
-  })
-).docs
-product.value.productType = 'variable'
+variants.value = product.value._id
+  ? (
+      await fetchAll('variants', {
+        fields: 'product, attrattributeTerms, gallery',
+        product: product.value._id,
+      })
+    ).docs
+  : []
+// product.value.productType = 'variable'
 console.log('PPP', product.value)
 
 // let response = await fetchSingle(slug)
@@ -70,12 +72,13 @@ const setImageGallery = async (media) => {
 
 const saveProduct = async () => {
   console.log(product.value)
+  if (!product.value.name) return (errorMsg.value = 'Product name is required')
   product.value.slug = slugify(product.value.name, { lower: true })
   if (!product.value.permalink) product.value.permalink = slugify(product.value.name, { lower: true })
   const response = await saveDoc('products', product.value)
   console.log('SAVE', response)
   if (!response) return
-  product.value = response
+  // product.value = response
   // await deleteVariants(product.value._id)
   // if (errorMsg.value) return
   // if (!variants.value.length) {
@@ -89,6 +92,7 @@ const saveProduct = async () => {
   // router.push({ name: 'admin-ecommerce-products-slug', params: { slug: product.value.slug } })
 
   showAttributesSlideout.value = false
+  router.push({ name: 'admin-ecommerce-products-slug', params: { slug: product.value.slug } })
 }
 
 const handleNewMediaSelectBtnClicked = () => {
@@ -127,7 +131,6 @@ provide('saveProduct', saveProduct)
     </header>
     <!-- {{ product }} -->
     <main class="main flex1 max-width-130 wfull">
-      <!-- <div class="columns"> -->
       <div class="left-sidebar shadow-md">
         <EcommerceAdminProductsProductLeftSidebar />
       </div>
@@ -158,14 +161,6 @@ provide('saveProduct', saveProduct)
                 <IconsImage />
                 <span> Select New Images </span>
               </button>
-              <!-- <button
-              v-if="galleryType === 'variant' && product.gallery.length"
-              class="btn btn-image-select"
-              @click.prevent="$emit('selectFromProductImages')"
-            >
-              <IconsImage />
-              <span> Select From Product Images </span>
-            </button> -->
             </div>
             <p class="text-sm">PNG, JPG, and GIF Accepted</p>
           </div>

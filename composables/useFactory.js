@@ -73,7 +73,7 @@ const useFactory = () => {
           body: doc,
         })
       } else {
-        await $fetch(`/api/v1/${resource}`, { method: 'POST', body: doc })
+        response = await $fetch(`/api/v1/${resource}`, { method: 'POST', body: doc })
       }
       message.value = `${doc.name} saved succesfully`
       return response
