@@ -17,6 +17,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
+  'setActions',
   'resetActions',
   'removeVariant',
   'mediaSelectorClicked',
@@ -63,7 +64,7 @@ const deleteVariant = () => {
 const openVariantEditSlideout = () => {
   // props.showActions = false
   showVariantEditSlideout.value = true
-  // emit('showActionsEmitted', false)
+  emit('resetActions', false)
 }
 </script>
 
@@ -107,7 +108,7 @@ const openVariantEditSlideout = () => {
         class="td"
         :showAction="showAction"
         :showEdit="true"
-        @moreHoriz="$emit('resetActions', { index: index, action: !showAction })"
+        @moreHoriz="$emit('setActions', { index: index, action: !showAction })"
         @deleteAction="$emit('removeVariant', index)"
         @editAction="openVariantEditSlideout"
       />
@@ -117,7 +118,7 @@ const openVariantEditSlideout = () => {
       v-else
       :index="index"
       :showVariantEditSlideout="showVariantEditSlideout"
-      @slideoutEventEmitted="showVariantEditSlideout = false"
+      @closeSlideout="showVariantEditSlideout = false"
     />
   </div>
 </template>

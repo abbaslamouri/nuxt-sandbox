@@ -2,15 +2,22 @@
 const emit = defineEmits(['removeVariant', 'saveVariants', 'closeSlideout'])
 
 const { variants } = useStore()
-const showDeleteVariantAlerts = ref([])
-// const showActions = ref([])
 const showActionKeys = ref([])
 
-const resetActions = (payload) => {
+const resetActions = () => {
   for (const prop in variants.value) {
     showActionKeys.value[prop] = false
   }
+}
+
+const setActions = (payload) => {
+  resetActions()
   showActionKeys.value[payload.index] = payload.action
+}
+
+const handleRemoveVariant = (variantIndex) => {
+  resetActions()
+  emit('removeVariant', variantIndex)
 }
 </script>
 
@@ -35,8 +42,9 @@ const resetActions = (payload) => {
         v-for="(variant, index) in variants"
         :index="index"
         :showAction="showActionKeys[index]"
+        @setActions="setActions"
         @resetActions="resetActions"
-        @removeVariant="$emit('removeVariant', $event)"
+        @removeVariant="handleRemoveVariant"
       />
       <!-- <EcommerceAdminProductsVariantsCard
         v-if="variants.length"

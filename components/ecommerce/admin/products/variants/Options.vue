@@ -37,7 +37,7 @@ const setAttributeTerm = async (i, termId) => {
           <div class="base-select">
             <select :value="getTermValue(attribute.attribute._id)" @change="setAttributeTerm(i, $event.target.value)">
               <option :value="null">Select Term</option>
-              <option v-for="(term, j) in attribute.terms" :key="term._id" :value="term._id">{{ term.name }}</option>
+              <option v-for="term in attribute.terms" :key="term._id" :value="term._id">{{ term.name }}</option>
             </select>
             <label>{{ attribute.attribute.name }}</label>
           </div>

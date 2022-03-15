@@ -1,4 +1,5 @@
 <script setup>
+import isEqual from 'lodash.isequal'
 // import { useMessage } from '~/store/useMessage'
 // import { useStore } from '~/store/useStore'
 
@@ -6,7 +7,7 @@ const emit = defineEmits(['saveVariants', 'closeSlideout'])
 
 // const store = inject('store')
 const { product, variants } = useStore()
-const { errorMsg, alert } = useFactory()
+const { alert, errorMsg } = useFactory()
 
 // const { state, fetchVariants, fetchAttributes } = useProduct()
 // const saveProduct = inject('saveProduct')
@@ -109,6 +110,14 @@ const getVariantAttribute = (term, j) => {
   }
 }
 
+// const getVariantAttribute = (term, j) => {
+//   if (Object.values(term).length) {
+//     return allAttributes.find((a) => a._id == term.parent._id)
+//   } else {
+//     return product.value.attributes[j].attribute
+//   }
+// }
+
 const getCombinations = (options) => {
   let combinations = [[]]
   for (let count = 0; count < options.length; count++) {
@@ -121,6 +130,41 @@ const getCombinations = (options) => {
     })
   }
   return combinations
+}
+
+const checkMissingVariantTerms = () => {
+  let errorMessage = ''
+  for (const i in variants.value) {
+    for (const j in variants.value[i].attrTerms) {
+      if (!Object.keys(variants.value[i].attrTerms[j]).length)
+        errorMessage += `Term missing for variant ${i * 1 + 1} attribute ${
+          getVariantAttribute(variants.value[i].attrTerms[j], j).name
+        }<br>`
+    }
+  }
+  if (!errorMessage) return true
+  errorMsg.value = `Attribute terms are required<br> ${errorMessage}`
+  return false
+}
+
+const checkDuplicateVariants = () => {
+  for (const i in variants.value) {
+    for (const j in variants.value) {
+      if (
+        j * 1 !== i * 1 &&
+        isEqual(
+          variants.value[j].attrTerms.map((t) => t._id),
+          variants.value[i].attrTerms.map((t) => t._id)
+        )
+      ) {
+        errorMsg.value = `Duplicate variants not allowed.  Variant ${j * 1 + 1} uses the same attributes and terms as ${
+          i * 1 + 1
+        }`
+        return
+      }
+    }
+  }
+  return true
 }
 
 const preBulkVariants = () => {
@@ -172,28 +216,46 @@ const addSingleVariant = () => {
   variants.value.unshift(variantBase([...terms]))
 }
 
-const updateVariants = async () => {
-  console.log('Save', variants.value)
-  let errorMsg = ''
-  for (const vprop in variants.value) {
-    for (const prop in variants.value[vprop].attrTerms) {
-      if (!Object.keys(variants.value[vprop].attrTerms[prop]).length)
-        errorMsg += `Terms missing for attribute ${
-          getVariantAttribute(variants.value[vprop].attrTerms[prop], prop).name
-        }<br>`
-    }
-  }
-  if (errorMsg) return (appMessage.errorMsg = `Attribute terms are required<br> ${errorMsg}`)
-  for (const prop1 in variants.value) {
-    for (const prop2 in variants.value[prop1].gallery) {
-      const i = product.value.gallery.findIndex((m) => m._id == variants.value[prop1].gallery[prop2]._id)
-      if (i === -1) product.value.gallery.push(variants.value[prop1].gallery[prop2])
-    }
-  }
-  saveProduct(store.product)
-  current.value = JSON.stringify(variants.value)
+// const updateVariant = () => {
+//   //  Check for duplicate variants
+//   for (const prop in variants.value) {
+//     if (
+//       prop * 1 !== props.index * 1 &&
+//       isEqual(
+//         variants.value[prop].attrTerms.map((t) => t._id),
+//         variants.value[props.index].attrTerms.map((t) => t._id)
+//       )
+//     ) {
+//       errorMsg.value = `Duplicate variants not allowed.  You new variant uses the same attributes and attribute terms as ${
+//         prop * 1 + 1
+//       } variant`
+//       return
+//     }
+//   }
 
-  emit('slideoutEventEmitted', false)
+//   let errorMessage = ''
+//   for (const prop in variants.value[props.index].attrTerms) {
+//     if (!Object.keys(variants.value[props.index].attrTerms[prop]).length)
+//       errorMessage += `Terms missing for attribute ${
+//         getVariantAttribute(variants.value[props.index].attrTerms[prop], prop).name
+//       }<br>`
+//   }
+//   if (errorMessage) errorMsg.value = `Attribute terms are required<br> ${errorMessage}`
+//   else emit('closeSlideout', false)
+// }
+
+const updateVariants = async () => {
+  if (!checkMissingVariantTerms() || !checkDuplicateVariants()) return
+  for (const i in variants.value) {
+    for (const j in variants.value[i].gallery) {
+      const index = product.value.gallery.findIndex((m) => m._id == variants.value[i].gallery[j]._id)
+      if (index === -1) product.value.gallery.push(variants.value[i].gallery[j])
+    }
+  }
+  current.value = null
+
+  emit('closeSlideout', false)
+  emit('saveVariants', false)
 }
 
 const toggleEnabled = () => {
@@ -220,18 +282,20 @@ const setSalePrices = () => {
 
 const closeSlideout = () => {
   if (current.value !== JSON.stringify(variants.value)) {
-    appMessage.alertHeading = 'You have unsaved changes'
-    appMessage.alertParagraph =
-      'Please save your changes before closing this window or click cancel to exit without saving'
-    appMessage.showAlertCancelBtn = false
-    return (appMessage.showAlert = true)
+    showAlert(
+      'You have unsaved changes',
+      'Please save your changes before closing this window or click cancel to exit without saving',
+      'closeSlideout',
+      false
+    )
+  } else {
+    emit('closeSlideout', false)
   }
-  emit('slideoutEventEmitted', false)
 }
 
 const cancelVariants = () => {
   variants.value = JSON.parse(current.value)
-  emit('slideoutEventEmitted', false)
+  emit('closeSlideout', false)
 }
 
 const handleVariantsAction = () => {
@@ -291,8 +355,8 @@ const handleShowActions = (i, value) => {
 // )
 
 const showRemoveVariantAlert = (variantIndex) => {
-  variantToDelteIndex.value = variantIndex
-  showAlert('Are you sure you want to delete this product variant?', '', 'removeVariants', true)
+  variantToDelteIndex.value = variantIndex * 1
+  showAlert('Are you sure you want to delete this product variant?', '', 'removeVariant', true)
 }
 
 const removeVariant = () => {
@@ -319,8 +383,7 @@ watch(
     console.log('W', currentVal)
     if (currentVal.show === 'ok' && currentVal.action === 'removeVariant') removeVariant()
     if (currentVal.show === 'ok' && currentVal.action === 'removeAllVariants') removeAllVariants()
-
-    // if (currentVal.show === 'ok' && currentVal.action === 'closeSlideout') alert.value.show = false
+    if (currentVal.show === 'ok' && currentVal.action === 'closeSlideout') alert.value.show = false
   },
   { deep: true }
 )
@@ -372,7 +435,12 @@ watch(
       </div>
     </template>
     <template v-slot:footer>
-      <div class="flex-row items-center justify-end gap2">
+      <EcommerceAdminSlideoutFooter
+        :disableSaveBtn="current == JSON.stringify(variants)"
+        @ok="updateVariants"
+        @cancel="cancelVariants"
+      />
+      <!-- <div class="flex-row items-center justify-end gap2">
         <button class="btn btn_secondary py05 px3" @click.prevent="cancelVariants">Cancel</button>
         <button
           class="btn btn__primary py05 px3"
@@ -381,7 +449,7 @@ watch(
         >
           Save Changes
         </button>
-      </div>
+      </div> -->
     </template>
   </Slideout>
 </template>

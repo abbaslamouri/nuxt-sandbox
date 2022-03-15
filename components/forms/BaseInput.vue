@@ -50,7 +50,7 @@ watch(
 
 <script>
 export default {
-  // inheritAttrs: false,
+  inheritAttrs: false,
 }
 </script>
 
@@ -67,8 +67,9 @@ export default {
       @input="$emit('update:modelValue', $event.target.value)"
       :aria-describedby="errorMsg ? `base-input-error-${uuid}` : null"
       :aria-invalid="errorMsg ? true : null"
-      :aria-readonly="typeof $attrs.readonly != undefined ? true : null"
-      :aria-required="typeof $attrs.required != undefined ? true : null"
+      :aria-readonly="$attrs.readonly ? true : null"
+      :aria-required="$attrs.required ? true : null"
+      :readonly="$attrs.readonly ? true : null"
     />
     <label :for="`base-input-${uuid}`" v-if="label">
       <span>
@@ -122,6 +123,15 @@ export default {
     &.invalid {
       &:focus {
         border: 3px solid $red-200;
+      }
+    }
+
+    &:read-only {
+      background-color: $stone-100;
+      color: $slate-400;
+
+      &:focus {
+        border: none;
       }
     }
 

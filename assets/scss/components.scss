@@ -80,7 +80,7 @@
     }
   }
 
-  &.disabled {
+  &:disabled {
     background-color: $slate-400;
     cursor: not-allowed;
   }
