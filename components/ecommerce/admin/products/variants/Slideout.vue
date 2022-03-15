@@ -187,11 +187,12 @@
 		let terms = []
 		if (!product.value.attributes.length)
 			return (appMessage.errorMsg = 'I do not know how you got here but you need to create attributes first')
-		for (const prop in product.value.attributes) {
-			if (!product.value.attributes[prop].terms.length)
-				return (appMessage.errorMsg = `All attributes must contain terms.  Attribute ${product.value.attributes[prop].attribute.name} does not contain any terms.  Please delete this attribute or add terms`)
+		const filteredAttributes = product.value.attributes.filter((a) => a.enabled && a.variation)
+		for (const prop in filteredAttributes) {
+			if (!filteredAttributes[prop].terms.length)
+				return (appMessage.errorMsg = `All attributes must contain terms.  Attribute ${filteredAttributes[prop].attribute.name} does not contain any terms.  Please delete this attribute or add terms`)
 		}
-		terms = product.value.attributes.map((el) => [...el.terms])
+		terms = filteredAttributes.map((el) => [...el.terms])
 		if (getCombinations(terms)[0].length)
 			variants.value = [...getCombinations(terms)].map((el) => {
 				return variantBase([...el])
@@ -200,17 +201,20 @@
 	}
 
 	const addSingleVariant = () => {
-		const maxVariantCount = product.value.attributes
+		const filteredAttributes = product.value.attributes.filter((a) => a.enabled && a.variation)
+		const maxVariantCount = filteredAttributes
 			.map((a) => {
 				return a.terms.length
 			})
 			.reduce((a, b) => a * b, 1)
 
+		if (!maxVariantCount) return (errorMsg.value = 'You do not have any attributes enabled for variations')
+
 		if (variants.value.length >= maxVariantCount)
 			return (errorMsg.value = 'You have created all possible variantions.  Please edit an existing one.')
 
 		const terms = []
-		for (const prop in product.value.attributes) {
+		for (const prop in filteredAttributes) {
 			terms[prop] = {}
 		}
 		variants.value.unshift(variantBase([...terms]))
