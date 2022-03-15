@@ -1,184 +1,88 @@
 <script setup>
-const props = defineProps({
-  modelValue: {
-    type: [String, Number],
-    default: '',
-  },
-  label: {
-    type: String,
-    default: '',
-  },
-  placeholder: {
-    type: String,
-    default: '',
-  },
-  type: {
-    type: String,
-    default: 'text',
-  },
-  currency: {
-    type: Boolean,
-    default: false,
-  },
-  hint: {
-    type: String,
-    default: '',
-  },
-})
-defineEmits(['update:modelValue'])
+	const props = defineProps({
+		modelValue: {
+			type: [String, Number],
+			default: '',
+		},
+		label: {
+			type: String,
+			default: '',
+		},
+		placeholder: {
+			type: String,
+			default: '',
+		},
+		type: {
+			type: String,
+			default: 'text',
+		},
+		currency: {
+			type: Boolean,
+			default: false,
+		},
+		hint: {
+			type: String,
+			default: '',
+		},
+	})
+	defineEmits(['update:modelValue'])
 
-// const attrs = useAttrs();
-const inputRef = ref('')
-const errorMsg = ref('')
-const uuid = useUniqueId().getId()
+	// const attrs = useAttrs();
+	const inputRef = ref('')
+	const errorMsg = ref('')
+	const uuid = useUniqueId().getId()
 
-const placeholderColor = props.label ? 'transparent' : 'inherit'
-const inputWidth = props.type === 'password' ? '100%' : '100%'
+	const placeholderColor = props.label ? 'transparent' : 'inherit'
+	const inputWidth = props.type === 'password' ? '100%' : '100%'
 
-onMounted(() => {
-  // if (!props.modelValue) inputRef.value.focus();
-})
+	onMounted(() => {
+		// if (!props.modelValue) inputRef.value.focus();
+	})
 
-watch(
-  () => inputRef,
-  (current, prev) => {
-    // console.log('PPPPP', inputRef.value)
-    // if (current) inputRef.value.focus()
-  }
-)
+	watch(
+		() => inputRef,
+		(current, prev) => {
+			// console.log('PPPPP', inputRef.value)
+			// if (current) inputRef.value.focus()
+		}
+	)
 </script>
 
 <script>
-export default {
-  inheritAttrs: false,
-}
+	export default {
+		inheritAttrs: false,
+	}
 </script>
 
 <template>
-  <div class="base-input">
-    <div class="currency" v-if="currency">$</div>
-    <input
-      ref="inputRef"
-      :type="type"
-      :class="{ 'currency-input': currency }"
-      :placeholder="placeholder"
-      :value="modelValue"
-      :id="`base-input-${uuid}`"
-      @input="$emit('update:modelValue', $event.target.value)"
-      :aria-describedby="errorMsg ? `base-input-error-${uuid}` : null"
-      :aria-invalid="errorMsg ? true : null"
-      :aria-readonly="$attrs.readonly ? true : null"
-      :aria-required="$attrs.required ? true : null"
-      :readonly="$attrs.readonly ? true : null"
-    />
-    <label :for="`base-input-${uuid}`" v-if="label">
-      <span>
-        {{ label }}
-      </span>
-      <span v-if="$attrs.required !== undefined"> (required)</span>
-    </label>
+	<div class="base-input">
+		<div class="currency" v-if="currency">$</div>
+		<input
+			ref="inputRef"
+			:type="type"
+			:class="{ 'currency-input': currency }"
+			:placeholder="$attrs.required ? `${label}(required)` : `${label}`"
+			:value="modelValue"
+			:id="`base-input-${uuid}`"
+			@input="$emit('update:modelValue', $event.target.value)"
+			:aria-describedby="errorMsg ? `base-input-error-${uuid}` : null"
+			:aria-invalid="errorMsg ? true : null"
+			:aria-readonly="$attrs.readonly ? true : null"
+			:aria-required="$attrs.required ? true : null"
+			:readonly="$attrs.readonly ? true : null"
+		/>
 
-    <!-- <div class="password-strength" v-if="type === 'password'">
+		<label :for="`base-input-${uuid}`" v-if="label">
+			<span> {{ $attrs.required ? `${label}(required)` : `${label}` }} </span>
+			<!-- <span v-if="$attrs.required !== undefined"> (required)</span> -->
+		</label>
+
+		<!-- <div class="password-strength" v-if="type === 'password'">
       <div class="strength">Strength</div>
       <div class="reasons">Reasons</div>
     </div> -->
-    <div class="hint">{{ hint }}</div>
-  </div>
+		<div class="hint">{{ hint }}</div>
+	</div>
 </template>
 
-<style scoped lang="scss">
-@import '@/assets/scss/variables';
-
-.base-input {
-  position: relative;
-  --size: 0.5em;
-  border-radius: 0.25rem;
-  border: 1px solid $slate-200;
-  box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
-  background-color: white;
-  height: 5rem;
-  // z-index: 0;
-  width: v-bind(inputWidth);
-
-  cursor: text;
-
-  .currency {
-    position: absolute;
-    top: 2rem;
-    font-size: 80%;
-    left: 2rem;
-  }
-
-  input {
-    display: inline-block;
-    padding: 2rem 1rem 1rem 2rem;
-    width: 100%;
-    height: 100%;
-    background-color: transparent;
-
-    &.currency-input {
-      padding: 2rem 1rem 1rem 3rem;
-    }
-
-    &.invalid {
-      &:focus {
-        border: 3px solid $red-200;
-      }
-    }
-
-    &:read-only {
-      background-color: $stone-100;
-      color: $slate-400;
-
-      &:focus {
-        border: none;
-      }
-    }
-
-    &:focus {
-      border: 3px solid $sky-200;
-
-      &:placeholder-shown + label {
-        transform: translateY(-0.5rem);
-        font-size: 80%;
-      }
-
-      & + label {
-        transform: translateY(-0.5rem);
-        font-size: 80%;
-      }
-    }
-
-    &::placeholder {
-      color: v-bind(placeholderColor);
-    }
-
-    // &::placeholder {
-    //   color: v-bind(placeholderColor);
-    // }
-
-    &:placeholder-shown + label {
-      transform: translateY(0.75rem);
-    }
-  }
-
-  label {
-    position: absolute;
-    top: 0.75rem;
-    left: 2rem;
-    font-size: 80%;
-    color: lighten($color: $color-primary, $amount: 50);
-    transition: all 0.3s ease;
-    transform: translateY(-0.5rem);
-    cursor: text;
-  }
-
-  .hint {
-    position: absolute;
-    color: $slate-600;
-    bottom: -2rem;
-    left: 1rem;
-    font-size: 80%;
-  }
-}
-</style>
+<style scoped lang="scss"></style>

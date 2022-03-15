@@ -1,137 +1,139 @@
 <script setup>
-// const prodState = inject('prodState')
+	// const prodState = inject('prodState')
 
-defineProps({
-  modelValue: {
-    type: [String, Number],
-    default: '',
-  },
-  options: {
-    type: Array,
-    required: true,
-  },
-  label: {
-    type: String,
-    default: '',
-  },
-  nullOption: {
-    type: String,
-    defualt: 'Select Option',
-  },
-  hint: {
-    type: String,
-    default: '',
-  },
-})
-defineEmits(['update:modelValue'])
+	defineProps({
+		modelValue: {
+			type: [String, Number],
+			default: '',
+		},
+		options: {
+			type: Array,
+			required: true,
+		},
+		label: {
+			type: String,
+			default: '',
+		},
+		nullOption: {
+			type: String,
+			defualt: 'Select Option',
+		},
+		hint: {
+			type: String,
+			default: '',
+		},
+	})
+	defineEmits(['update:modelValue'])
 
-const errorMsg = ref('')
-const uuid = useUniqueId().getId()
-const selectRef = ref('inputRef')
-// const attrs = useAttrs();
+	const errorMsg = ref('')
+	const uuid = useUniqueId().getId()
+	const selectRef = ref('inputRef')
+	// const attrs = useAttrs();
 </script>
 
 <script>
-export default {
-  // inheritAttrs: false,
-}
+	export default {
+		// inheritAttrs: false,
+	}
 </script>
 
 <template>
-  <div class="base-select">
-    <!-- {{options}} -->
-    <!-- <div class="custom-select"> -->
-    <select
-      :class="{ centered: !label }"
-      ref="selectRef"
-      :value="modelValue"
-      :id="`base-select-${uuid}`"
-      :aria-describedby="errorMsg ? `base-input-error-${uuid}` : null"
-      :aria-invalid="errorMsg ? true : null"
-      :aria-readonly="typeof $attrs.readonly != undefined ? true : null"
-      :aria-required="typeof $attrs.required != undefined ? true : null"
-      @change="$emit('update:modelValue', $event.target.value)"
-    >
-      <option value="" disabled :selected="modelValue === ''">{{ nullOption }}</option>
-      <option
-        v-for="option in options"
-        :key="option.key"
-        :value="option.key"
-        :selected="modelValue === option.key"
-        :disabled="option.disabled || option.disabledIf"
-      >
-        {{ option.name }}
-      </option>
-    </select>
-    <label v-if="label" :for="`base-select-${uuid}`">{{ label }}</label>
+	<div class="base-select">
+		<!-- {{options}} -->
+		<!-- <div class="custom-select"> -->
+		<select
+			:class="{ centered: !label }"
+			ref="selectRef"
+			:value="modelValue"
+			:id="`base-select-${uuid}`"
+			:aria-describedby="errorMsg ? `base-input-error-${uuid}` : null"
+			:aria-invalid="errorMsg ? true : null"
+			:aria-readonly="typeof $attrs.readonly != undefined ? true : null"
+			:aria-required="typeof $attrs.required != undefined ? true : null"
+			@change="$emit('update:modelValue', $event.target.value)"
+		>
+			<option value="" disabled :selected="modelValue === ''">{{ nullOption }}</option>
+			<option
+				v-for="option in options"
+				:key="option.key"
+				:value="option.key"
+				:selected="modelValue === option.key"
+				:disabled="option.disabled || option.disabledIf"
+			>
+				{{ option.name }}
+			</option>
+		</select>
+		<label v-if="label" :for="`base-select-${uuid}`">{{ label }}</label>
 
-    <!-- </div> -->
-  </div>
+		<!-- </div> -->
+	</div>
 </template>
 
 <style lang="scss" scoped>
-@import '@/assets/scss/variables';
+	@import '@/assets/scss/variables';
 
-.base-select {
-  position: relative;
-  --size: 0.5em;
-  border-radius: 0.25rem;
-  height: 4.5rem;
-  border: 1px solid $slate-200;
-  background-color: white;
-  overflow: hidden;
-  
-  width: 100%;
+	.base-select {
+		position: relative;
+		--size: 0.5em;
+		border-radius: 0.25rem;
+		height: 4.5rem;
+		border: 1px solid $slate-200;
+		background-color: white;
+		overflow: hidden;
+		color: $slate-800;
 
-  box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
+		width: 100%;
 
-  label {
-    position: absolute;
-    top: 0.2rem;
-    left: 2rem;
-    font-size: 80%;
-    color: lighten($color: $color-primary, $amount: 50);
-  }
+		box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
 
-  select {
-    padding: 2rem 0.75rem 1rem 2rem;
+		label {
+			position: absolute;
+			top: 0.2rem;
+			left: 2rem;
+			font-size: 80%;
+			color: lighten($color: $color-primary, $amount: 50);
+		}
 
-    appearance: none;
-    width: 100%;
-    height: 100%;
-    background-color: transparent;
-    cursor: pointer;
-    border: none;
+		select {
+			padding: 2rem 0.75rem 1rem 2rem;
 
-    &.centered {
-      padding: 1rem 0.75rem 1rem 2rem;
-    }
-  }
+			appearance: none;
+			width: 100%;
+			height: 100%;
+			background-color: transparent;
+			cursor: pointer;
+			border: none;
+			z-index: 999;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    background-color: transparent;
-    width: 4em;
-  }
-  &::after {
-    position: absolute;
-    content: '';
-    width: var(--size);
-    height: 0;
-    height: 0;
-    pointer-events: none;
-    box-sizing: border-box;
-    right: 2rem;
-    top: 50%;
-    transform: translate(-50%, -30%);
-    border: var(--size) solid transparent;
-    border-top: var(--size) solid $slate-400;
-    pointer-events: none;
-  }
-}
+			&.centered {
+				padding: 1rem 0.75rem 1rem 2rem;
+			}
+		}
+
+		&::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			pointer-events: none;
+			background-color: transparent;
+			width: 4em;
+		}
+		&::after {
+			position: absolute;
+			content: '';
+			width: var(--size);
+			height: 0;
+			height: 0;
+			pointer-events: none;
+			box-sizing: border-box;
+			right: 2rem;
+			top: 50%;
+			transform: translate(-50%, -30%);
+			border: var(--size) solid transparent;
+			border-top: var(--size) solid $slate-400;
+			pointer-events: none;
+		}
+	}
 </style>
