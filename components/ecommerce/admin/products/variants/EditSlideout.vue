@@ -29,7 +29,7 @@
 				'closeSlideout'
 			)
 		} else {
-			emit('closeSlideout', false)
+			emit('closeSlideout', props.index)
 		}
 	}
 

@@ -141,6 +141,71 @@
 	// }
 }
 
+.base-select {
+	position: relative;
+	--size: 0.5em;
+	border-radius: 0.25rem;
+	height: 4.5rem;
+	border: 1px solid $slate-200;
+	background-color: white;
+	overflow: hidden;
+	color: $slate-800;
+
+	width: 100%;
+
+	box-shadow: 0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06);
+
+	label {
+		position: absolute;
+		top: 0.2rem;
+		left: 2rem;
+		font-size: 80%;
+		color: lighten($color: $color-primary, $amount: 50);
+	}
+
+	select {
+		padding: 2rem 0.75rem 1rem 2rem;
+
+		appearance: none;
+		width: 100%;
+		height: 100%;
+		background-color: transparent;
+		cursor: pointer;
+		border: none;
+		z-index: 999;
+
+		&.centered {
+			padding: 1rem 0.75rem 1rem 2rem;
+		}
+	}
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+		background-color: transparent;
+		width: 4em;
+	}
+	&::after {
+		position: absolute;
+		content: '';
+		width: var(--size);
+		height: 0;
+		height: 0;
+		pointer-events: none;
+		box-sizing: border-box;
+		right: 2rem;
+		top: 50%;
+		transform: translate(-50%, -30%);
+		border: var(--size) solid transparent;
+		border-top: var(--size) solid $slate-400;
+		pointer-events: none;
+	}
+}
+
 .base-selects {
 	position: relative;
 	--size: 0.5em;
