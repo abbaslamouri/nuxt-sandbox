@@ -1,16 +1,16 @@
 table {
   border-collapse: collapse;
-  border: 1px solid $slate-400;
+  // border: 1px solid $slate-400;
   width: 100%;
 
-  th,
+  th {
+    padding: 2rem 1rem;
+  }
   td {
     // text-align: left;
-    border: 1px solid $slate-300;
-    padding: 1rem;
+    // border: 1px solid $slate-300;
+    padding: .5rem;
   }
-
-  
 }
 
 .table {

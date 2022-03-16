@@ -1,5 +1,12 @@
 <script setup>
-const emit = defineEmits(['removeAttribute', 'removeTerm'])
+const emit = defineEmits([
+  'addTerm',
+  'addAllTerms',
+  'removeAttribute',
+  'removeTerm',
+  'removeAllTerms',
+  'updateAttribute',
+])
 
 const { product } = useStore()
 const { errorMsg, fetchAll } = useFactory()
@@ -28,44 +35,38 @@ const handleRemoveAttribute = (attributeIndex) => {
 </script>
 
 <template>
-  <table class="text-xs">
-    <colgroup>
-      <col span="1" />
-      <col span="1" />
-      <col span="1" />
-      <col span="1" />
-      <col span="1" />
-      <col span="1" />
-      <col span="1"  />
-    </colgroup>
+  <table class="text-xs shadow-md">
     <thead>
-      <tr>
+      <tr class="bg-slate-200">
         <th>ID</th>
-        <th>Attribute</th>
+        <th class="">Attribute</th>
         <th>Enable</th>
         <th>Variation</th>
         <th>Default Term</th>
         <th>Terms</th>
-        <th>Actions</th>
+        <th class="text-right minw12">Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="(attribute, index) in product.attributes" :key="`attribute-${index}`">
-        <td>{{ index + 1 }}</td>
         <td>
-          <EcommerceAdminProductsAttributesAttribute
-            :index="index"
-            :allAttributes="allAttributes"
-            :allAttributeTerms="allAttributeTerms"
-          />
+          <div class="bg-slate-200 p1 br3">{{ index + 1 }}</div>
         </td>
         <td>
+          <EcommerceAdminProductsAttributesAttribute
+            :attribute="attribute"
+            :allAttributes="allAttributes"
+            :allAttributeTerms="allAttributeTerms"
+            @updateAttribute="$emit('updateAttribute', $event)"
+          />
+        </td>
+        <td class="">
           <FormsBaseToggle
             v-model="product.attributes[index].enabled"
             v-if="Object.keys(product.attributes[index].attribute).length"
           />
         </td>
-        <td>
+        <td class="">
           <FormsBaseToggle
             v-model="product.attributes[index].variation"
             v-if="Object.keys(product.attributes[index].attribute).length && product.attributes[index].enabled"
@@ -76,12 +77,15 @@ const handleRemoveAttribute = (attributeIndex) => {
         </td>
         <td>
           <EcommerceAdminProductsAttributesTerms
-            :index="index"
+            :attribute="attribute"
             :allAttributeTerms="allAttributeTerms"
+            @addTerm="$emit('addTerm', $event)"
+            @addAllTerms="$emit('addAllTerms', $event)"
             @removeTerm="$emit('removeTerm', $event)"
+            @removeAllTerms="$emit('removeAllTerms', $event)"
           />
         </td>
-        <td class="flex-row gap1">
+        <td>
           <EcommerceAdminActions
             :showAction="showActionKeys[index]"
             :showEdit="false"
@@ -92,69 +96,6 @@ const handleRemoveAttribute = (attributeIndex) => {
       </tr>
     </tbody>
   </table>
-  <div class="table admin-product-attributes shadow-md">
-    <div class="table__header bg-slate-200">
-      <div class="row py2 px1">
-        <div class="th">ID</div>
-        <div class="th">Attribute</div>
-        <div class="th">Enable</div>
-        <div class="th">Variation</div>
-        <div class="th">Default Term</div>
-        <div class="th">Terms</div>
-        <div class="th">Actions</div>
-      </div>
-    </div>
-    <div class="table__body">
-      <EcommerceAdminProductsAttributesCard
-        v-for="(attribute, index) in product.attributes"
-        :index="index"
-        :showAction="showActionKeys[index]"
-        @termToDeleteUpdated="deletedTerms.push($event)"
-        @removeTerm="$emit('removeTerm', $event)"
-        @removeAttribute="handleRemoveAttribute"
-        @resetActions="resetActions"
-        @setActions="setActions"
-      />
-    </div>
-  </div>
 </template>
 
-<style lang="scss" scoped>
-@import '@/assets/scss/variables';
-
-.attributes {
-  .attributes-details {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    overflow: auto;
-    padding: 2rem;
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 2rem;
-      background-color: $slate-300;
-    }
-
-    .delete-all-attributes {
-      align-self: flex-end;
-    }
-  }
-
-  .actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 2rem;
-
-    .btn {
-      &:disabled {
-        background-color: $slate-400;
-        cursor: not-allowed;
-      }
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

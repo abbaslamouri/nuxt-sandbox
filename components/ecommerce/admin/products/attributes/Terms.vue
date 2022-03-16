@@ -1,7 +1,8 @@
 <script setup>
 const props = defineProps({
-  index: {
-    type: Number,
+  attribute: {
+    type: Object,
+    default: [],
   },
   allAttributeTerms: {
     type: Array,
@@ -9,139 +10,56 @@ const props = defineProps({
   },
 })
 
-defineEmits(['removeTerm'])
-
-// const saveProduct = inject('saveProduct')
-
-const { product, variants } = useStore()
-const { alert } = useFactory()
+const emit = defineEmits(['addTerm', 'addAllTerms', 'removeTerm', 'removeAllTerms'])
 
 const termSelectId = ref('')
-const termToDeleteId = ref(null)
 
-const addTerm = () => {
-  const term = props.allAttributeTerms.find((t) => t._id == termSelectId.value)
-  if (term) {
-    if (!product.value.attributes[props.index].terms) {
-      product.value.attributes[props.index].terms = [term]
-    } else {
-      const index = product.value.attributes[props.index].terms.findIndex((t) => t._id == termSelectId.value)
-      if (index == -1) product.value.attributes[props.index].terms.push(term)
-    }
-  }
-  termSelectId.value = ''
+const handleAddTerm = () => {
+  emit('addTerm', { attributeId: props.attribute.attribute._id, termId: termSelectId.value })
+  setTimeout(() => {
+    termSelectId.value = ''
+  }, 500)
 }
-
-const addAllTerms = () => {
-  product.value.attributes[props.index].terms = props.allAttributeTerms.filter(
-    (t) => t.parent._id == product.value.attributes[props.index].attribute._id
-  )
-}
-
-// const removeTerm = async () => {
-//   console.log(variants.value)
-//   // const product.value.attributes = product.value.attributes.filter((a) => a.enabled && a.variation)
-//   console.log('ATT', product.value.attributes)
-//   console.log('ID', termToDeleteId.value)
-//   // for (const prop in product.value.attributes) {
-//   // const i = product.value.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
-//   // console.log(i)
-//   // if (i !== -1) product.value.attributes[props.index].terms.splice(i, 1)
-//   // // }
-//   // console.log('ATT1', product.value.attributes)
-
-//   // for (const prop in variants.value) {
-//   //   const term = variants.value[prop].attrTerms.find((t) => t._id == termToDeleteId.value)
-//   //   if (term) variants.value[prop].toDelete = true
-//   // }
-//   // variants.value = variants.value.filter((v) => !v.toDelete)
-//   // console.log(variants.value)
-//   // // await saveProduct()
-//   // // const i = product.value.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
-//   // // if (i !== -1) product.value.attributes[props.index].terms.splice(i, 1)
-//   // // termToDeleteId.value = null
-//   // alert.value.show = false
-//   // alert.value.action = ''
-// }
-
-// const preRemoveTerm = (termId) => {
-//   console.log('TTTTTTTTT', termId)
-//   termToDeleteId.value = termId
-//   showAlert(
-//     'Are you sure you want to remove this attribute term?',
-//     'Any variants containing this term will also be removed.',
-//     'removeTerm',
-//     true
-//   )
-// }
-
-const removeAllTerms = () => {
-  product.value.attributes[props.index].terms = []
-  alert.value.show = false
-  alert.value.action = ''
-}
-
-// const setAlert = (alertPayload, termId = null) => {
-//   termToDeleteId.value = termId
-//   alert.value.action = alertPayload.alertAction
-//   alert.value.heading = alertPayload.alertHeading
-//   alert.value.paragraph = alertPayload.alertParagraph
-//   alert.value.show = true
-//   console.log('A', alert.value)
-// }
-
-// const showAlert = (heading, paragraph, action, showCancelBtn) => {
-//   alert.value.heading = heading
-//   alert.value.paragraph = paragraph
-//   alert.value.action = action
-//   alert.value.showCancelBtn = showCancelBtn
-//   alert.value.show = true
-// }
-
-// watch(
-//   () => alert.value.show,
-//   (currentVal) => {
-//     console.log('WWW', currentVal)
-//     if (currentVal === 'ok' && alert.value.action === 'removeTerm') removeTerm()
-//     if (currentVal === 'ok' && alert.value.action === 'removeAllTerms') removeAllTerms()
-//   },
-//   { deep: true }
-// )
 </script>
 
 <template>
   <div>
     <div
-      v-if="Object.keys(product.attributes[index].attribute).length"
+      v-if="Object.keys(attribute.attribute).length"
       class="terms flex-row gap1 border border-slate-300 p1 br3 text-xs"
     >
-      <div class="term-actions flex-col gap05">
+      <div class="term-actions flex-col justify-center gap05">
         <button
           class="text-xs border bg-slate-400 text-slate-50 px1 py02 br3 cursor-pointer"
-          @click.prevent="addAllTerms()"
+          @click.prevent="$emit('addAllTerms', attribute.attribute._id)"
+          v-if="
+            attribute.terms.length != allAttributeTerms.filter((t) => t.parent._id == attribute.attribute._id).length
+          "
         >
           Select All
         </button>
+
         <button
           class="text-xs minw12 border bg-slate-400 text-slate-50 px1 py02 br3 cursor-pointer"
-          @click.prevent="
-            setAlert({
-              alertAction: 'removeAllTerms',
-              alertHeading: 'Are you sure you want to remove all attribute terms?',
-              alertParagraph: 'All product variants containing these terms will also be removed.',
-            })
-          "
+          @click.prevent="$emit('removeAllTerms', attribute.attribute._id)"
+          v-if="attribute.terms.length"
         >
           Select None
         </button>
-        <div class="border border-slate-400 py02 px05 br3">
-          <select v-model="termSelectId" @change="addTerm" class="wfull text-xs">
+
+        <div
+          class="border border-slate-400 py02 px05 br3"
+          v-if="
+            attribute.terms.length != allAttributeTerms.filter((t) => t.parent._id == attribute.attribute._id).length
+          "
+        >
+          <select v-model="termSelectId" @change="handleAddTerm" class="wfull text-xs">
             <option value="">Add term</option>
             <option
-              v-for="term in allAttributeTerms.filter((t) => t.parent._id == product.attributes[index].attribute._id)"
+              v-for="term in allAttributeTerms.filter((t) => t.parent._id == attribute.attribute._id)"
               :key="term._id"
               :value="term._id"
-              :disabled="product.attributes[index].terms.find((t) => t._id == term._id)"
+              :disabled="attribute.terms.find((t) => t._id == term._id)"
             >
               {{ term.name }}
             </option>
@@ -150,11 +68,11 @@ const removeAllTerms = () => {
       </div>
 
       <div class="border border-slate-300 minw12 br3 py05">
-        <div class="list flex-row items-center gap05 wrap p1" v-if="product.attributes[index].terms.length">
+        <div class="list flex-row items-center gap05 wrap p1" v-if="attribute.terms.length">
           <div
-            v-if="product.attributes[index].terms.length"
+            v-if="attribute.terms.length"
             class="shadow-md flex-row items-cdenter gap05 bg-slate-500 text-slate-50 py02 px05 br3"
-            v-for="(term, j) in product.attributes[index].terms"
+            v-for="(term, j) in attribute.terms"
             :key="term._id"
           >
             <span>{{ term.name }}</span>

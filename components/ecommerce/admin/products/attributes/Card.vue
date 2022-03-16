@@ -22,7 +22,6 @@ const { product } = useStore()
 // const { alert } = useFactory()
 const { errorMsg, fetchAll } = useFactory()
 
-
 const updateAttribute = (event) => {
   product.value.attributes[props.index].attribute = props.allAttributes.find((a) => a._id == event.target.value)
   product.value.attributes[props.index].terms = []
@@ -30,7 +29,6 @@ const updateAttribute = (event) => {
     (t) => t.parent._id == event.target.value
   )[0]
 }
-
 
 const allAttributes = (await $fetch(`/api/v1/attributes`, { fields: 'name, slug' })).docs
 const allAttributeTerms = (await $fetch(`/api/v1/attributeterms`, { fields: 'name, slug, parent' })).docs
@@ -100,16 +98,6 @@ const allAttributeTerms = (await $fetch(`/api/v1/attributeterms`, { fields: 'nam
       @moreHoriz="$emit('setActions', { index: index, action: !showAction })"
       @deleteAction="$emit('removeAttribute', index)"
     />
-    <!-- <div class="td">
-      <div class="shadow-md p1 border border-slate-300 flex-col gap05" v-show="showAction">
-        <a href="#" class="link" @click.prevent="$emit('removeAttribute', index)">
-          <div class="cancel">Delete</div>
-        </a>
-      </div>
-      <button class="btn btn__close p05" @click.prevent="$emit('resetActions', { index: index, action: !showAction })">
-        <IconsMoreHoriz />
-      </button>
-    </div> -->
   </div>
 </template>
 

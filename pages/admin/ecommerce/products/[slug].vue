@@ -51,7 +51,7 @@ variants.value = product.value._id
     ).docs
   : []
 // product.value.productType = 'variable'
-console.log('PPP', product.value)
+// console.log('PPP', product.value)
 
 // let response = await fetchSingle(slug)
 // if (store.errorMsg) {

@@ -1,8 +1,6 @@
 <script setup>
 defineEmits(['showVariantsSlideout'])
 const { product, variants } = useStore()
-console.log('VVVV', variants.value)
-console.log('PPPP', product.value.attributes)
 </script>
 
 <template>

@@ -13,6 +13,7 @@ const { errorMsg, alert } = useFactory()
 const showActionKeys = ref([])
 const attributeToDelteIndex = ref(null)
 const termToDeleteId = ref(null)
+const termsToDeleteAttrId = ref(null)
 const showDeleteAllAttributesAlert = ref(false)
 const deletedTerms = ref([])
 const current = ref(null)
@@ -27,8 +28,8 @@ const allAttributeTerms = (await $fetch(`/api/v1/attributeterms`, { fields: 'nam
 // await fetchAtts()
 // await fetchAttTerms()
 
-console.log(allAttributes)
-console.log(allAttributeTerms)
+// console.log(allAttributes)
+// console.log(allAttributeTerms)
 // Fetch all atributes
 // response = await fetchAttributes()
 // if (store.errorMsg) {
@@ -63,7 +64,7 @@ const removeVariantByTermId = (termId) => {
 }
 
 const insertEmptyAttribute = (attribute, terms, defaultTerm) => {
-  if (product.value.attributes.length >= allAttributes.length)
+  if (product.value.attributes.length == allAttributes.length)
     return (errorMsg.value = 'You have used up all available attributes')
   product.value.attributes.push({
     attribute,
@@ -82,6 +83,16 @@ const addAllAttributes = () => {
   }
 }
 
+const updateAttribute = (payload) => {
+  const { attributeId, newAttributeId } = payload
+  const index = product.value.attributes.findIndex((a) => a.attribute._id == attributeId)
+  if (index !== -1) {
+    product.value.attributes[index].attribute = allAttributes.find((a) => a._id == newAttributeId)
+    product.value.attributes[index].terms = []
+    product.value.attributes[index].defaultTerm = allAttributeTerms.filter((t) => t.parent._id == newAttributeId)[0]
+  }
+}
+
 const closeSlideout = () => {
   if (current.value !== JSON.stringify(product.value.attributes)) {
     showAlert(
@@ -95,24 +106,28 @@ const closeSlideout = () => {
   }
 }
 
-const handleShowDeleteAttributesAlert = () => {
-  // appMessage.alertHeading = 'Are you sure you want to delete all attributes'
-  // appMessage.alertParagraph = 'All variants accociated with this product will aso be deleted'
-  // appMessage.alertAction = 'deleteAllAttributes'
-  // return (appMessage.showAlert = true)
+const showRemoveAllAttributesAlert = () => {
+  showAlert(
+    'Are you sure you want to delete all attributes',
+    'Any variants accociated with this attribute will aso be deleted.',
+    'removeAllAttributes',
+    true
+  )
 }
 
-const updateAttributes = async () => {
+const saveAttributes = async () => {
   if (current.value == JSON.stringify(product.value.attributes)) return emit('closeSlideout')
 
   const newAttributes = []
   for (const prop in product.value.attributes) {
-    if (Object.values(product.value.attributes[prop].attribute).length) {
-      newAttributes.push(product.value.attributes[prop])
-    } else {
-      errorMsg.value = `You must select attribute terms.  Please select a value for attribute ${prop * 1 + 1} `
-      return
-    }
+    if (!product.value.attributes[prop].attribute._id)
+      return (errorMsg.value = `Please select a value for attribute ${prop * 1 + 1} `)
+    if (!product.value.attributes[prop].terms.length)
+      return (errorMsg.value = `Attributes must contain at least one term.  Please select a value for attribute ${
+        prop * 1 + 1
+      }`)
+
+    newAttributes.push(product.value.attributes[prop])
   }
   // if (errorMsg) return (appMessage.errorMsg = errorMsg)
   product.value.attributes = newAttributes
@@ -122,6 +137,7 @@ const updateAttributes = async () => {
   // saveProduct(store.product)
   // current.value = JSON.stringify(product.value.attributes)
   emit('saveAttributes')
+  emit('closeSlideout')
 
   // store.showAttributesSlideout = false
 }
@@ -131,13 +147,13 @@ const cancelAttributesUpdate = () => {
   emit('closeSlideout')
 }
 
-const deleteAllAttributes = () => {
-  // product.value.attributes = []
-  // showDeleteAllAttributesAlert.value = false
+const removeAllAttributes = () => {
+  product.value.attributes = []
+  alert.value.show = false
+  alert.value.action = ''
 }
 
 const resetActions = (payload) => {
-  console.log(product.value.attributes)
   for (const prop in product.value.attributes) {
     showActionKeys.value[prop] = false
   }
@@ -166,8 +182,29 @@ const removeAttribute = () => {
   alert.value.action = ''
 }
 
+const handleAddTerm = (payload) => {
+  const { attributeId, termId } = payload
+  const index = product.value.attributes.findIndex((a) => a.attribute._id == attributeId)
+  if (index !== -1) {
+    const term = allAttributeTerms.find((t) => t._id == termId)
+    if (term) {
+      if (!product.value.attributes[index].terms.length) {
+        product.value.attributes[index].terms = [term]
+      } else {
+        const i = product.value.attributes[index].terms.findIndex((t) => t._id == termId)
+        if (i == -1) product.value.attributes[index].terms.push(term)
+      }
+    }
+  }
+}
+
+const handleAddAllTerms = (attributeId) => {
+  const index = product.value.attributes.findIndex((a) => a.attribute._id == attributeId)
+  if (index !== -1) product.value.attributes[index].terms = allAttributeTerms.filter((t) => t.parent._id == attributeId)
+}
+
 const showRemoveTermAlert = (termId) => {
-  console.log('TTTTTTTTT', termId)
+  // console.log('TTTTTTTTT', attributeId, termId)
   termToDeleteId.value = termId
   showAlert(
     'Are you sure you want to remove this attribute term?',
@@ -178,16 +215,16 @@ const showRemoveTermAlert = (termId) => {
 }
 
 const removeTerm = async () => {
-  console.log(variants.value)
+  // console.log(variants.value)
   // const product.value.attributes = product.value.attributes.filter((a) => a.enabled && a.variation)
-  console.log('ATT', product.value.attributes)
-  console.log('ID', termToDeleteId.value)
+  // console.log('ATT', product.value.attributes)
+  // console.log('ID', termToDeleteId.value)
   for (const prop in product.value.attributes) {
     const i = product.value.attributes[prop].terms.findIndex((t) => t._id == termToDeleteId.value)
-    console.log(i)
+    // console.log(i)
     if (i !== -1) product.value.attributes[prop].terms.splice(i, 1)
   }
-  console.log('ATT1', product.value.attributes)
+  // console.log('ATT1', product.value.attributes)
 
   for (const prop in variants.value) {
     const term = variants.value[prop].attrTerms.find((t) => t._id == termToDeleteId.value)
@@ -199,6 +236,24 @@ const removeTerm = async () => {
   // // const i = product.value.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
   // // if (i !== -1) product.value.attributes[props.index].terms.splice(i, 1)
   termToDeleteId.value = null
+  alert.value.show = false
+  alert.value.action = ''
+}
+
+const showRemoveAllTermsAlert = (attributeId) => {
+  // console.log('TTTTTTTTT', attributeId, termId)
+  termsToDeleteAttrId.value = attributeId
+  showAlert(
+    'Are you sure you want to remove all terms associated with this attribute?',
+    'Any product variants containing these terms will also be removed.',
+    'removeAllTerms',
+    true
+  )
+}
+
+const removeAllTerms = () => {
+  const index = product.value.attributes.findIndex((a) => a.attribute._id == termsToDeleteAttrId.value)
+  if (index !== -1) product.value.attributes[index].terms = []
   alert.value.show = false
   alert.value.action = ''
 }
@@ -224,10 +279,12 @@ const showAlert = (heading, paragraph, action, showCancelBtn) => {
 watch(
   () => alert.value.show,
   (currentVal) => {
-    console.log('W', currentVal)
+    // console.log('W', currentVal)
     if (currentVal === 'ok' && alert.value.action === 'closeSlideout') alert.value = false
     if (currentVal === 'ok' && alert.value.action === 'removeAttribute') removeAttribute()
+    if (currentVal === 'ok' && alert.value.action === 'removeAllAttributes') removeAllAttributes()
     if (currentVal === 'ok' && alert.value.action === 'removeTerm') removeTerm()
+    if (currentVal === 'ok' && alert.value.action === 'removeAllTerms') removeAllTerms()
   }
   // { deep: true }
 )
@@ -292,14 +349,14 @@ watch(
 //   store.value.showAttributesSlideout = false
 // }
 
-// const handleShowDeleteAttributesAlert = () => {
+// const showRemoveAllAttributesAlert = () => {
 //   // appMessage.alertHeading = 'Are you sure you want to delete all attributes'
 //   // appMessage.alertParagraph = 'All variants accociated with this product will aso be deleted'
 //   // appMessage.alertAction = 'deleteAllAttributes'
 //   // return (appMessage.showAlert = true)
 // }
 
-// const updateAttributes = async () => {
+// const saveAttributes = async () => {
 //   // if (current.value == JSON.stringify(product.value.attributes)) return (store.showAttributesSlideout = false)
 //   // const newAttributes = []
 //   // let errorMsg = ''
@@ -342,6 +399,32 @@ watch(
 //   },
 //   { deep: true }
 // )
+
+// const removeTerm = async () => {
+//   console.log(variants.value)
+//   // const product.value.attributes = product.value.attributes.filter((a) => a.enabled && a.variation)
+//   console.log('ATT', product.value.attributes)
+//   console.log('ID', termToDeleteId.value)
+//   // for (const prop in product.value.attributes) {
+//   // const i = props.attribute.terms.findIndex((t) => t._id == termToDeleteId.value)
+//   // console.log(i)
+//   // if (i !== -1) props.attribute.terms.splice(i, 1)
+//   // // }
+//   // console.log('ATT1', product.value.attributes)
+
+//   // for (const prop in variants.value) {
+//   //   const term = variants.value[prop].attrTerms.find((t) => t._id == termToDeleteId.value)
+//   //   if (term) variants.value[prop].toDelete = true
+//   // }
+//   // variants.value = variants.value.filter((v) => !v.toDelete)
+//   // console.log(variants.value)
+//   // // await saveProduct()
+//   // // const i = props.attribute.terms.findIndex((t) => t._id == termToDeleteId.value)
+//   // // if (i !== -1) props.attribute.terms.splice(i, 1)
+//   // // termToDeleteId.value = null
+//   // alert.value.show = false
+//   // alert.value.action = ''
+// }
 </script>
 
 <template>
@@ -359,8 +442,8 @@ watch(
               Add Attribute
             </button>
             <button class="btn btn__primary py05 px2 text-xs" @click="addAllAttributes">Add All Attributes</button>
-            <button class="btn btn__secondary py05 px2 text-xs" @click="handleShowDeleteAttributesAlert">
-              Delete All Attributes
+            <button class="btn btn__secondary py05 px2 text-xs" @click="showRemoveAllAttributesAlert">
+              Remove All Attributes
             </button>
           </div>
         </header>
@@ -372,7 +455,11 @@ watch(
           <EcommerceAdminProductsAttributesList
             v-else
             @removeAttribute="showRemoveAttributeAlert"
+            @addTerm="handleAddTerm"
+            @addAllTerms="handleAddAllTerms"
             @removeTerm="showRemoveTermAlert"
+            @removeAllTerms="showRemoveAllTermsAlert"
+            @updateAttribute="updateAttribute"
           />
         </main>
       </div>
@@ -383,7 +470,7 @@ watch(
         <button
           class="btn btn__primary py05 px3"
           :class="{ disabled: current == JSON.stringify(product.attributes) }"
-          @click.prevent="updateAttributes"
+          @click.prevent="saveAttributes"
         >
           Save Changes
         </button>
