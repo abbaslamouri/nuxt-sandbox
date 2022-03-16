@@ -46,16 +46,6 @@ const handleRemoveVariant = (variantIndex) => {
         @resetActions="resetActions"
         @removeVariant="handleRemoveVariant"
       />
-      <!-- <EcommerceAdminProductsVariantsCard
-        v-if="variants.length"
-        v-for="(variant, index) in variants"
-        :index="index"
-        :showAction="showActionKeys[index]"
-        :showDeleteVariantAlert="showDeleteVariantAlerts[index]"
-        :showActions="showActions[index]"
-        @showDeleteVariantAlertEmitted="handleShowDeleteVariantAlert(index, $event)"
-        @showActionsEmitted="handleShowActions(index, $event)"
-      /> -->
     </div>
   </div>
 </template>

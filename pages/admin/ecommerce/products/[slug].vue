@@ -11,7 +11,18 @@ definePageMeta({
 })
 
 const { product, variants } = useStore()
-const { errorMsg, galleryMedia, mediaReference, showMediaSelector, fetchBySlug, fetchAll, saveDoc } = useFactory()
+const {
+  errorMsg,
+  message,
+  galleryMedia,
+  mediaReference,
+  showMediaSelector,
+  fetchBySlug,
+  fetchAll,
+  saveDoc,
+  saveDocs,
+  deleteMany,
+} = useFactory()
 // provide('store', store)
 // provide('fetchAll', fetchAll)
 
@@ -26,7 +37,7 @@ const appMessage = useMessage()
 const showAttributesSlideout = ref(false)
 const showVariantsSlideout = ref(false)
 // const showMediaSelector = ref(false) // media selector toggler
-// let response = null
+let response = null
 const galleryIntro = ref('This image gallery contains all images associated with this product including its variants.')
 const slug = route.params.slug === ' ' ? null : route.params.slug
 
@@ -75,25 +86,24 @@ const saveProduct = async () => {
   if (!product.value.name) return (errorMsg.value = 'Product name is required')
   product.value.slug = slugify(product.value.name, { lower: true })
   if (!product.value.permalink) product.value.permalink = slugify(product.value.name, { lower: true })
-  const response = await saveDoc('products', product.value)
+  response = await saveDoc('products', product.value)
   console.log('SAVE', response)
   if (!response) return
-  // product.value = response
-  // await deleteVariants(product.value._id)
-  // if (errorMsg.value) return
-  // if (!variants.value.length) {
-  //   router.push({ name: 'admin-ecommerce-products-slug', params: { slug: product.value.slug } })
-  //   return (appMessage.successMsg = 'product saved succesfully')
-  // }
-  // console.log('SV', store.variants)
-  // await saveVariants(variants.value)
-  // if (store.errorMsg) return (appMessage = store.errorMsg)
-  // appMessage.successMsg = 'product and variants saved succesfully'
-  // router.push({ name: 'admin-ecommerce-products-slug', params: { slug: product.value.slug } })
-
-  showAttributesSlideout.value = false
+  response = await deleteMany('variants', { product: product.value._id })
+  if (!response) return
+  if (!variants.value.length) {
+    router.push({ name: 'admin-ecommerce-products-slug', params: { slug: product.value.slug } })
+    return (message.value = 'product saved succesfully')
+  }
+  console.log('Variants', variants.value)
+  response = await saveDocs('variants', variants.value)
+  if (!response) return
   router.push({ name: 'admin-ecommerce-products-slug', params: { slug: product.value.slug } })
+  message.value = 'product and variants saved succesfully'
+  showAttributesSlideout.value = false
+  // router.push({ name: 'admin-ecommerce-products-slug', params: { slug: product.value.slug } })
 }
+provide('saveProduct', saveProduct)
 
 const handleNewMediaSelectBtnClicked = () => {
   mediaReference.value = 'productMedia'

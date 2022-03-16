@@ -35,26 +35,29 @@ export default async (req, res) => {
     }
   }
 
-  if (req.method === 'POST' && req.url.includes('/delete-many')) {
-    // console.log('VVVVVV', params.id)
-    const docs = await Model.deleteMany({ product: params.productId })
-    // console.log('VVVVVDDDDDD', docs)
-    return docs
-  }
+  // if (req.method === 'POST' && req.url.includes('/delete-many')) {
+  // console.log('VVVVVV', params.id)
+  // const docs = await Model.deleteMany({ product: params.productId })
+  // console.log('VVVVVDDDDDD', docs)
+  // return docs
+  // }
 
   if (req.method === 'POST') {
     try {
       const body = await useBody(req)
-      const doc = await Model.create(body)
-      if (!doc) {
+      console.log('BBBBBBB', body)
+      console.log('BD', Array.isArray(body))
+      let result = null
+      if (Array.isArray(body)) result = await Model.insertMany(body)
+      else result = await Model.create(body)
+      if (!result) {
         const newError = new Error(`We are not able to create a new document`)
         newError.customError = true
         newError.statusCode = 404
         throw newError
       }
-      return doc
+      return result
     } catch (error) {
-      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message
@@ -85,17 +88,18 @@ export default async (req, res) => {
 
   if (req.method === 'DELETE') {
     try {
-      // const body = await useBody(req)
-      const doc = await Model.findByIdAndDelete(params.id)
-      if (!doc) {
+      console.log('PR', params)
+      let result = null
+      if (params.id) result = await Model.findByIdAndDelete(params.id)
+      else result = await Model.deleteMany(params)
+      if (!result) {
         const newError = new Error(`We can't find a document with ID = ${params.id}`)
         newError.customError = true
         newError.statusCode = 404
         throw newError
       }
-      return null
+      return result
     } catch (error) {
-      // console.log(error)
       const err = errorHandler(error)
       res.statusCode = err.statusCode
       return err.message

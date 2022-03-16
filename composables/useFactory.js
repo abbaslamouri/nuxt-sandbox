@@ -83,6 +83,20 @@ const useFactory = () => {
     }
   }
 
+  const saveDocs = async (resource, docs) => {
+    errorMsg.value = null
+    message.value = null
+    let response = null
+    try {
+      response = await $fetch(`/api/v1/${resource}`, { method: 'POST', body: docs })
+      console.log(response)
+      return response
+    } catch (error) {
+      errorMsg.value = error.data
+      return null
+    }
+  }
+
   const deleteById = async (resource, docId) => {
     errorMsg.value = null
     message.value = null
@@ -96,6 +110,21 @@ const useFactory = () => {
     }
   }
 
+  const deleteMany = async (resource, condition) => {
+    errorMsg.value = null
+    message.value = null
+    try {
+      const response = await $fetch(`/api/v1/${resource}`, {
+        method: 'DELETE',
+        params: condition,
+      })
+      return response
+    } catch (err) {
+      errorMsg.value = err.data
+      return null
+    }
+  }
+
   return {
     state,
     errorMsg,
@@ -106,8 +135,10 @@ const useFactory = () => {
     alert,
     fetchAll,
     saveDoc,
+    saveDocs,
     fetchBySlug,
     deleteById,
+    deleteMany,
   }
 }
 

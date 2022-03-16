@@ -1,3 +1,18 @@
+table {
+  border-collapse: collapse;
+  border: 1px solid $slate-400;
+  width: 100%;
+
+  th,
+  td {
+    // text-align: left;
+    border: 1px solid $slate-300;
+    padding: 1rem;
+  }
+
+  
+}
+
 .table {
   font-size: 1.2rem;
   display: flex;

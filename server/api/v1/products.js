@@ -14,7 +14,7 @@ export default async (req, res) => {
   const urlPath = req.url.split('/')
   // console.log('reqUrl', req.url)
   // console.log('URLPATH', urlPath)
-  // console.log('PARAMSX', params)
+  console.log('PARAMSX', params)
 
   const protect = async () => {
     if (!cookies.auth) {
@@ -209,7 +209,6 @@ export default async (req, res) => {
 
   if (req.method === 'DELETE') {
     try {
-      // const body = await useBody(req)
       const doc = await Model.findByIdAndDelete(params.id)
       if (!doc) {
         const newError = new Error(`We can't find a document with ID = ${params.id}`)

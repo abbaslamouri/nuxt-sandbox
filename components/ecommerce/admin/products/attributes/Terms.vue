@@ -9,7 +9,11 @@ const props = defineProps({
   },
 })
 
-const { product } = useStore()
+defineEmits(['removeTerm'])
+
+// const saveProduct = inject('saveProduct')
+
+const { product, variants } = useStore()
 const { alert } = useFactory()
 
 const termSelectId = ref('')
@@ -34,13 +38,42 @@ const addAllTerms = () => {
   )
 }
 
-const removeTerm = () => {
-  const i = product.value.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
-  if (i !== -1) product.value.attributes[props.index].terms.splice(i, 1)
-  termToDeleteId.value = null
-  alert.value.show = false
-  alert.value.action = ''
-}
+// const removeTerm = async () => {
+//   console.log(variants.value)
+//   // const product.value.attributes = product.value.attributes.filter((a) => a.enabled && a.variation)
+//   console.log('ATT', product.value.attributes)
+//   console.log('ID', termToDeleteId.value)
+//   // for (const prop in product.value.attributes) {
+//   // const i = product.value.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
+//   // console.log(i)
+//   // if (i !== -1) product.value.attributes[props.index].terms.splice(i, 1)
+//   // // }
+//   // console.log('ATT1', product.value.attributes)
+
+//   // for (const prop in variants.value) {
+//   //   const term = variants.value[prop].attrTerms.find((t) => t._id == termToDeleteId.value)
+//   //   if (term) variants.value[prop].toDelete = true
+//   // }
+//   // variants.value = variants.value.filter((v) => !v.toDelete)
+//   // console.log(variants.value)
+//   // // await saveProduct()
+//   // // const i = product.value.attributes[props.index].terms.findIndex((t) => t._id == termToDeleteId.value)
+//   // // if (i !== -1) product.value.attributes[props.index].terms.splice(i, 1)
+//   // // termToDeleteId.value = null
+//   // alert.value.show = false
+//   // alert.value.action = ''
+// }
+
+// const preRemoveTerm = (termId) => {
+//   console.log('TTTTTTTTT', termId)
+//   termToDeleteId.value = termId
+//   showAlert(
+//     'Are you sure you want to remove this attribute term?',
+//     'Any variants containing this term will also be removed.',
+//     'removeTerm',
+//     true
+//   )
+// }
 
 const removeAllTerms = () => {
   product.value.attributes[props.index].terms = []
@@ -48,27 +81,33 @@ const removeAllTerms = () => {
   alert.value.action = ''
 }
 
-const setAlert = (alertPayload, termId = null) => {
-  termToDeleteId.value = termId
-  alert.value.action = alertPayload.alertAction
-  alert.value.heading = alertPayload.alertHeading
-  alert.value.paragraph = alertPayload.alertParagraph
-  alert.value.show = true
-  console.log('A', alert.value)
-}
+// const setAlert = (alertPayload, termId = null) => {
+//   termToDeleteId.value = termId
+//   alert.value.action = alertPayload.alertAction
+//   alert.value.heading = alertPayload.alertHeading
+//   alert.value.paragraph = alertPayload.alertParagraph
+//   alert.value.show = true
+//   console.log('A', alert.value)
+// }
 
-watch(
-  () => alert.value,
-  (currentVal) => {
-    console.log('W', currentVal)
-    if (currentVal.show === 'ok' && currentVal.action === 'removeTerm') removeTerm()
-    if (currentVal.show === 'ok' && currentVal.action === 'removeAllTerms') removeAllTerms()
-  },
-  { deep: true }
-)
+// const showAlert = (heading, paragraph, action, showCancelBtn) => {
+//   alert.value.heading = heading
+//   alert.value.paragraph = paragraph
+//   alert.value.action = action
+//   alert.value.showCancelBtn = showCancelBtn
+//   alert.value.show = true
+// }
+
+// watch(
+//   () => alert.value.show,
+//   (currentVal) => {
+//     console.log('WWW', currentVal)
+//     if (currentVal === 'ok' && alert.value.action === 'removeTerm') removeTerm()
+//     if (currentVal === 'ok' && alert.value.action === 'removeAllTerms') removeAllTerms()
+//   },
+//   { deep: true }
+// )
 </script>
-
-// font-size: 1rem; // padding: 0.3rem; // background-color: $slate-400; // color: white; // width: 9rem;
 
 <template>
   <div>
@@ -119,19 +158,7 @@ watch(
             :key="term._id"
           >
             <span>{{ term.name }}</span>
-            <span
-              class="remove-term"
-              @click="
-                setAlert(
-                  {
-                    alertAction: 'removeTerm',
-                    alertHeading: 'Are you sure you want to remove this attribute term?',
-                    alertParagraph: 'All product variants containing this term will also be removed.',
-                  },
-                  term._id
-                )
-              "
-            >
+            <span class="cursor-pointer" @click="$emit('removeTerm', term._id)">
               <IconsClose class="w1 h1 fill-slate-50" />
             </span>
           </div>
