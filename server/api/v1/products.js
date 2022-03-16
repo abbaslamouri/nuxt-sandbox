@@ -216,7 +216,7 @@ export default async (req, res) => {
         newError.statusCode = 404
         throw newError
       }
-      return null
+      return doc
     } catch (error) {
       // console.log(error)
       const err = errorHandler(error)

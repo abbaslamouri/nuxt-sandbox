@@ -97,16 +97,18 @@ const useFactory = () => {
     }
   }
 
-  const deleteById = async (resource, docId) => {
+  const deleteById = async (resource, id) => {
     errorMsg.value = null
     message.value = null
     try {
-      await $fetch(`/api/v1/${resource}`, {
+      const response = await $fetch(`/api/v1/${resource}`, {
         method: 'DELETE',
-        params: { id: docId },
+        params: { id },
       })
+      return response
     } catch (err) {
       errorMsg.value = err.data
+      return null
     }
   }
 
