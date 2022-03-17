@@ -16,6 +16,9 @@ const { category } = useStore()
         <div class="flex1">
           <FormsBaseInput label="Permalink" placeholder="Permalink" v-model="category.permalink" />
         </div>
+        <div class="flex1">
+          <FormsBaseInput label="Order" placeholder="Order" v-model="category.order" />
+        </div>
       </div>
       <FormsBaseTextarea label="Description" placeholder="Description" v-model="category.description" />
     </div>

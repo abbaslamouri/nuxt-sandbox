@@ -28,7 +28,7 @@ const handleEditProduct = (slug) => {
   router.push({ name: 'admin-ecommerce-categories-slug', params: { slug } })
 }
 
-const handleDeleteCategory = (productId) => {
+const handleDeleteCategory = (categoryId) => {
   resetActions()
   emit('deleteCategory', categoryId)
 }
@@ -40,6 +40,7 @@ const handleDeleteCategory = (productId) => {
       <table class="text-xs shadow-md">
         <thead>
           <tr class="bg-slate-200">
+            <th>Order</th>
             <th>Image</th>
             <th>Name</th>
             <th>Slug</th>
@@ -47,8 +48,9 @@ const handleDeleteCategory = (productId) => {
             <th class="text-right minw12">actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="bg-white">
           <tr v-for="(category, index) in categories" :key="category._id">
+            <td>{{ category.order }}</td>
             <td class="flex-row justify-center">
               <div class="w5 h5">
                 <img
@@ -61,7 +63,7 @@ const handleDeleteCategory = (productId) => {
                 <img v-else class="wfull hfull contain" :src="`/placeholder.png`" />
               </div>
             </td>
-            <td>{{ category.name }}</td>
+            <td>{{ category.name }}==={{ category._id }}</td>
             <td>{{ category.slug }}</td>
             <td>
               <span v-if="category.parent">
@@ -74,7 +76,7 @@ const handleDeleteCategory = (productId) => {
                 :showAction="showActionKeys[index]"
                 :showEdit="true"
                 @moreHoriz="setActions({ index: index, action: !showActionKeys[index] })"
-                @deleteAction="handleDeleteProduct(category._id)"
+                @deleteAction="handleDeleteCategory(category._id)"
                 @editAction="handleEditProduct(category.slug)"
               />
             </td>

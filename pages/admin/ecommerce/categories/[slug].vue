@@ -37,11 +37,22 @@ categories.value = (await fetchAll('categories', {})).docs
 console.log(categories.value)
 
 const saveCategory = async () => {
-  if (!category.value.name) return (state.value.errorMsg = 'Category name is required')
+  console.log(category.value)
+  if (!category.value.name) return (errorMsg.value = 'Category name is required')
   category.value.slug = slugify(category.value.name, { lower: true })
   if (!category.value.permalink) category.value.permalink = slugify(category.value.name, { lower: true })
-  await saveDoc(category.value)
-  router.push({ name: 'admin-ecommerce-categories' })
+  const response = await saveDoc('categories', category.value)
+  console.log('SAVE', response)
+  if (!response) return
+
+  router.push({ name: 'admin-ecommerce-categories-slug', params: { slug: category.value.slug } })
+  message.value = 'Category saved succesfully'
+
+  // if (!category.value.name) return (state.value.errorMsg = 'Category name is required')
+  // category.value.slug = slugify(category.value.name, { lower: true })
+  // if (!category.value.permalink) category.value.permalink = slugify(category.value.name, { lower: true })
+  // await saveDoc(category.value)
+  // router.push({ name: 'admin-ecommerce-categories' })
 }
 
 const handleNewMediaSelectBtnClicked = () => {
@@ -60,13 +71,24 @@ const selectMediaGallery = async (media) => {
 }
 
 watch(
-  () => category.value.selectedMedia,
+  () => galleryMedia.value,
   (currentVal) => {
     console.log(currentVal)
-    if (state.value.referenceMedia === 'categoryMedia') selectMediaGallery(currentVal)
+    if (mediaReference.value === 'productMedia') setImageGallery(currentVal)
+    // store.showMediaSelector = false
+    // store.galleryMedia = []
   },
   { deep: true }
 )
+
+// watch(
+//   () => category.value.selectedMedia,
+//   (currentVal) => {
+//     console.log(currentVal)
+//     if (state.value.referenceMedia === 'categoryMedia') selectMediaGallery(currentVal)
+//   },
+//   { deep: true }
+// )
 </script>
 
 <template>

@@ -6,7 +6,8 @@ definePageMeta({
   layout: 'admin',
 })
 
-const {alert, fetchAll, deleteById } = useFactory()
+const router = useRouter()
+const { errorMsg, message, alert, mediaReference, fetchAll, deleteById } = useFactory()
 
 const categories = ref([])
 const categoryToDeleteId = ref(null)
@@ -14,7 +15,7 @@ const count = ref(null) // item count taking into account params
 const totalCount = ref(null) // Total item count in the database
 const keyword = ref(null)
 const page = ref(1)
-const perPage = ref(6)
+const perPage = ref(8)
 const sortField = ref('createdAt')
 const sortOrder = ref('-')
 let response = null
@@ -35,9 +36,27 @@ const params = computed(() => {
 
 // Fetch all
 response = await fetchAll('categories', params.value)
+
 categories.value = response.docs
 count.value = response.count
 totalCount.value = response.totalCount
+
+// response = await fetchAll('categories', { parent: { $exists: true, $ne: null } })
+console.log('OOOOOO', response)
+
+const levels = [categories.value.filter((c) => !c.parent)]
+let other = [categories.value.filter((c) => c.parent)]
+console.log(levels)
+console.log(other)
+let i = 1
+
+while (other.length) {
+  levels[i] = other.filter((c) => !c.parent)
+  other = other.filter((c) => c.parent)
+  i++
+}
+console.log('PPPP', levels)
+console.log('PPPP', other)
 
 const setPage = async (currentPage) => {
   page.value = currentPage
@@ -51,13 +70,19 @@ const handleSearch = async (searchKeyword) => {
 }
 
 const deleteCategory = async (doc) => {
-  const docName = doc.name
-  await deleteById(doc._id)
-  if (!state.value.errorMsg) {
-    await fetchAll(params.value)
-    state.value.message = `Category ${docName} deleted succesfully`
-  }
+  const category = categories.value.find((c) => c._id == categoryToDeleteId.value)
+  if (!category)
+    return (errorMsg.value = `We are not able to find a category with this ID: ${categoryToDeleteId.value} `)
+
+  response = await deleteById('categories', category._id)
+  categoryToDeleteId.value = null
+  alert.value.show = false
+  alert.value.action = ''
+  message.value = `Category ${category.name} deleted succesfully`
+  response = await fetchAll('categories', params.value)
+  categories.value = response.docs
 }
+
 const showDeleteCategoryAlert = (categoryId) => {
   categoryToDeleteId.value = categoryId
   showAlert('Are you sure you want to delete this category?', '', 'deleteCategory', true)
@@ -81,7 +106,7 @@ watch(
 </script>
 
 <template>
-  <div class="hfull flex-col items-center gap2 p3 ">
+  <div class="hfull flex-col items-center gap2 p3">
     <header class="flex-row items-center justify-between wfull max-width-130">
       <h3 class="title">Categories</h3>
       <NuxtLink class="link" :to="{ name: 'admin-ecommerce-categories-slug', params: { slug: ' ' } }">

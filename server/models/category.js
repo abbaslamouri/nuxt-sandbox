@@ -32,12 +32,14 @@ const schema = new mongoose.Schema(
     },
     parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     gallery: [{ type: mongoose.Schema.Types.ObjectId, ref: Media }],
+    order: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
   }
 )
-
-
 
 export default mongoose.model('Category', schema)
