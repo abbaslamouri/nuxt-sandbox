@@ -1,45 +1,101 @@
 <script setup>
-defineEmits(['deleteDocEmitted'])
+const props = defineProps({
+  categories: {
+    type: Array,
+  },
+  totalCount: {
+    type: Number,
+  },
+})
+const emit = defineEmits(['deleteCategory'])
 
-const state = inject('state')
-const showActionsKeys = ref([])
+const router = useRouter()
 
-const handleActionBtnClicked = (i) => {
-  console.log(i)
-  for (const prop in showActionsKeys.value) {
-    showActionsKeys.value[prop] = false
+const showActionKeys = ref([])
+
+const resetActions = () => {
+  for (const prop in props.categories) {
+    showActionKeys.value[prop] = false
   }
-  showActionsKeys.value[i] = !showActionsKeys.value[i]
+}
+
+const setActions = (payload) => {
+  resetActions()
+  showActionKeys.value[payload.index] = payload.action
+}
+const handleEditProduct = (slug) => {
+  resetActions()
+  router.push({ name: 'admin-ecommerce-categories-slug', params: { slug } })
+}
+
+const handleDeleteCategory = (productId) => {
+  resetActions()
+  emit('deleteCategory', categoryId)
 }
 </script>
 
 <template>
-  <div class="shadow-md">
-    <div v-if="state.totalCount">
-      <div class="table admin-categories">
-        <div class="table__header text-sm py2 px3">
-          <div class="row">
-            <div class="th">Name</div>
-            <div class="th">Slug</div>
-            <div class="th">Parent</div>
-            <div class="th">actions</div>
-          </div>
-        </div>
-        <div class="table__body bg-slate-50 px2">
-          <EcommerceAdminCategoriesCategoryCard
-            v-for="(doc, index) in state.docs"
-            v-if="state.docs.length"
-            :doc="doc"
-            :index="index"
-            :showActionsKeys="showActionsKeys[index]"
-            :key="doc._id"
-            @actionBtnClicked="handleActionBtnClicked"
-            @deleteDocEmitted="$emit('deleteDocEmitted', $event)"
-          />
-          <h2 v-else>There no items that match your criteria</h2>
-        </div>
+  <div>
+    <div v-if="totalCount">
+      <table class="text-xs shadow-md">
+        <thead>
+          <tr class="bg-slate-200">
+            <th>Image</th>
+            <th>Name</th>
+            <th>Slug</th>
+            <th>Parent</th>
+            <th class="text-right minw12">actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(category, index) in categories" :key="category._id">
+            <td class="flex-row justify-center">
+              <div class="w5 h5">
+                <img
+                  class="wfull hfull contain"
+                  v-if="
+                    category.gallery.length && category.gallery[0] && category.gallery[0].mimetype.includes('image')
+                  "
+                  :src="`${category.gallery[0].path}`"
+                />
+                <img v-else class="wfull hfull contain" :src="`/placeholder.png`" />
+              </div>
+            </td>
+            <td>{{ category.name }}</td>
+            <td>{{ category.slug }}</td>
+            <td>
+              <span v-if="category.parent">
+                {{ category.parent.name }}
+              </span>
+              <span v-else>-</span>
+            </td>
+            <td class="minw12">
+              <EcommerceAdminActions
+                :showAction="showActionKeys[index]"
+                :showEdit="true"
+                @moreHoriz="setActions({ index: index, action: !showActionKeys[index] })"
+                @deleteAction="handleDeleteProduct(category._id)"
+                @editAction="handleEditProduct(category.slug)"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-else class="h60vh flex-row items-center justify-center shadow-md">
+      <div class="empty-categories flex-col gap2 bg-slate-50 p4 br5">
+        <h3 class="">Add categories and subcategories</h3>
+        <div class="">Create nested product categories with category images and descriptions</div>
+        <NuxtLink
+          class="btn btn__primary btn__pill px3 py05 text-xs items-self-end"
+          :to="{ name: 'admin-ecommerce-products-slug', params: { slug: ' ' } }"
+        >
+          <IconsPlus class="w2 h2" />
+          <span>Add</span>
+        </NuxtLink>
       </div>
     </div>
+
     <div v-else class="h60vh flex-row items-center justify-center shadow-md">
       <div class="empty-categories flex-col gap2 bg-slate-50 p4 br5">
         <h3 class="">Add categories and subcategories</h3>

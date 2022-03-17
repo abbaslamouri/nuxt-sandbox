@@ -1,7 +1,5 @@
 <script setup>
 	import slugify from 'slugify'
-	import { useMessage } from '~/store/useMessage'
-	// import { useStore } from '~/store/useStore'
 
 	useMeta({
 		title: 'Product | YRL',
@@ -24,20 +22,13 @@
 		saveDocs,
 		deleteMany,
 	} = useFactory()
-	// provide('store', store)
-	// provide('fetchAll', fetchAll)
-
-	// const { store, save, fetchSingle, fetchCategories, saveVariants, deleteVariants } = useProduct()
+	
 
 	const route = useRoute()
 	const router = useRouter()
-	// const store = useStore()
-	const appMessage = useMessage()
-	// const product = ref({})
-	// const variants = ref([])
+	
 	const showAttributesSlideout = ref(false)
 	const showVariantsSlideout = ref(false)
-	// const showMediaSelector = ref(false) // media selector toggler
 	let response = null
 	const galleryIntro = ref(
 		'This image gallery contains all images associated with this product including its variants.'
@@ -53,28 +44,11 @@
 				})
 		  ).docs
 		: []
-	// product.value.productType = 'variable'
-	// console.log('PPP', product.value)
-
-	// let response = await fetchSingle(slug)
-	// if (store.errorMsg) {
-	//   appMessage.errorMsg = store.errorMsg
-	//   store.product = []
-	// } else {
-	//   store.product = response
-	//   response = await fetchCategories()
-	//   if (store.errorMsg) {
-	//     appMessage.errorMsg = store.errorMsg
-	//     store.categories = []
-	//   } else {
-	//     store.categories = response.docs
-	//   }
-	// }
+	
 
 	// Set category gallery
 	const setImageGallery = async (media) => {
 		console.log('mediap', media)
-		// showMediaSelector.value = false
 		for (const prop in media) {
 			const index = product.value.gallery.findIndex((el) => el._id == media[prop]._id)
 			if (index === -1) {

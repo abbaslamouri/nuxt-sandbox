@@ -14,7 +14,7 @@ const props = defineProps({
   },
   rows: {
     type: String,
-    default: '',
+    default: '5',
   },
   cols: {
     type: String,
