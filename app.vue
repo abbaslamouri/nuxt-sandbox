@@ -1,42 +1,42 @@
 <script setup>
-const { showCartSlideout } = useStore()
-const { message, errorMsg, alert, showMediaSelector } = useFactory()
+	const { showCartSlideout } = useStore()
+	const { message, errorMsg, alert, showMediaSelector } = useFactory()
 
-const hideSnackbar = () => {
-  errorMsg.value = null
-  message.value = null
-}
+	const hideSnackbar = () => {
+		errorMsg.value = null
+		message.value = null
+	}
 
-const cancelAlert = () => {
-  alert.value = { show: false, heading: '', paragraph: '', action: '' }
-}
+	const cancelAlert = () => {
+		alert.value = { show: false, heading: '', paragraph: '', action: '' }
+	}
 </script>
 
 <template>
-  <div>
-    <NuxtLayout>
-      <NuxtPage />
+	<div>
+		<NuxtLayout>
+			<NuxtPage />
 
-      <transition name="slideout">
-        <EcommerceCheckoutCart v-if="showCartSlideout" />
-      </transition>
+			<transition name="slideout">
+				<EcommerceCheckoutCart v-if="showCartSlideout" />
+			</transition>
 
-      <SnackBar
-        :show="!!errorMsg || !!message"
-        :message="errorMsg ? errorMsg : message ? message : ''"
-        :snackbarType="errorMsg ? 'Error' : 'Success'"
-        duration="5"
-        @hideSnackbar="hideSnackbar"
-      />
+			<SnackBar
+				:show="!!errorMsg || !!message"
+				:message="errorMsg ? errorMsg : message ? message : ''"
+				:snackbarType="errorMsg ? 'Error' : 'Success'"
+				duration="5"
+				@hideSnackbar="hideSnackbar"
+			/>
 
-      <Alert v-if="alert.show" @ok="alert.show = 'ok'" @cancel="cancelAlert" :showCancelBtn="alert.showCancelBtn">
-        <h3>{{ alert.heading }}</h3>
-        <p>{{ alert.paragraph }}</p>
-      </Alert>
+			<Alert v-if="alert.show" @ok="alert.show = 'ok'" @cancel="cancelAlert" :showCancelBtn="alert.showCancelBtn">
+				<h3>{{ alert.heading }}</h3>
+				<p>{{ alert.paragraph }}</p>
+			</Alert>
 
-      <div class="media-selector" v-if="showMediaSelector">
-        <LazyMediaUploader @mediaSelectCancel="showMediaSelector = false" />
-      </div>
-    </NuxtLayout>
-  </div>
+			<div class="media-selector" v-if="showMediaSelector">
+				<LazyMediaUploader @mediaSelectCancel="showMediaSelector = false" />
+			</div>
+		</NuxtLayout>
+	</div>
 </template>

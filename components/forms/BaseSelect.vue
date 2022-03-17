@@ -52,7 +52,7 @@
 			:aria-required="typeof $attrs.required != undefined ? true : null"
 			@change="$emit('update:modelValue', $event.target.value)"
 		>
-			<option value="" disabled :selected="modelValue === ''">{{ nullOption }}</option>
+			<option value="" :selected="modelValue === ''">{{ nullOption }}</option>
 			<option
 				v-for="option in options"
 				:key="option.key"
