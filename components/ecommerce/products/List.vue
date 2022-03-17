@@ -27,6 +27,7 @@ const handleItemQuantitySelected = (event, i) => {
 
 <template>
   <div class="w996">
+    <!-- {{products}}====== -->
     <div v-if="products.length">
       <div
         class="header flex-col items-center gap2 p2 text-slate-50 bg-norepeat bg-cover"
@@ -42,14 +43,14 @@ const handleItemQuantitySelected = (event, i) => {
         </NuxtLink>
       </div>
       <div class="flex-row wrap">
-        <!-- <EcommerceProductsProductCard
+        <EcommerceProductsProductCard
           v-for="(product, i) in products"
           :key="product._id"
           :product="product"
           :listType="listType"
           @itemQuantitySelected="handleItemQuantitySelected($event, i)"
           :showSelectQty="showSelectQtys[i]"
-        /> -->
+        />
       </div>
     </div>
   </div>
