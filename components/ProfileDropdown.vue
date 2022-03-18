@@ -7,6 +7,8 @@ const signout = async () => {
   showProfileDropdown.value = false
 
   const response = await logout()
+  errorMsg.value = null
+  message.value = null
   if (response.ok === false) return (errorMsg.value = response.errorMsg)
   token.value = null
   isAuthenticated.value = false

@@ -1,121 +1,55 @@
 <script setup>
-// import { useAuth } from '~/store/useAuth'
-// import { useMessage } from '~/store/useMessage'
+const router = useRouter()
+const route = useRoute()
+const { user, token, isAuthenticated, resetPassword } = useAuth()
+const { message, errorMsg } = useFactory()
+const password = ref('adrar0714')
 
-// const router = useRouter()
-// const route = useRoute()
-// const auth = useAuth()
-// const appMessage = useMessage()
-// const password = ref('')
-
-const resetPassword = async () => {
-  // appMessage.errorMsg = null
-  // appMessage.successMsg = null
-  // try {
-  //   const response = await $fetch('/api/v1/auth/reset-password', {
-  //     method: 'PATCH',
-  //     body: { password: password.value, resetToken: route.params.resetToken },
-  //   })
-  //   // console.log(response)
-  //   auth.user = response.user
-  //   auth.token = response.token
-  //   appMessage.successMsg = 'Password reset succesful, You are now logged in'
-  //   router.push({ name: 'index' })
-  // } catch (error) {
-  //   appMessage.errorMsg = error.data
-  // }
+const handleResetPassword = async () => {
+  errorMsg.value = null
+  message.value = null
+  const response = await resetPassword({ password: password.value, resetToken: route.params.resetToken })
+  console.log(response)
+  if (response.ok === false) return (errorMsg.value = response.errorMsg)
+  user.value = response.user
+  token.value = response.token
+  isAuthenticated.value = true
+  router.push({ name: 'index' })
 }
 
-const getNewToken = async () => {
-  router.push({ name: 'auth-forgot-password' })
-  showAuthForm.value = false
-}
+// const getNewToken = async () => {
+//   router.push({ name: 'auth-forgot-password' })
+//   showAuthForm.value = false
+// }
 </script>
 
 <template>
-  <main class="reset-password">
-    <form @submit.prevent="resetPassword">
-      <header>
-        <h2>Reset Password</h2>
-      </header>
-      <main>
-        <FormsBaseInput
-          type="password"
-          label="Password"
-          placeholder="Password"
-          v-model="password"
-          :required="true"
-          minlength="8"
-          maxlength="25"
-        />
-        <!-- <div class="invalid-token" v-if="auth.errorMsg">
-          <p>{{ auth.errorMsg }}</p>
-          <button class="btn btn-primary" @click.prevent="getNewToken">
-            <p>Click Here to get a new token</p>
-          </button>
-        </div> -->
-      </main>
-      <footer>
-        <button class="btn btn-primary">Reset Password</button>
-      </footer>
+  <main class="h100vh bg-slate-900 flex-row justify-center items-start pt10">
+    <form class="bg-slate-50 p4 br3 flex-col gap2 minw-sm" @submit.prevent="handleResetPassword">
+      <h2>Reset Password</h2>
+      <div class="bg-red-100 p2 br3 text-xs flex-col gap2" v-if="errorMsg">
+        <p>{{ errorMsg }}</p>
+        <NuxtLink class="link items-self-end" :to="{ name: 'auth-forgot-password' }">
+          <span>Reset Password</span>
+          <IconsChevronRight />
+        </NuxtLink>
+        <!-- <a href="#" class="link text-sm items-self-end" @click.prevent="getNewToken">
+          Click Here to get a new token<IconsChevronRight />
+        </a> -->
+      </div>
+      <FormsBaseInput
+        type="password"
+        label="Password"
+        placeholder="Password"
+        v-model="password"
+        :required="true"
+        minlength="8"
+        maxlength="25"
+      />
+
+      <button class="btn btn__primary py05 px2 items-self-end">Reset Password<IconsChevronRight /></button>
     </form>
   </main>
 </template>
 
-<style lang="scss" scoped>
-@import '@/assets/scss/variables';
-.reset-password {
-  height: 100vh;
-  background-color: #111;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 10rem;
-
-  form {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 1rem;
-    background-color: $slate-50;
-    width: 70%;
-    border-radius: 5px;
-    overflow: hidden;
-
-    header {
-      padding: 2rem;
-    }
-
-    main {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 4rem;
-      padding: 3rem 4rem;
-
-      .invalid-token {
-        margin-top: 2rem;
-        border-radius: 5px;
-        background-color: $amber-200;
-        padding: 4rem 2rem;
-        line-height: 3rem;
-      }
-    }
-
-    footer {
-      border: 1px solid $slate-200;
-      display: flex;
-      justify-content: flex-end;
-      padding: 2rem 4rem;
-      align-items: center;
-    }
-
-    .btn {
-      font-size: 1.2rem;
-      padding: 1rem 2rem;
-      border-radius: 5px;
-      letter-spacing: 0.1rem;
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

@@ -9,8 +9,8 @@ const { product } = useStore()
     <li><a href="#image-gallery">Image Gallery</a></li>
 
     <li><a href="#details">Details</a></li>
-    <li v-if="product._id"><a href="#attributes">Attributes</a></li>
-    <li v-if="product._id && product.attributes.length">
+    <li v-if="product._id && product.productType === 'variable'"><a href="#attributes">Attributes</a></li>
+    <li v-if="product._id && product.attributes.length && product.productType === 'variable'">
       <a href="#variants">Variants</a>
     </li>
     <li><a href="#shipping-options">Shipping Options</a></li>

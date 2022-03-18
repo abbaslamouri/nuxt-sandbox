@@ -15,7 +15,7 @@ const slides = ref([
   // 'http://picsum.photos/id/1037/900/400',
 ])
 const heroBgImage = computed(() =>
-  route.name === 'original-coffee-pods' ? 'assets/hero-original.webp' : 'assets/hero-virtuo.webp'
+  route.name === 'ecommerce-products' ? 'assets/hero-original.webp' : 'assets/hero-virtuo.webp'
 )
 
 const response = await fetchAll()
@@ -82,7 +82,7 @@ const handleSearch = async () => {
 
     <section class="hero" :style="{ backgroundImage: `url(${heroBgImage})` }">
       <div class="links">
-        <NuxtLink class="link" :to="{ name: 'original-coffee-pods', params: { slug: ' ' } }">
+        <NuxtLink class="link" :to="{ name: 'ecommerce-products', params: { slug: ' ' } }">
           <button class="btn">
             <IconsOriginalActive />
             <span>Original</span>
@@ -98,7 +98,7 @@ const handleSearch = async () => {
       <div class="content">
         <div>Original</div>
         <h1>The Classic Espresso Experience</h1>
-        <NuxtLink class="link" :to="{ name: 'original-coffee-pods', params: { slug: ' ' } }">
+        <NuxtLink class="link" :to="{ name: 'ecommerce-products', params: { slug: ' ' } }">
           <button class="btn btn-primary">
             <span>Learn more about the original system</span>
           </button>

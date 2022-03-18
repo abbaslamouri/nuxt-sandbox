@@ -11,20 +11,22 @@ definePageMeta({
 const { errorMsg, message, alert, fetchAll } = useFactory()
 const params = {
   fields:
-    'name, slug, type, price, salePrice, permalink, categories, excerpt, description, intensity, roastiness, attributes, gallery, manageInventory',
+    'name, slug, productType, price, salePrice, permalink, categories, excerpt, description, intensity, roastiness, attributes, gallery, manageInventory',
 }
 
 // const { state, fetchAll } = useProduct()
 // const appMessage = useMessage()
 
 const products = ref([])
-const slides = ref(['assets/vday-d-3.webp', 'assets/dott-baristatray-choco.webp'])
+const slides = ref(['/assets/vday-d-3.webp', '/assets/dott-baristatray-choco.webp'])
 
 const response = await fetchAll('products', params)
-for (const prop in response.docs) {
-  if (!response.docs[prop].categories.map((g) => g.slug).includes('free-samples'))
-    products.value.push(response.docs[prop])
-}
+products.value = response.docs
+console.log(products.value)
+// for (const prop in response.docs) {
+//   if (!response.docs[prop].categories.map((g) => g.slug).includes('free-samples'))
+//     products.value.push(response.docs[prop])
+// }
 </script>
 
 <template>
@@ -33,7 +35,7 @@ for (const prop in response.docs) {
       <Carousel :slides="slides" indicators controls interval="5" height="10" />
     </section>
     <EcommerceProductsHero />
-    <EcommerceProductsFiltersAndViews :hasProducts="!!products.length" />
+    <EcommerceProductsFiltersAndViews />
     <EcommerceProductsList :products="products" />
   </div>
 </template>

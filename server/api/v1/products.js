@@ -14,7 +14,7 @@ export default async (req, res) => {
   const urlPath = req.url.split('/')
   // console.log('reqUrl', req.url)
   // console.log('URLPATH', urlPath)
-  console.log('PARAMSX', params)
+  // console.log('PARAMSX', params)
 
   const protect = async () => {
     if (!cookies.auth) {

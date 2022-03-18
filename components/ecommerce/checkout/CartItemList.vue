@@ -48,7 +48,7 @@ const handleOkBtnClicked = (event, index) => {
 			<p>You have no items in your bag</p>
 			<NuxtLink
 				class="link btn btn-primary"
-				:to="{ name: 'original-coffee-pods' }"
+				:to="{ name: 'ecommerce-products' }"
 				@click="appMessage.showCartSlideout = false"
 			>
 				<span>Start Shopping</span>

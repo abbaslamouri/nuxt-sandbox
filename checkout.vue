@@ -48,7 +48,7 @@
       <div class="flex-row items-start gap2 w996" v-if="cart.items.length">
         <div class="flex1 bg-slate-50 flex-col gap2">
           <EcommerceCheckoutProductList />
-          <nuxt-link class="link" :to="{ name: 'original-coffee-pods' }">
+          <nuxt-link class="link" :to="{ name: 'ecommerce-products' }">
             <IconsChevronLeft />
             <div>Continue Shopping</div>
           </nuxt-link>

@@ -1,15 +1,15 @@
 <script setup>
-defineProps({
-  hasProducts: {
-    type: Boolean,
-  },
-})
+// defineProps({
+//   hasProducts: {
+//     type: Boolean,
+//   },
+// })
 
 const listType = ref('tile')
 </script>
 
 <template>
-  <section class="flex-row items-center justify-between w996 p2" v-if="hasProducts">
+  <section class="flex-row items-center justify-between w996 p2">
     <div class="flex-row items-center gap3 px3 py1 border"><span>Filter</span> <IconsFilter /></div>
     <div class="flex-col items-center gap1">
       <span>View</span>

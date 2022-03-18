@@ -1,113 +1,49 @@
 <script setup>
-// import { useAuth } from '~/store/useAuth'
-// import { useMessage } from '~/store/useMessage'
-
-// const router = useRouter()
-// const auth = useAuth()
-// const appMessage = useMessage()
+const { forgotPassword } = useAuth()
+const { message, errorMsg } = useFactory()
 
 const email = ref('lamouri@genvac.com')
 
-const forgotPassword = async () => {
-  // appMessage.errorMsg = null
-  // appMessage.successMsg = null
-  // try {
-  //   const response = await $fetch('/api/v1/auth/forgot-password', {
-  //     method: 'POST',
-  //     body: { email: email.value },
-  //   })
-  //   // console.log(response)
-  //   appMessage.successMsg = response.message
-  //   // router.push({ name: 'index' })
-  // } catch (error) {
-  //   appMessage.errorMsg = error.data
-  // }
+const handleForgotPassword = async () => {
+  errorMsg.value = null
+  message.value = null
+  const response = await forgotPassword(email.value)
+  console.log(response)
+  if (response.ok !== false) return (message.value = 'Please check your email for instructions to reset your password.')
+  errorMsg.value = response.errorMsg
+
   // appMessage.snackbar.show = false
   // await auth.forgotPassword({ email: email.value })
   // if (auth.message) {
-  //   appMessage.setSnackbar(true, auth.message, 'Success')
-  //   router.push({ name: 'index' })
+  // appMessage.setSnackbar(true, auth.message, 'Success')
+  router.push({ name: 'index' })
   // }
   // if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
 }
 </script>
 
 <template>
-  <div class="forgot-password">
-    <form @submit.prevent="forgotPassword">
-      <header>
-        <h3>Forgot you password?</h3>
-      </header>
-      <main>
-        <FormsBaseInput
-          type="email"
-          label="Email Address"
-          placeholder="Email Address"
-          v-model="email"
-          :required="true"
-          minlength="8"
-          maxlength="25"
-        />
-        <p>
-          We will send you an email with a link to assist you with resetting your password. Check your spam folder for
-          an email from: identification@nespresso.com.
-        </p>
-        <p>If you have questions, please call customer service at 1-800-555-5555.</p>
-      </main>
+  <div class="h100vh bg-slate-900 flex-row justify-center items-start pt10">
+    <form class="bg-slate-50 p4 br3 flex-col gap2" @submit.prevent="handleForgotPassword">
+      <h2>Forgot you password?</h2>
+      <FormsBaseInput
+        type="email"
+        label="Email Address"
+        placeholder="Email Address"
+        v-model="email"
+        :required="true"
+        minlength="8"
+        maxlength="25"
+      />
+      <p class="text-xs">
+        We will send you an email with a link to assist you with resetting your password. Check your spam folder for an
+        email from: identification@nespresso.com.
+      </p>
+      <p class="text-sm">If you have questions, please call customer service at 1-800-555-5555.</p>
 
-      <footer>
-        <button class="btn btn-primary">Reset Password</button>
-      </footer>
+      <button class="btn btn__primary py05 px1 items-self-end">Reset Password<IconsChevronRight /></button>
     </form>
   </div>
 </template>
 
-<style lang="scss" scoped>
-@import '@/assets/scss/variables';
-.forgot-password {
-  height: 100vh;
-  background-color: #111;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 10rem;
-
-  form {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 1rem;
-    background-color: $slate-50;
-    max-width: 70%;
-    border-radius: 5px;
-    overflow: hidden;
-
-    header {
-      padding: 2rem;
-    }
-
-    main {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 4rem;
-      padding: 3rem 4rem;
-    }
-
-    footer {
-      border: 1px solid $slate-200;
-      display: flex;
-      justify-content: flex-end;
-      padding: 2rem 4rem;
-      align-items: center;
-
-      .btn {
-        font-size: 1.2rem;
-        padding: 1rem 2rem;
-        border-radius: 5px;
-        letter-spacing: 0.1rem;
-      }
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

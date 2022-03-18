@@ -93,17 +93,6 @@ onUnmounted(() => {
           </div>
         </transition>
       </div>
-      <!-- <CarouselItem
-        :slides="slides"
-        v-for="(slide, index) in slides"
-        :key="`slide-${index}`"
-        :slide="slide"
-        :currentSlide="currentSlide"
-        :index="index"
-        :direction="direction"
-        @mouseEnter="stopCarouselInterval"
-        @mouseLeave="startCarouselInterval"
-      /> -->
       <div class="carousel__controls" v-if="controls">
         <button @click="prevSlide(-1)" class="btn control left"><IconsChevronLeft /></button>
         <button @click="nextSlide(1)" class="btn control right"><IconsChevronRight /></button>
@@ -128,8 +117,8 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   height: v-bind(carouselHeight);
-  background-color:$slate-100;
-  padding:1rem;
+  background-color: $slate-100;
+  padding: 1rem;
 
   &__inner {
     position: relative;

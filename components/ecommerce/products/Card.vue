@@ -16,18 +16,28 @@ const props = defineProps({
 
 const emit = defineEmits(['selectQuantityBtnClicked', 'closeSelectQuantity', 'itemQuantitySelected'])
 
-const { state, fetchVariants } = useProduct()
+const { products, variants } = useStore()
+const { fetchAll } = useStore()
 const cart = useCart()
 const hide = ref(true)
-const variants = ref([])
+// const variants = ref([])
 
-const response = await fetchVariants(props.product._id)
-if (state.errorMsg) {
-  cart.errorMsg = state.errorMsg
-  variants.value = []
-} else {
-  variants.value = response.docs
-}
+// variants.value = props.product._id
+//   ? await fetchAll('variants', {
+//       fields: 'product, attrattributeTerms, gallery',
+//       product: props.product._id,
+//     })
+//   : []
+
+// console.log(variants.value)
+
+// const response = await fetchVariants(props.product._id)
+// if (state.errorMsg) {
+//   cart.errorMsg = state.errorMsg
+//   variants.value = []
+// } else {
+//   variants.value = response.docs
+// }
 </script>
 
 <template>
@@ -42,9 +52,7 @@ if (state.errorMsg) {
         </div>
         <div class="description flex-row items-center" :class="{ hide: hide }">{{ product.excerpt }}</div>
       </div>
-      <div class="font-bold">
-        {{ product.name }}
-      </div>
+      <div class="font-bold">{{ product.name }}</div>
       <div class="roastiness">{{ product.roastiness }}</div>
       <div class="intensity">
         <EcommerceProductsCoffeeIntensity :intensity="product.intensity" :total="13" v-if="product.intensity" />
@@ -56,12 +64,21 @@ if (state.errorMsg) {
         <div class="sale-price" v-if="product.salePrice">${{ product.salePrice }}</div>
       </div>
       <EcommerceCheckoutQuantitySelector
+        v-if="product.productType === 'simple'"
         :minVal="0"
         :maxVal="140"
         :stepVal="10"
         :showSelectQty="showSelectQty"
         @okBtnClicked="$emit('itemQuantitySelected', $event)"
       />
+      <div v-if="product.productType === 'variable'">
+        <NuxtLink
+          class="link items-self-end"
+          :to="{ name: 'ecommerce-productSlug', params: { productSlug: product.slug } }"
+        >
+          <button class="btn btn__primary py05 px2 text-xs">Select Options</button>
+        </NuxtLink>
+      </div>
     </div>
   </div>
 </template>

@@ -18,7 +18,9 @@ const useStore = () => {
     }
   })
 
-  const product = useState('product', () => {})
+  const product = useState('product', () => {
+    return { gallery: [], categories:[], attributes:[] }
+  })
   const variants = useState('variants', () => {})
   const category = useState('category', () => {})
   const showCartSlideout = useState('showCartSlideout', () => false)

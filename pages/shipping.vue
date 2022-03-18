@@ -430,7 +430,7 @@ storeData()
     </div>
     <div v-else class="empty-cart">
       <p>You have no items in your bag</p>
-      <NuxtLink class="link btn btn-primary" :to="{ name: 'original-coffee-pods' }">
+      <NuxtLink class="link btn btn-primary" :to="{ name: 'ecommerce-products' }">
         <span>Start Shopping</span>
       </NuxtLink>
     </div>

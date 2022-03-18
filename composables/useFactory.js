@@ -48,17 +48,15 @@ const useFactory = () => {
   }
 
   const fetchBySlug = async (resource, slug) => {
-    errorMsg.value = null
-    message.value = null
+    // errorMsg.value = null
+    // message.value = null
     let response = null
     try {
       if (slug) response = await $fetch(`/api/v1/${resource}`, { params: { slug } })
-      else response = {}
       return response
     } catch (error) {
-      errorMsg.value = error.data
-      // console.log('E', errorMsg.value)
-      return {}
+      // errorMsg.value = error.data
+      return { ok: false, errorMsg: error.data }
     }
   }
 
@@ -114,6 +112,7 @@ const useFactory = () => {
   }
 
   const deleteMany = async (resource, condition) => {
+    console.log('CD', condition)
     errorMsg.value = null
     message.value = null
     try {

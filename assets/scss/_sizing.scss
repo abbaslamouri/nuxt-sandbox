@@ -92,6 +92,10 @@
   height: 60vh;
 }
 
+.h100vh {
+  height: 100vh;
+}
+
 .minh-40 {
   min-height: 40rem;
 }
@@ -142,4 +146,16 @@
 
 .maxw40 {
   max-width: 40rem;
+}
+
+.hp50 {
+  height: 50%;
+}
+
+.wp50 {
+  width: 50%;
+}
+
+.minw-sm {
+  min-width: 64rem;
 }

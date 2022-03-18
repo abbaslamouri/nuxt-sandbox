@@ -49,7 +49,7 @@ export default async (req, res) => {
         throw newError
       }
       const token = await user.createPasswordResetToken()
-      const url = `${config.BASE_URL}/auth/signup-complete?token=${token}`
+      const url = `${config.BASE_URL}/auth/complete-signup?token=${token}`
       await user.save()
       await new Email(user, url).sendCompleteRegistration()
       return {
@@ -71,7 +71,7 @@ export default async (req, res) => {
   // @desc      signup-complete
   // @route     POST /api/v1/auth/signup-complete
   // @access    Public
-  if (req.method === 'PATCH' && urlPath[1].includes('signup-complete')) {
+  if (req.method === 'PATCH' && urlPath[1].includes('complete-signup')) {
     try {
       const body = await useBody(req)
       // console.log('B', body)
@@ -90,7 +90,7 @@ export default async (req, res) => {
         throw newError
       }
       if (user.email !== body.email.toLowerCase()) {
-        const newError = new Error(`Invlaid email for this token`)
+        const newError = new Error(`You token has expired`)
         newError.customError = true
         newError.statusCode = 400
         throw newError

@@ -8,7 +8,7 @@ const appMessage = useMessage()
     <p>You have no items in your bag</p>
     <NuxtLink
       class="btn btn__checkout py1 px3 text-sm"
-      :to="{ name: 'original-coffee-pods' }"
+      :to="{ name: 'ecommerce-products' }"
       @click="appMessage.showCartSlideout = false"
     >
       <span>Start Shopping</span>

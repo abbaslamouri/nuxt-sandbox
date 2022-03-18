@@ -8,7 +8,7 @@ const navLinkItems = ref([
       {
         title: 'Coffee',
         image: 'coffee-OLVL-480x480.webp',
-        link: { title: 'Shop Original Coffee', page: 'original-coffee-pods' },
+        link: { title: 'Shop Original Coffee', page: 'ecommerce-products' },
       },
       {
         title: 'Barista Creations',

@@ -4,7 +4,7 @@ const route = useRoute()
 console.log(route.name)
 
 const heroBgImage = computed(() =>
-  route.name === 'original-coffee-pods' ? 'assets/hero-original.webp' : 'assets/hero-virtuo.webp'
+  route.name === 'ecommerce-products' ? '/assets/hero-original.webp' : '/assets/hero-virtuo.webp'
 )
 </script>
 
@@ -14,10 +14,10 @@ const heroBgImage = computed(() =>
     :style="{ backgroundImage: `url(${heroBgImage})` }"
   >
     <div class="links flex-row">
-      <NuxtLink class="link" :to="{ name: 'original-coffee-pods', params: { slug: ' ' } }">
+      <NuxtLink class="link" :to="{ name: 'ecommerce-products', params: { slug: ' ' } }">
         <button class="btn btn__hero">
           <IconsOriginalActive />
-          <span :class="{ active: route.name === 'original-coffee-pods' }">Original</span>
+          <span :class="{ active: route.name === 'ecommerce-products' }">Original</span>
         </button>
       </NuxtLink>
       <NuxtLink class="link" :to="{ name: 'virtuo-coffee-pods', params: { slug: ' ' } }">
@@ -30,7 +30,7 @@ const heroBgImage = computed(() =>
     <div class="content flex-col items-center justify-center gap2">
       <div class="tracking-wider">Original</div>
       <h1 class="text-5xl text-center tracking-widest">The Classic Espresso Experience</h1>
-      <NuxtLink class="flex-row items-center gap1" :to="{ name: 'original-coffee-pods', params: { slug: ' ' } }">
+      <NuxtLink class="flex-row items-center gap1" :to="{ name: 'ecommerce-products', params: { slug: ' ' } }">
         <span class="tracking-wider">Learn more about the original system</span>
         <IconsChevronRight class="fill-slate-50" />
       </NuxtLink>

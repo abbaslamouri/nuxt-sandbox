@@ -9,20 +9,21 @@ const formUser = reactive({
   password: '',
 })
 
-const register = async () => {
+const signup = async () => {
   router.push({ name: 'auth-signup', query: { redirect: route.name } })
   showAuthDropdown.value = false
 }
 
 const signin = async () => {
   showAuthDropdown.value = false
-
+  errorMsg.value = null
+  message.value = null
   const response = await login(formUser)
   if (response.ok === false) return (errorMsg.value = response.errorMsg)
   message.value = 'Login successful'
   user.value = response.user
   token.value = response.token
-  isAuthenticated.value = true
+  isAuthenticated.value=true
 }
 
 const forgotPassword = async () => {
@@ -62,7 +63,7 @@ const forgotPassword = async () => {
           <IconsChevronRight />
         </button>
         <p class="text-sm">New User?</p>
-        <button class="btn btn__secondary wfull justify-between px1 py05 text-xs" @click.prevent="register">
+        <button class="btn btn__secondary wfull justify-between px1 py05 text-xs" @click.prevent="signup">
           <p>Create an account</p>
           <IconsChevronRight />
         </button>
