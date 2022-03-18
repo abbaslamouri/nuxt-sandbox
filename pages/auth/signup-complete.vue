@@ -1,45 +1,45 @@
 <script setup>
-import { useAuth } from '~/store/useAuth'
-import { useMessage } from '~/store/useMessage'
+// import { useAuth } from '~/store/useAuth'
+// import { useMessage } from '~/store/useMessage'
 
-const router = useRouter()
-const route = useRoute()
-const auth = useAuth()
-const appMessage = useMessage()
+// const router = useRouter()
+// const route = useRoute()
+// const auth = useAuth()
+// const appMessage = useMessage()
 
-const user = reactive({
-  email: 'lamouri@genvac.com',
-  password: 'adrar0714',
-})
+// const user = reactive({
+//   email: 'lamouri@genvac.com',
+//   password: 'adrar0714',
+// })
 
 const signupComplete = async () => {
-  appMessage.errorMsg = null
-  appMessage.successMsg = null
-  try {
-    const response = await $fetch('/api/v1/auth/signup-complete', {
-      method: 'PATCH',
-      params: { token: route.query.token },
-      body: { ...user },
-    })
-    // console.log(response)
-    auth.user = response.user
-    auth.token = response.token
-    appMessage.successMsg = 'Registration successfull.  You are now logged in.'
-    router.push({ name: 'index' })
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
+  // appMessage.errorMsg = null
+  // appMessage.successMsg = null
+  // try {
+  //   const response = await $fetch('/api/v1/auth/signup-complete', {
+  //     method: 'PATCH',
+  //     params: { token: route.query.token },
+  //     body: { ...user },
+  //   })
+  //   // console.log(response)
+  //   auth.user = response.user
+  //   auth.token = response.token
+  //   appMessage.successMsg = 'Registration successfull.  You are now logged in.'
+  //   router.push({ name: 'index' })
+  // } catch (error) {
+  //   appMessage.errorMsg = error.data
+  // }
 }
 
 const getNewToken = async () => {
-  router.push({ name: 'auth-forgot-password' })
-  showAuthForm.value = false
+  // router.push({ name: 'auth-forgot-password' })
+  // showAuthForm.value = false
 }
 </script>
 
 <template>
   <main class="signup-complete">
-    <form @submit.prevent="signupComplete">
+    <!-- <form @submit.prevent="signupComplete">
       <h2>Complete Registration</h2>
       <FormsBaseInput type="email" label="Email" placeholder="Email" v-model="user.email" :required="true" />
       <FormsBaseInput
@@ -57,7 +57,7 @@ const getNewToken = async () => {
         </button>
       </div>
       <button class="btn btn-primary">Sign Up</button>
-    </form>
+    </form> -->
   </main>
 </template>
 

@@ -11,3 +11,27 @@
 .inline-block {
   display: inline-block;
 }
+
+.z-9 {
+  z-index: 9;
+}
+
+.z-99 {
+  z-index: 99;
+}
+
+.z-999 {
+  z-index: 999;
+}
+
+.relative {
+  position:relative
+}
+
+.absolute {
+  position:absolute
+}
+
+.fixed {
+  position:fixed
+}

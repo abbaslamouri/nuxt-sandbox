@@ -1,37 +1,29 @@
 <script setup>
-import { useAuth } from '~/store/useAuth'
-import { useMessage } from '~/store/useMessage'
+// import { useAuth } from '~/store/useAuth'
+// import { useMessage } from '~/store/useMessage'
 
-const router = useRouter()
-const route = useRoute()
-const auth = useAuth()
-const appMessage = useMessage()
-const password = ref('')
+// const router = useRouter()
+// const route = useRoute()
+// const auth = useAuth()
+// const appMessage = useMessage()
+// const password = ref('')
 
 const resetPassword = async () => {
-  appMessage.errorMsg = null
-  appMessage.successMsg = null
-  try {
-    const response = await $fetch('/api/v1/auth/reset-password', {
-      method: 'PATCH',
-      body: { password: password.value, resetToken: route.params.resetToken },
-    })
-    // console.log(response)
-    auth.user = response.user
-    auth.token = response.token
-    appMessage.successMsg = 'Password reset succesful, You are now logged in'
-    router.push({ name: 'index' })
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-
-  // appMessage.snackbar.show = false
-  // await auth.resetPassword({ password: password.value, resetToken: route.params.resetToken })
-  // if (auth.message) {
-  //   appMessage.setSnackbar(true, auth.message, 'Success')
+  // appMessage.errorMsg = null
+  // appMessage.successMsg = null
+  // try {
+  //   const response = await $fetch('/api/v1/auth/reset-password', {
+  //     method: 'PATCH',
+  //     body: { password: password.value, resetToken: route.params.resetToken },
+  //   })
+  //   // console.log(response)
+  //   auth.user = response.user
+  //   auth.token = response.token
+  //   appMessage.successMsg = 'Password reset succesful, You are now logged in'
   //   router.push({ name: 'index' })
+  // } catch (error) {
+  //   appMessage.errorMsg = error.data
   // }
-  // if (auth.errorMsg) appMessage.setSnackbar(true, auth.errorMsg, 'Error')
 }
 
 const getNewToken = async () => {
@@ -56,12 +48,12 @@ const getNewToken = async () => {
           minlength="8"
           maxlength="25"
         />
-        <div class="invalid-token" v-if="auth.errorMsg">
+        <!-- <div class="invalid-token" v-if="auth.errorMsg">
           <p>{{ auth.errorMsg }}</p>
           <button class="btn btn-primary" @click.prevent="getNewToken">
             <p>Click Here to get a new token</p>
           </button>
-        </div>
+        </div> -->
       </main>
       <footer>
         <button class="btn btn-primary">Reset Password</button>

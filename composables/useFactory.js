@@ -1,27 +1,28 @@
 const useFactory = () => {
-  const state = useState('errorMsg', () => {
-    return {
-      docs: [],
-      doc: {},
-      count: 0,
-      totalCount: 0,
-      errorMsg: '',
-      message: '',
-      referenceMedia: '',
-      selectedMedia: [],
-      showAlert: false,
-      alertHeading: '',
-      alertParagraph: '',
-      alertAction: '',
-      showAlertCancelBtn: true,
-      showAttributesSlideout: false,
-    }
-  })
+  // const state = useState('errorMsg', () => {
+  //   return {
+  //     zdocs: [],
+  //     doc: {},
+  //     count: 0,
+  //     totalCount: 0,
+  //     errorMsg: '',
+  //     message: '',
+  //     referenceMedia: '',
+  //     selectedMedia: [],
+  //     showAlert: false,
+  //     alertHeading: '',
+  //     alertParagraph: '',
+  //     alertAction: '',
+  //     showAlertCancelBtn: true,
+  //     showAttributesSlideout: false,
+  //   }
+  // })
   const errorMsg = useState('errorMsg', () => '')
   const message = useState('message', () => '')
   const galleryMedia = useState('galleryMedia', () => [])
   const mediaReference = useState('mediaReference', () => [])
   const showMediaSelector = useState('showMediaSelector', () => false)
+  // const showCartSlideout = useState('showCartSlideout', () => false)
 
   const alert = useState('alert', () => {
     return {
@@ -128,7 +129,7 @@ const useFactory = () => {
   }
 
   return {
-    state,
+    // state,
     errorMsg,
     message,
     galleryMedia,

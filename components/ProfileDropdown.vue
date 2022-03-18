@@ -1,41 +1,36 @@
 <script setup>
-import { storeToRefs } from 'pinia'
-import { useAuth } from '~/store/useAuth'
-import { useMessage } from '~/store/useMessage'
-
-const auth = useAuth()
-const appMessage = useMessage()
-const { user: currentUser } = storeToRefs(auth)
+const { user, token, isAuthenticated, logout } = useAuth()
+const { errorMsg, message } = useFactory()
 const showProfileDropdown = ref(false)
 
 const signout = async () => {
-  appMessage.errorMsg = null
-  appMessage.successMsg = null
-  try {
-    await $fetch('/api/v1/auth/logout')
-    showProfileDropdown.value = false
-    auth.user = null
-    auth.token = null
-    appMessage.successMsg = 'You are logged out'
-    if (process.client) localStorage.removeItem('cart')
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-  // await auth.logout()
-  // showProfileDropdown.value = false
+  showProfileDropdown.value = false
+
+  const response = await logout()
+  if (response.ok === false) return (errorMsg.value = response.errorMsg)
+  token.value = null
+  isAuthenticated.value = false
+  if (process.client) localStorage.removeItem('cart')
+  message.value = 'You are logged out'
 }
 </script>
 
 <template>
-  <div class="profile-dropdown">
-    <div class="header" v-bind:class="{ selected: showProfileDropdown }">
-      <IconsPersonFill />
-      <h3 @click="showProfileDropdown = !showProfileDropdown">Welcome {{ currentUser.name }}</h3>
+  <div class="profile-dropdown relative">
+    <div
+      class="header flex-row items-center gap1 text-xs border border-slate-50 py05 px1 cursor-pointer br3 relative z-99"
+      v-bind:class="{ selected: showProfileDropdown }"
+    >
+      <IconsPersonFill class="fill-slate-50" />
+      <h3 class="font-light uppercase" @click="showProfileDropdown = !showProfileDropdown">Welcome {{ user.name }}</h3>
     </div>
-    <div v-if="showProfileDropdown" class="menu flex flex-col">
+    <div
+      v-if="showProfileDropdown"
+      class="menu absolute flex-col gap2 p2 bg-slate-50 z-99 text-slate-800 wfull text-xs"
+    >
       <h3 class="">My Accoun</h3>
       <ul>
-        <li v-if="currentUser.role === 'admin'">
+        <li v-if="user.role === 'admin'">
           <NuxtLink :to="{ name: `admin` }">Admin</NuxtLink>
         </li>
         <li>
@@ -48,7 +43,7 @@ const signout = async () => {
           <NuxtLink :to="{ name: `admin` }">Addresses?</NuxtLink>
         </li>
       </ul>
-      <button class="btn btn-primary" @click="signout">Sign out</button>
+      <button class="btn btn__secondary py05 px1" @click="signout">Sign out</button>
     </div>
     <div class="overlay" v-if="showProfileDropdown" @click="showProfileDropdown = !showProfileDropdown"></div>
   </div>
@@ -57,81 +52,26 @@ const signout = async () => {
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
 
-.profile-dropdown {
-  position: relative;
-
-  .header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    position: relative;
-    z-index: 99;
-    font-size: 1.2rem;
-    height: 3rem;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 3px;
-    border: 1px solid $slate-50;
-
-    svg {
-      width: 3rem;
-      height: 3rem;
-      fill: white;
-    }
-
-    h3 {
-      font-weight: 300;
-      text-transform: uppercase;
-    }
-
-    &:hover,
-    &.selected {
-      background-color: white;
-      color: $slate-800;
-      border-radius: 3px 3px 0 0;
-
-      svg {
-        fill: $slate-800;
-      }
-    }
-  }
-
-  .menu {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    padding: 2rem 2rem;
-    z-index: 99;
+.header {
+  &:hover,
+  &.selected {
     background-color: white;
     color: $slate-800;
-    width: 100%;
-    font-size: 1.2rem;
-    border-radius: 0 0 3px 3px;
+    border-radius: 3px 3px 0 0;
 
-    ul {
-      li {
-        padding: 0.5rem 0;
-        border-top: 1px solid $slate-400;
-        text-transform: capitalize;
-
-        &:last-child {
-          border-bottom: 1px solid $slate-400;
-        }
-      }
+    svg {
+      fill: $slate-800;
     }
+  }
+}
 
-    .btn {
-      background-color: transparent;
-      border: none;
-      color: $yellow-800;
-      justify-content: flex-start;
-      font-size: 1.3rem;
+li {
+  padding: 0.5rem 0;
+  border-top: 1px solid $slate-400;
+  text-transform: capitalize;
 
-      &:hover {
-        color: $yellow-600;
-      }
-    }
+  &:last-child {
+    border-bottom: 1px solid $slate-400;
   }
 }
 </style>

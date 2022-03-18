@@ -1,62 +1,46 @@
 <script setup>
-	import { useAuth } from '~/store/useAuth'
-	import { useCart } from '~/store/useCart'
-	import { useMessage } from '~/store/useMessage'
+// import { useAuth } from '~/store/useAuth'
+// import { useCart } from '~/store/useCart'
+// import { useMessage } from '~/store/useMessage'
 
-	const router = useRouter()
+// const router = useRouter()
 
-	const auth = useAuth()
-	const cart = useCart()
-	const appMessage = useMessage()
+// const auth = useAuth()
+// const cart = useCart()
+// const appMessage = useMessage()
 
-	const user = reactive({
-		email: 'lamouri@genvac.com',
-		password: 'adrar0714',
-	})
+// const user = reactive({
+// 	email: 'lamouri@genvac.com',
+// 	password: 'adrar0714',
+// })
 
-	const signin = async () => {
-		appMessage.errorMsg = null
-		appMessage.successMsg = null
-		try {
-			let response = await $fetch('/api/v1/auth/login', {
-				method: 'POST',
-				body: user,
-			})
-			auth.user = response.user
-			auth.token = response.token
-
-			appMessage.showCartSlideout = false
-			// if (auth.authenticated) {
-			appMessage.errorMsg = null
-			// try {
-			response = await $fetch('/api/v1/users', { params: { id: auth.user._id } })
-			cart.updateCartCustomer(response)
-			// } catch (error) {
-			//   appMessage.errorMsg = error.data
-			//   return false
-			// }
-			router.push({ name: 'checkout' })
-			// } else {
-			//   router.push({ name: 'auth-secure' })
-			// }
-			// const dbCart = cart.cart
-			// dbCart.customer = { ...cart.cart.customer, ...response.user }
-			// dbCart.cartTotal = cart.total
-			// response = await $fetch('/api/v1/cart', {
-			//   method: 'POST',
-			//   body: dbCart,
-			// })
-			// console.log('RES', response)
-		} catch (error) {
-			appMessage.errorMsg = error.data
-		}
-		// router.push({ name: 'checkout' })
-	}
+const signin = async () => {
+  // appMessage.errorMsg = null
+  // appMessage.successMsg = null
+  // try {
+  // 	let response = await $fetch('/api/v1/auth/login', {
+  // 		method: 'POST',
+  // 		body: user,
+  // 	})
+  // 	auth.user = response.user
+  // 	auth.token = response.token
+  // 	appMessage.showCartSlideout = false
+  // 	// if (auth.authenticated) {
+  // 	appMessage.errorMsg = null
+  // 	// try {
+  // 	response = await $fetch('/api/v1/users', { params: { id: auth.user._id } })
+  // 	cart.updateCartCustomer(response)
+  // 	router.push({ name: 'checkout' })
+  // } catch (error) {
+  // 	appMessage.errorMsg = error.data
+  // }
+  // // router.push({ name: 'checkout' })
+}
 </script>
 
 <template>
-	<div class="secure wfull flex1 bg-slate-900 flex-row justify-center">
-		<div class="content flex-row items-start gap2 w996">
+  <div class="secure wfull flex1 bg-slate-900 flex-row justify-center">
+    <!-- <div class="content flex-row items-start gap2 w996">
 			<div class="flex1 bg-slate-50 h30 mt4">
 				<h3>I am a Returning Customers</h3>
 				<form @submit.prevent="handleLogin" class="main p2 flex-col items-center gap2">
@@ -104,32 +88,32 @@
 					</div>
 				</div>
 			</div>
-		</div>
-	</div>
+		</div> -->
+  </div>
 </template>
 
 <style lang="scss" scoped>
-	@import '@/assets/scss/variables';
-	.secure {
-		h3 {
-			background-color: $stone-200;
-			padding: 1rem 2rem;
-			text-transform: uppercase;
-			font-size: 1.4rem;
-			letter-spacing: 0.1rem;
-		}
+@import '@/assets/scss/variables';
+.secure {
+  h3 {
+    background-color: $stone-200;
+    padding: 1rem 2rem;
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    letter-spacing: 0.1rem;
+  }
 
-		.promo {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			gap: 0.25rem;
-			font-size: 1.4rem;
+  .promo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    font-size: 1.4rem;
 
-			p {
-				font-weight: bold;
-			}
-		}
-	}
+    p {
+      font-weight: bold;
+    }
+  }
+}
 </style>

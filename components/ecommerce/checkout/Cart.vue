@@ -1,34 +1,35 @@
 <script setup>
-import { useCart } from '~/store/useCart'
-import { useAuth } from '~/store/useAuth'
-import { useMessage } from '~/store/useMessage'
+// import { useCart } from '~/store/useCart'
+// import { useAuth } from '~/store/useAuth'
+// import { useMessage } from '~/store/useMessage'
+const showCartSlideout = ref(false)
 
-const router = useRouter()
-const cart = useCart()
-const auth = useAuth()
-const appMessage = useMessage()
+// const router = useRouter()
+// const cart = useCart()
+// const auth = useAuth()
+// const appMessage = useMessage()
 
-const handleCheckoutBtnClick = async () => {
-  appMessage.showCartSlideout = false
-  if (auth.authenticated) {
-    appMessage.errorMsg = null
-    try {
-      const response = await $fetch('/api/v1/users', { params: { id: auth.user._id } })
-      cart.updateCartCustomer(response)
-    } catch (error) {
-      appMessage.errorMsg = error.data
-      return false
-    }
-    router.push({ name: 'checkout' })
-  } else {
-    router.push({ name: 'auth-secure' })
-  }
-}
+// const handleCheckoutBtnClick = async () => {
+// appMessage.showCartSlideout = false
+// if (auth.authenticated) {
+//   appMessage.errorMsg = null
+//   try {
+//     const response = await $fetch('/api/v1/users', { params: { id: auth.user._id } })
+//     cart.updateCartCustomer(response)
+//   } catch (error) {
+//     appMessage.errorMsg = error.data
+//     return false
+//   }
+//   router.push({ name: 'checkout' })
+// } else {
+//   router.push({ name: 'auth-secure' })
+// }
+// }
 </script>
 
 <template>
-  <Slideout @closeSlideout="appMessage.showCartSlideout = false" class="cart">
-    <template v-slot:header>
+  <Slideout @closeSlideout="showCartSlideout = false" class="cart">
+    <!-- <template v-slot:header>
       <h3 class="cart__title">Shoping Bag</h3>
     </template>
     <template v-slot:default>
@@ -57,7 +58,7 @@ const handleCheckoutBtnClick = async () => {
       <div class="flex-row justify-end px3" v-if="cart.items.length">
         <button class="btn btn__checkout px3 py1" @click="handleCheckoutBtnClick">Checkout</button>
       </div>
-    </template>
+    </template> -->
   </Slideout>
 </template>
 

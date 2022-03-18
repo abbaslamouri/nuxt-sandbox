@@ -1,45 +1,44 @@
 <script setup>
-import { useAuth } from '~/store/useAuth'
-import { useMessage } from '~/store/useMessage'
+// import { useAuth } from '~/store/useAuth'
+// import { useMessage } from '~/store/useMessage'
 
-useMeta({
-  title: 'Categories | YRL',
-})
+// useMeta({
+//   title: 'Categories | YRL',
+// })
 
-const router = useRouter()
-const route = useRoute()
-const auth = useAuth()
-const appMessage = useMessage()
-const formMsg = ref('')
-const formMsgType = ref('error')
-const user = reactive({
-  name: 'Abbas Lamouri',
-  email: 'lamouri@genvac.com',
-  password: 'arar0714',
-})
+// const router = useRouter()
+// const route = useRoute()
+// const auth = useAuth()
+// const appMessage = useMessage()
+// const formMsg = ref('')
+// const formMsgType = ref('error')
+// const user = reactive({
+//   name: 'Abbas Lamouri',
+//   email: 'lamouri@genvac.com',
+//   password: 'arar0714',
+// })
 // console.log(route)
 
 // router.push(route.query.redirect || '/admin')
 
 const signup = async () => {
-  appMessage.errorMsg = null
-  appMessage.successMsg = null
-  try {
-    const response = await $fetch('/api/v1/auth/signup', {
-      method: 'POST',
-      body: user,
-    })
-    // console.log(response)
-    appMessage.successMsg = response.message
-    formMsg.value = response.message
-    formMsgType.value = 'success'
-  } catch (error) {
-    appMessage.errorMsg = error.data
-    formMsg.value = appMessage.errorMsg
-    if (formMsg.value.includes('Email must be unique.'))
-      formMsg.value += '\nPlease click the link below to reset your password.'
-  }
-
+  // appMessage.errorMsg = null
+  // appMessage.successMsg = null
+  // try {
+  //   const response = await $fetch('/api/v1/auth/signup', {
+  //     method: 'POST',
+  //     body: user,
+  //   })
+  //   // console.log(response)
+  //   appMessage.successMsg = response.message
+  //   formMsg.value = response.message
+  //   formMsgType.value = 'success'
+  // } catch (error) {
+  //   appMessage.errorMsg = error.data
+  //   formMsg.value = appMessage.errorMsg
+  //   if (formMsg.value.includes('Email must be unique.'))
+  //     formMsg.value += '\nPlease click the link below to reset your password.'
+  // }
   // appMessage.snackbar.show = false
   // await auth.signup(user)
   // if (auth.message) {
@@ -54,7 +53,7 @@ const signup = async () => {
 
 <template>
   <div class="signup">
-    <form @submit.prevent="signup">
+    <!-- <form @submit.prevent="signup">
       <div class="message" :class="{ error: formMsgType === 'error' }" v-if="formMsg">
         <p>{{ formMsg }}</p>
         <NuxtLink
@@ -71,10 +70,9 @@ const signup = async () => {
       <p>Please fill the form below. Fields marked with * are required.</p>
       <FormsBaseInput v-model="user.name" label="Name" placeholder="name" />
       <FormsBaseInput type="email" v-model="user.email" label="Email" placeholder="Email" />
-      <!-- <FormsBaseInput type="password" v-model="user.password" label="Password" placeholder="Password" /> -->
       <p>By clicking on “continue” I have read and agree with Nespresso Privacy Notice & Terms of Service.</p>
       <button class="btn btn-primary">Continue</button>
-    </form>
+    </form> -->
   </div>
 </template>
 

@@ -3,6 +3,7 @@ const perfectNesChoices = ref(['', '', ''])
 const showCoffeeOptions = ref(false)
 const showRoastOptopns = ref(false)
 const showPerfectForOptopns = ref(false)
+const { user } = useAuth()
 </script>
 
 <template>

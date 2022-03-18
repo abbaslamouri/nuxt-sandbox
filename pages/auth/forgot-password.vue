@@ -1,29 +1,27 @@
 <script setup>
-import { useAuth } from '~/store/useAuth'
-import { useMessage } from '~/store/useMessage'
+// import { useAuth } from '~/store/useAuth'
+// import { useMessage } from '~/store/useMessage'
 
-const router = useRouter()
-const auth = useAuth()
-const appMessage = useMessage()
+// const router = useRouter()
+// const auth = useAuth()
+// const appMessage = useMessage()
 
 const email = ref('lamouri@genvac.com')
 
 const forgotPassword = async () => {
-  appMessage.errorMsg = null
-  appMessage.successMsg = null
-  try {
-    const response = await $fetch('/api/v1/auth/forgot-password', {
-      method: 'POST',
-      body: { email: email.value },
-    })
-    // console.log(response)
-
-    appMessage.successMsg = response.message
-    // router.push({ name: 'index' })
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
-
+  // appMessage.errorMsg = null
+  // appMessage.successMsg = null
+  // try {
+  //   const response = await $fetch('/api/v1/auth/forgot-password', {
+  //     method: 'POST',
+  //     body: { email: email.value },
+  //   })
+  //   // console.log(response)
+  //   appMessage.successMsg = response.message
+  //   // router.push({ name: 'index' })
+  // } catch (error) {
+  //   appMessage.errorMsg = error.data
+  // }
   // appMessage.snackbar.show = false
   // await auth.forgotPassword({ email: email.value })
   // if (auth.message) {

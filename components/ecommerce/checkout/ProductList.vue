@@ -1,6 +1,6 @@
 <script setup>
 	import { useCart } from '~/store/useCart'
-	import { useAuth } from '~/store/useAuth'
+	// import { useAuth } from '~/store/useAuth'
 	// import { useMessage } from '~/store/useMessage'
 
 	defineProps({

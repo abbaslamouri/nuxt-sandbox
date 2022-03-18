@@ -1,13 +1,10 @@
 <script setup>
-import { useAuth } from '~/store/useAuth'
-import { useMessage } from '~/store/useMessage'
-
 const router = useRouter()
 const route = useRoute()
-const auth = useAuth()
-const appMessage = useMessage()
+const { user, token, isAuthenticated, login } = useAuth()
+const { errorMsg, message } = useFactory()
 const showAuthDropdown = ref(false)
-const user = reactive({
+const formUser = reactive({
   email: '',
   password: '',
 })
@@ -18,21 +15,14 @@ const register = async () => {
 }
 
 const signin = async () => {
-  appMessage.errorMsg = null
-  appMessage.successMsg = null
-  try {
-    const response = await $fetch('/api/v1/auth/login', {
-      method: 'POST',
-      body: user,
-    })
-    // console.log(response)
-    auth.user = response.user
-    auth.token = response.token
-    showAuthDropdown.value = false
-    appMessage.successMsg = 'Login successful'
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
+  showAuthDropdown.value = false
+
+  const response = await login(formUser)
+  if (response.ok === false) return (errorMsg.value = response.errorMsg)
+  message.value = 'Login successful'
+  user.value = response.user
+  token.value = response.token
+  isAuthenticated.value = true
 }
 
 const forgotPassword = async () => {
@@ -42,125 +32,57 @@ const forgotPassword = async () => {
 </script>
 
 <template>
-  <div class="login-dropdown">
-    <div class="header" :class="{ selected: showAuthDropdown }" @click="showAuthDropdown = !showAuthDropdown">
-      <IconsPersonFill />
-      <h3>Sign in / Create acount</h3>
-    </div>
-    <form class="shadow-md" v-if="showAuthDropdown">
-      <h3 class="title">Sin in</h3>
-      <p class="description">Access your account and place an order:</p>
-      <div class="inputs">
-        <FormsBaseInput label="Email" type="email" v-model="user.email" required />
-        <FormsBaseInput label="Password" type="password" v-model="user.password" required />
+  <div class="relative">
+    <div class="overlay" v-if="showAuthDropdown" @click="showAuthDropdown = !showAuthDropdown"></div>
+    <div class=" ">
+      <div
+        class="header flex-row items-center gap1 text-xs border border-slate-50 py05 px1 cursor-pointer br3 relative z-99"
+        :class="{ selected: showAuthDropdown }"
+        @click="showAuthDropdown = !showAuthDropdown"
+      >
+        <IconsPersonFill class="fill-slate-50" />
+        <h3 class="font-light uppercase">Sign in / Create acount</h3>
       </div>
+      <form class="shadow-md flex-col gap2 bg-slate-50 p2 absolute z-99 text-slate-800" v-if="showAuthDropdown">
+        <h3 class="title">Sin in</h3>
+        <p class="text-xs">Access your account and place an order:</p>
+        <div class="flex-col gap1">
+          <FormsBaseInput label="Email" type="email" v-model="formUser.email" required />
+          <FormsBaseInput label="Password" type="password" v-model="formUser.password" required />
+        </div>
 
-      <div>
-        <button class="btn btn-primary" @click.prevent="forgotPassword">
-          <p>Forgot Password?</p>
+        <div>
+          <button class="btn btn__secondary wfull justify-between px1 py05 text-xs" @click.prevent="forgotPassword">
+            <p>Forgot Password?</p>
+            <IconsChevronRight />
+          </button>
+        </div>
+        <button class="btn btn__secondary wfull flex-row justify-between px1 py05 text-xs" @click.prevent="signin">
+          <p>Sign in</p>
           <IconsChevronRight />
         </button>
-        <!-- <NuxtLink class="link btn" :to="{ name: `forgot-password` }">Forgot Password?</NuxtLink> -->
-      </div>
-      <button class="btn btn-primary" @click.prevent="signin">
-        <p>Sign in</p>
-        <IconsChevronRight />
-      </button>
-      <p class="new-user">New User?</p>
-      <button class="btn btn-primary" @click.prevent="register">
-        <p>Create an account</p>
-        <IconsChevronRight />
-      </button>
-      <!-- <NuxtLink class="link btn" :to="{ name: `register` }">
-        <p>Create an account</p>
-        <IconsChevronRight />
-      </NuxtLink> -->
-    </form>
-    <div class="overlay" v-if="showAuthDropdown" @click="showAuthDropdown = !showAuthDropdown"></div>
+        <p class="text-sm">New User?</p>
+        <button class="btn btn__secondary wfull justify-between px1 py05 text-xs" @click.prevent="register">
+          <p>Create an account</p>
+          <IconsChevronRight />
+        </button>
+      </form>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 @import '@/assets/scss/variables';
 
-.login-dropdown {
-  position: relative;
-
-  .header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    position: relative;
-    z-index: 99;
-    font-size: 1.1rem;
-    height: 3rem;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 3px;
-    border: 1px solid $slate-50;
+.header {
+  &:hover,
+  &.selected {
+    background-color: $slate-50;
+    color: $slate-800;
+    border-radius: 3px 3px 0 0;
 
     svg {
-      width: 3rem;
-      height: 3rem;
-      fill: white;
-    }
-
-    h3 {
-      font-weight: 300;
-      text-transform: uppercase;
-    }
-
-    &:hover,
-    &.selected {
-      background-color: white;
-      color: $slate-800;
-      border-radius: 3px 3px 0 0;
-
-      svg {
-        fill: $slate-800;
-      }
-    }
-  }
-
-  form {
-    position: absolute;
-    border: 1px solid $slate-200;
-    color: $slate-800;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    background-color: white;
-    width: 100%;
-    padding: 2rem 2rem;
-    z-index: 99;
-    border-radius: 0 0 3px 3px;
-
-    .description {
-      font-size: 1.2rem;
-    }
-    .inputs {
-      display: flex;
-      flex-direction: column;
-      gap: 3rem;
-      margin-bottom: 2rem;
-    }
-
-    // .forgot-password,
-    // .new-user {
-    //   text-transform: uppercase;
-    //   font-size: 1.2rem;
-    // }
-
-    .btn {
-      justify-content: space-between;
-      background-color: $slate-50;
-      color: $slate-800;
-      border-radius: 3px;
-      width: 100%;
-
-      svg {
-        fill: $slate-800;
-      }
+      fill: $slate-800;
     }
   }
 }
