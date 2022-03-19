@@ -180,12 +180,13 @@ provide('saveProduct', saveProduct)
           @saveVariants="saveProduct"
         />
         <!-- </section> -->
-        <!-- <EcommerceAdminProductShippingOptions /> -->
-        <!-- <EcommerceAdminProductDigitalDelivery /> -->
-        <!-- <EcommerceAdminProductExtraFields /> -->
-        <!-- <EcommerceAdminProductSeo /> -->
-        <!-- <EcommerceAdminProductMisc /> -->
         <EcommerceAdminProductsProductDetails />
+
+        <EcommerceAdminProductShippingOptions :product="product" />
+        <EcommerceAdminProductDigitalDelivery :product="product" />
+        <EcommerceAdminProductExtraFields :product="product" />
+        <EcommerceAdminProductSeo :product="product" />
+        <EcommerceAdminProductMisc :product="product" />
       </div>
       <div class="right-sidebar">
         <EcommerceAdminProductsProductRightSidebar

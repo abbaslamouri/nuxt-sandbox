@@ -1,33 +1,33 @@
 <script setup>
-import { useStore } from '~/store/useStore'
-const store = useStore()
+defineProps({
+  product: {
+    type: Object,
+    required: true,
+  },
+})
 </script>
 
 <template>
-  <div class="shipping-options shadow-md" id="shipping-options">
-    <header class="admin-section-header">
-      <p class="title">Shipping Options</p>
-      <FormsBaseToggle v-model="store.product.shippingOptions" label="Enabled" />
-    </header>
+  <div class="seo shadow-md" id="seo">
+    <header class="admin-section-header">Seo</header>
+    <div class="content">
+      <FormsBaseInput label="Custom Permalink" placeholder="Custom Permalink" v-model="product.permalink" />
+      <FormsBaseInput label="SEO Title" placeholder="SEO Title" v-model="product.seoTitle" />
+      <FormsBaseInput label="SEO Description" placeholder="SEO Description" v-model="product.seoDescription" />
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.shipping-options {
+.seo {
   background-color: white;
   border-radius: 5px;
-  padding: 2rem 2rem;
+  padding: 2rem 2rem 4rem;
 
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .info {
+  .content {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 3rem;
 
     .sku-inventory {
       display: flex;
