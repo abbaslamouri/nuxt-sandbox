@@ -94,12 +94,14 @@ const schema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    allowBackOrder: {
+    allowBackorders: {
       type: String,
-      enum: ['yes', 'no', 'notify'],
+      enum: ['allow', 'disallow', 'notify'],
+      default: 'notify',
     },
     lowStockThreshold: {
       type: Number,
+      default: 2
     },
     shippingOptions: {
       type: Boolean,

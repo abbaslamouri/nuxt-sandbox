@@ -10,7 +10,7 @@ defineProps({
   },
   toogleHeight: {
     type: Number,
-    default: 16,
+    default: 18,
   },
   direction: {
     type: String,
@@ -54,7 +54,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  // gap: 1rem;
+  gap: 1rem;
   // border: 1px solid red;
 
   &.vertical {

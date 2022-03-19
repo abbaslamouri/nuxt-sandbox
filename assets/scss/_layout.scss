@@ -25,13 +25,29 @@
 }
 
 .relative {
-  position:relative
+  position: relative;
 }
 
 .absolute {
-  position:absolute
+  position: absolute;
 }
 
 .fixed {
-  position:fixed
+  position: fixed;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.top0 {
+  top: 0;
+}
+
+.right0 {
+  right: 0;
 }

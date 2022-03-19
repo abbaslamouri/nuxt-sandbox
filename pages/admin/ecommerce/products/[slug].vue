@@ -121,13 +121,13 @@ provide('saveProduct', saveProduct)
     <!-- {{ product }} -->
     <main class="main flex1 max-width-130 wfull">
       <div class="left-sidebar shadow-md">
-        <EcommerceAdminProductsProductLeftSidebar />
+        <EcommerceAdminProductLeftSidebar />
       </div>
 
       <div class="flex-col gap2">
-        <EcommerceAdminProductsProductInfo />
-        <EcommerceAdminProductsProductPrice />
-
+        <EcommerceAdminProductGeneralInfo />
+        <EcommerceAdminProductPrice />
+        <EcommerceAdminProductStockManagement />
         <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
           <div class="flex-row items-center justify-between text-sm mb1">
             <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Image Gallery</div>
@@ -180,7 +180,7 @@ provide('saveProduct', saveProduct)
           @saveVariants="saveProduct"
         />
         <!-- </section> -->
-        <EcommerceAdminProductsProductDetails />
+        <EcommerceAdminProductDetails />
 
         <EcommerceAdminProductShippingOptions :product="product" />
         <EcommerceAdminProductDigitalDelivery :product="product" />
@@ -189,10 +189,7 @@ provide('saveProduct', saveProduct)
         <EcommerceAdminProductMisc :product="product" />
       </div>
       <div class="right-sidebar">
-        <EcommerceAdminProductsProductRightSidebar
-          @productStatusUpdated="product.status = $event"
-          @saveProduct="saveProduct"
-        />
+        <EcommerceAdminProductRightSidebar @productStatusUpdated="product.status = $event" @saveProduct="saveProduct" />
       </div>
       <!-- </div> -->
 

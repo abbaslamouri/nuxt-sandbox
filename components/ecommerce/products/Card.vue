@@ -48,11 +48,13 @@ const hide = ref(true)
     <div class="product-details flex-col items-center justify-center gap2">
       <div class="thumb-and-description" @mouseenter="hide = false" @mouseleave="hide = true">
         <div class="thumb" :class="{ hide: !hide }" v-if="product.gallery.length > 1">
-          <img class="wfull hfull contain" :src="product.gallery[1].path" :alt="`${product.gallery[1].name} Image`" />
+          <img class="wfull hfull contain" :src="product.gallery[0].path" :alt="`${product.gallery[0].name} Image`" />
         </div>
         <div class="description flex-row items-center" :class="{ hide: hide }">{{ product.excerpt }}</div>
       </div>
-      <div class="font-bold">{{ product.name }}</div>
+      <NuxtLink class="link" :to="{ name: 'ecommerce-productSlug', params: { productSlug: product.slug } }">
+        <div class="font-bold">{{ product.name }}</div>
+      </NuxtLink>
       <div class="roastiness">{{ product.roastiness }}</div>
       <div class="intensity">
         <EcommerceProductsCoffeeIntensity :intensity="product.intensity" :total="13" v-if="product.intensity" />

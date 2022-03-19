@@ -4,7 +4,7 @@ const { product } = useStore()
 
 <template>
   <ul class="">
-    <li><a href="#info">Info</a></li>
+    <li><a href="#general-info">General</a></li>
     <li><a href="#price">Price</a></li>
     <li><a href="#image-gallery">Image Gallery</a></li>
 

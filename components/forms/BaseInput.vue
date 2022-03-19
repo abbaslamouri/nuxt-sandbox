@@ -1,88 +1,66 @@
 <script setup>
-	const props = defineProps({
-		modelValue: {
-			type: [String, Number],
-			default: '',
-		},
-		label: {
-			type: String,
-			default: '',
-		},
-		placeholder: {
-			type: String,
-			default: '',
-		},
-		type: {
-			type: String,
-			default: 'text',
-		},
-		currency: {
-			type: Boolean,
-			default: false,
-		},
-		hint: {
-			type: String,
-			default: '',
-		},
-	})
-	defineEmits(['update:modelValue'])
+defineProps({
+  modelValue: {
+    type: [String, Number],
+    default: '',
+  },
+  label: {
+    type: String,
+    default: '',
+  },
+  placeholder: {
+    type: String,
+    default: '',
+  },
+  type: {
+    type: String,
+    default: 'text',
+  },
+  currency: {
+    type: Boolean,
+    default: false,
+  },
+})
+defineEmits(['update:modelValue'])
 
-	// const attrs = useAttrs();
-	const inputRef = ref('')
-	const errorMsg = ref('')
-	const uuid = useUniqueId().getId()
+const inputRef = ref('')
+const errorMsg = ref('')
+const uuid = useUniqueId().getId()
 
-	const placeholderColor = props.label ? 'transparent' : 'inherit'
-	const inputWidth = props.type === 'password' ? '100%' : '100%'
-
-	onMounted(() => {
-		// if (!props.modelValue) inputRef.value.focus();
-	})
-
-	watch(
-		() => inputRef,
-		(current, prev) => {
-			// console.log('PPPPP', inputRef.value)
-			// if (current) inputRef.value.focus()
-		}
-	)
+const handleBlur = (event) => {
+  console.log(event.target.value)
+  if (event.target.value) event.target.classList.add('dirty')
+  else event.target.classList.remove('dirty')
+}
 </script>
 
 <script>
-	export default {
-		inheritAttrs: false,
-	}
+export default {
+  inheritAttrs: false,
+}
 </script>
 
 <template>
-	<div class="base-input">
-		<div class="currency" v-if="currency">$</div>
-		<input
-			ref="inputRef"
-			:type="type"
-			:class="{ 'currency-input': currency }"
-			:placeholder="$attrs.required ? `${label}(required)` : `${label}`"
-			:value="modelValue"
-			:id="`base-input-${uuid}`"
-			@input="$emit('update:modelValue', $event.target.value)"
-			:aria-describedby="errorMsg ? `base-input-error-${uuid}` : null"
-			:aria-invalid="errorMsg ? true : null"
-			:aria-readonly="$attrs.readonly ? true : null"
-			:aria-required="$attrs.required ? true : null"
-			:readonly="$attrs.readonly ? true : null"
-		/>
+  <div class="base-input">
+    <div class="currency" v-if="currency">$</div>
 
-		<label :for="`base-input-${uuid}`" v-if="label">
-			<span> {{ $attrs.required ? `${label}(required)` : `${label}` }} </span>
-			<!-- <span v-if="$attrs.required !== undefined"> (required)</span> -->
-		</label>
-
-		<!-- <div class="password-strength" v-if="type === 'password'">
-      <div class="strength">Strength</div>
-      <div class="reasons">Reasons</div>
-    </div> -->
-		<div class="hint">{{ hint }}</div>
-	</div>
+    <input
+      ref="inputRef"
+      :type="type"
+      :class="{ 'currency-input': currency, dirty: modelValue }"
+      :value="modelValue"
+      :id="`base-input-${uuid}`"
+      :required="$attrs.required"
+      @input="$emit('update:modelValue', $event.target.value)"
+      @blur="handleBlur"
+      :aria-describedby="errorMsg ? `base-input-error-${uuid}` : null"
+      :aria-invalid="errorMsg ? true : null"
+      :aria-readonly="$attrs.readonly ? true : null"
+      :aria-required="$attrs.required ? true : null"
+      :readonly="$attrs.readonly ? true : null"
+    />
+    <span class="placeholder" @click="inputRef.focus()">{{ label }}</span>
+  </div>
 </template>
 
 <style scoped lang="scss"></style>

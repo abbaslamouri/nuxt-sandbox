@@ -33,7 +33,7 @@ const updateProductCategories = (event) => {
       <div class="flex-col gap2">
         <div class="flex-col gap2">
           <button class="btn btn__checkout" @click.prevent="$emit('saveProduct')">Save Changes</button>
-          <FormsBaseToggle v-model="product.status" label="Active" @update:modelValue="$emit('saveProduct')" />
+          <FormsBaseToggle v-model="product.status" label="Active" />
         </div>
       </div>
     </section>
