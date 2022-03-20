@@ -3,7 +3,7 @@ const { product } = useStore()
 </script>
 
 <template>
-  <section class="shadow-md wfull bg-white p2 br5" id="misc">
+  <section class="shadow-md w-full bg-white p2 br5" id="misc">
     <div class="flex-row items-center justify-between text-sm mb1">
       <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Misc.</div>
       <div></div>
@@ -18,7 +18,7 @@ const { product } = useStore()
             v-model="product.thankYouPage"
           />
         </div>
-        <div class="flex1">
+        <div class="flex-1">
           <FormsBaseInput label="Sort Order" placeholder="Sort Order" v-model="product.sortOrder" />
         </div>
       </div>

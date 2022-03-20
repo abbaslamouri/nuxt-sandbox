@@ -26,12 +26,12 @@ const navLinks = ref([
           @click="item.open = !item.open"
         >
           <div class="flex-row justify-between items-center gap1">
-            <component :is="item.icon" class="w2 h2 fill-slate-50"></component>
+            <component :is="item.icon" class="w-2 h-2 fill-slate-50"></component>
             <p class="text-slate-50">{{ item.title }}</p>
           </div>
           <div class="chevron" v-if="item.subMenu.length > 0">
-            <IconsChevronUp v-if="item.subMenu.length > 0 && item.open" class="w2 h2 fill-slate-50" />
-            <IconsChevronDown v-else class="w2 h2 fill-slate-50" />
+            <IconsChevronUp v-if="item.subMenu.length > 0 && item.open" class="w-2 h-2 fill-slate-50" />
+            <IconsChevronDown v-else class="w-2 h-2 fill-slate-50" />
           </div>
         </NuxtLink>
       </div>
@@ -39,7 +39,7 @@ const navLinks = ref([
         <ul class="admin-sub-menu text-xs">
           <li v-for="subItem in item.subMenu" :key="subItem.name" class="">
             <NuxtLink class="link flex-row items-center gap1 py1 px1 uppercase ml1" :to="{ name: subItem.name }">
-              <component class="w2 h2 fill-slate-50" :is="subItem.icon"></component>
+              <component class="w-2 h-2 fill-slate-50" :is="subItem.icon"></component>
               <p class="text-slate-50">{{ subItem.title }}</p>
             </NuxtLink>
           </li>
@@ -59,7 +59,7 @@ li {
   margin-top: -1px;
 
   &:last-of-type {
-    // margin-top: 0;
+    margin-top: 0;
   }
 }
 

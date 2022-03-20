@@ -78,12 +78,12 @@ const openVariantEditSlideout = () => {
       <div class="td">
         <div class="w5 h5">
           <img
-            class="wfull hfull contain"
+            class="w-full hfull contain"
             v-if="variants[index].gallery[0]"
             :src="variants[index].gallery[0].path"
             alt="Variant Image"
           />
-          <img class="wfull hfull contain" v-else src="/placeholder.png" alt="Variant Image" />
+          <img class="w-full hfull contain" v-else src="/placeholder.png" alt="Variant Image" />
         </div>
       </div>
       <div class="td flex-row">

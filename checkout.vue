@@ -42,13 +42,13 @@
 </script>
 
 <template>
-  <div class="flex1 flex-col items-center bg-slate-900 p3">
+  <div class="flex-1 flex-col items-center bg-slate-900 p3">
     <!-- <div class="w996">
       <div><EcommerceCheckoutSteps :step="1" /></div>
       <div class="flex-row items-start gap2 w996" v-if="cart.items.length">
-        <div class="flex1 bg-slate-50 flex-col gap2">
+        <div class="flex-1 bg-slate-50 flex-col gap2">
           <EcommerceCheckoutProductList />
-          <nuxt-link class="link" :to="{ name: 'ecommerce-products' }">
+          <nuxt-link class="link" :to="{ name: 'ecoomerce-products' }">
             <IconsChevronLeft />
             <div>Continue Shopping</div>
           </nuxt-link>

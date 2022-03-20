@@ -4,7 +4,7 @@ import isEqual from 'lodash.isequal'
 const emit = defineEmits(['saveVariants', 'closeSlideout'])
 
 const { product, variants } = useStore()
-const { alert, errorMsg } = useFactory()
+const { alert, errorMsg } = useAppState()
 
 const variantToDelteIndex = ref(null)
 const variantsActionSelect = ref('')

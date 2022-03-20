@@ -1,6 +1,6 @@
 <script setup>
 const { user, token, isAuthenticated, logout } = useAuth()
-const { errorMsg, message } = useFactory()
+const { errorMsg, message } = useAppState()
 const showProfileDropdown = ref(false)
 
 const signout = async () => {
@@ -28,7 +28,7 @@ const signout = async () => {
     </div>
     <div
       v-if="showProfileDropdown"
-      class="menu absolute flex-col gap2 p2 bg-slate-50 z-99 text-slate-800 wfull text-xs"
+      class="menu absolute flex-col gap2 p2 bg-slate-50 z-99 text-slate-800 w-full text-xs"
     >
       <h3 class="">My Accoun</h3>
       <ul>

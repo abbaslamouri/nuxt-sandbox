@@ -26,14 +26,14 @@ const setAttributeTerm = async (i, termId) => {
 </script>
 
 <template>
-  <section class="shadow-md wfull bg-white p2 br5" id="details">
+  <section class="shadow-md w-full bg-white p2 br5" id="details">
     <div class="flex-row items-center justify-between text-sm mb1">
       <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Variant Options</div>
       <div></div>
     </div>
     <div class="flex-col gap2">
       <div class="flex-row gap2">
-        <div class="flex1" v-for="(attribute, i) in product.attributes" :key="attribute.attribute._id">
+        <div class="flex-1" v-for="(attribute, i) in product.attributes" :key="attribute.attribute._id">
           <div class="base-select">
             <select :value="getTermValue(attribute.attribute._id)" @change="setAttributeTerm(i, $event.target.value)">
               <option :value="null">Select Term</option>

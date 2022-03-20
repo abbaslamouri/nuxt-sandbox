@@ -20,7 +20,7 @@ const parentCategoryOptions = computed(() => {
 <template>
   <div class="flex-col gap2">
     <div class="p2 br5 shadow-md">
-      <button class="btn btn__checkout wfull py3" @click.prevent="$emit('saveCategory')">Save Changes</button>
+      <button class="btn btn__checkout w-full py3" @click.prevent="$emit('saveCategory')">Save Changes</button>
     </div>
     <section class="bg-white p2 br5 shadow-md">
       <header class="admin-section-header">Parent</header>

@@ -31,13 +31,13 @@ onMounted(async () => {
           <div class="flex-row items-center justify-between">
             <div class="w20 h10">
               <img
-                class="wfull hfull contain"
+                class="w-full hfull contain"
                 v-if="freeSample.gallery[1]"
                 :src="freeSample.gallery[1].path"
                 :alt="`${freeSample.gallery[1].name} Image`"
               />
               <img
-                class="wfull hfull contain"
+                class="w-full hfull contain"
                 v-else-if="freeSample.gallery[0]"
                 :src="freeSample.gallery[0].path"
                 :alt="`${freeSample.gallery[0].name} Image`"

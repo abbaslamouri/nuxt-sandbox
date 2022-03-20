@@ -1,5 +1,5 @@
 <script setup>
-import { useCart } from '~/store/useCart'
+// import { useCart } from '~/store/useCart'
 
 const props = defineProps({
   products: {
@@ -8,20 +8,23 @@ const props = defineProps({
   },
 })
 
-const cart = useCart()
+const { cart, addItem } = useCart()
 const listType = ref('tile')
 const showSelectQtys = ref([])
 
-for (const prop in props.products) {
-  showSelectQtys.value[prop] = false
+
+
+const resetSelectQuantities = () => {
+  for (const prop in props.products) {
+    showSelectQtys.value[prop] = false
+  }
 }
 
 const handleItemQuantitySelected = (event, i) => {
-  for (const prop in showSelectQtys.value) {
-    showSelectQtys.value[prop] = false
-  }
+  resetSelectQuantities()
   showSelectQtys.value[i] = event.status
-  cart.addItem(props.products[i], event.quantity)
+  addItem(props.products[i], event.quantity)
+  console.log(cart.value)
 }
 </script>
 
@@ -48,8 +51,9 @@ const handleItemQuantitySelected = (event, i) => {
           :key="product._id"
           :product="product"
           :listType="listType"
-          @itemQuantitySelected="handleItemQuantitySelected($event, i)"
           :showSelectQty="showSelectQtys[i]"
+          @itemQuantitySelected="handleItemQuantitySelected($event, i)"
+          @resetSelectQuantities="resetSelectQuantities"
         />
       </div>
     </div>

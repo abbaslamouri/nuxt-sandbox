@@ -4,7 +4,7 @@ const { product } = useStore()
 </script>
 
 <template>
-  <section class="shadow-md wfull bg-white p2 br5" id="attributes">
+  <section class="shadow-md w-full bg-white p2 br5" id="attributes">
     <div class="flex-row items-center justify-between text-sm mb1">
       <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Attributes</div>
       <button class="btn btn-heading" @click="$emit('showAttributesSlideout', true)">
@@ -22,7 +22,7 @@ const { product } = useStore()
             :key="attribute.attribute._id"
           >
             <p class="attribute-name">{{ attribute.attribute.name }}:</p>
-            <div class="terms flex1 flex-row gap1">
+            <div class="terms flex-1 flex-row gap1">
               <div class="term bg-slate-500 py02 px1 text-slate-50 br5" v-for="term in attribute.terms" :key="term._id">
                 <span class="term-name">{{ term.name }}</span>
               </div>

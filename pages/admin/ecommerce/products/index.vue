@@ -6,7 +6,8 @@ definePageMeta({
   layout: 'admin',
 })
 
-const { errorMsg, message, alert, fetchAll, deleteById } = useFactory()
+const { fetchAll, deleteById } = useFactory()
+const { errorMsg, message, alert } = useAppState()
 
 const products = ref([])
 const productToDeleteId = ref(null)
@@ -98,20 +99,20 @@ watch(
 </script>
 
 <template>
-  <div class="hfull flex-col items-center gap2 p3">
-    <header class="flex-row items-center justify-between wfull max-width-130">
-      <h3 class="title">Products</h3>
+  <div class="h-full flex-col items-center gap2 p-3">
+    <header class="flex-row items-center justify-between w-full max-w-130">
+      <h3>Products</h3>
       {{}}
       <NuxtLink class="link" :to="{ name: 'admin-ecommerce-products-slug', params: { slug: ' ' } }">
-        <button class="btn btn__primary btn__pill px2 py05 text-xs">
-          <IconsPlus class="w2 h2" />
+        <button class="btn btn__primary btn__pill px-2 py-05 text-xs">
+          <IconsPlus class="w-2 h-2" />
           <span>Add</span>
         </button>
       </NuxtLink>
     </header>
-    <main class="flex1 max-width-130 wfull flex-col gap3">
+    <main class="flex-1 max-width-130 w-full flex-col gap3">
       <div class="flex-col gap2 br5">
-        <div class="border-b-slate-300 p2" v-if="totalCount">
+        <div class="border-b-slate-300 p-2" v-if="totalCount">
           <Search @searchKeywordSelected="handleSearch" />
         </div>
         <EcommerceAdminProductsList
@@ -121,7 +122,7 @@ watch(
         />
       </div>
     </main>
-    <footer class="wfull max-width-130">
+    <footer class="w-full max-width-130">
       <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" />
     </footer>
   </div>

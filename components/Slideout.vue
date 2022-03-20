@@ -7,14 +7,14 @@ defineEmits(['closeSlideout'])
     <div class="overlay"></div>
     <div class="slideout__wrapper" @click.self="$emit('closeSlideout')">
       <div class="slideout__content flex-col">
-        <div class="slideout__header flex-row items-center justify-between p2 wfull">
+        <div class="slideout__header flex-row items-center justify-between p2 w-full">
           <slot name="header"></slot>
           <button class="btn btn__close"><IconsClose @click="$emit('closeSlideout')" /></button>
         </div>
-        <div class="slideout__main flex1 overflow-auto">
+        <div class="slideout__main flex-1 overflow-auto">
           <slot></slot>
         </div>
-        <div class="slideout__footer p2 wfull">
+        <div class="slideout__footer p2 w-full">
           <slot name="footer"></slot>
         </div>
       </div>
@@ -54,7 +54,8 @@ defineEmits(['closeSlideout'])
     }
   }
 
-  &.attributes, &.variants {
+  &.attributes,
+  &.variants {
     .slideout__header {
       text-transform: uppercase;
       letter-spacing: 0.15rem;

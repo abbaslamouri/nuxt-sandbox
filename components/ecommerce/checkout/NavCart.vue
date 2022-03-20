@@ -1,31 +1,22 @@
 <script setup>
-import { useCart } from '~/store/useCart'
-import { useMessage } from '~/store/useMessage'
-
-const cart = useCart()
-const appMessage = useMessage()
+const { cart, numberOfItems } = useCart()
+const { showCartSlideout } = useAppState()
 
 onMounted(() => {
   if (process.client && localStorage.getItem('cart')) {
-    cart.items = JSON.parse(localStorage.getItem('cart')).items
-    cart.customer = JSON.parse(localStorage.getItem('cart')).customer
-    cart.shippingMethod = JSON.parse(localStorage.getItem('cart')).shippingMethod
-    cart.taxes = JSON.parse(localStorage.getItem('cart')).taxes
-    cart.coupons = JSON.parse(localStorage.getItem('cart')).coupons
+    cart.value = JSON.parse(localStorage.getItem('cart'))
   }
 })
 </script>
 
 <template>
-  <button
-    class="nav-cart btn px2 h3"
-    :class="{ btn__checkout: cart.items.length }"
-    @click="appMessage.showCartSlideout = true"
-  >
-    <IconsCartFill class="w2 h2" />
-    <span class="text-xs">Your bag</span>
-    <span class="badge">({{ cart.numberOfItems }})</span>
-  </button>
+  <div class="border border-slate-50 br3">
+    <button class="btn px2 h3 gap05" :class="{ btn__checkout: numberOfItems() }" @click="showCartSlideout = true">
+      <IconsCartFill class="w2 h2" />
+      <span class="text-xs">Your bag</span>
+      <span class="badge">({{ numberOfItems() }})</span>
+    </button>
+  </div>
 </template>
 
 <style lang="scss" scoped>

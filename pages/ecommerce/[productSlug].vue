@@ -4,48 +4,40 @@ useMeta({
 })
 
 const { product, variants } = useStore()
-const {
-  errorMsg,
-  message,
-  galleryMedia,
-  mediaReference,
-  showMediaSelector,
-  fetchBySlug,
-  fetchAll,
-  saveDoc,
-  saveDocs,
-  deleteMany,
-} = useFactory()
+const { errorMsg, fetchBySlug, fetchAll } = useFactory()
 
 const route = useRoute()
 const router = useRouter()
 
 const selectedTerms = ref([])
 const selectedVariant = ref({})
+const showSelectQty = ref(false)
 let response = null
 
 const productSlug = route.params.productSlug === ' ' ? null : route.params.productSlug
 
 response = await fetchBySlug('products', productSlug)
-if (response && response.ok === false) errorMsg.value = response.error
-if (response) product.value = response
-if (product.value.productType === 'variable') {
-  variants.value = product.value._id
-    ? (
-        await fetchAll('variants', {
-          fields: 'product, attrTerms, gallery enabled price salePrice',
-          product: product.value._id,
-        })
-      ).docs
-    : []
+if (response && response.ok === false) {
+  product.value = {}
+} else {
+  product.value = response
+  if (product.value.productType === 'variable') {
+    variants.value = product.value._id
+      ? (
+          await fetchAll('variants', {
+            fields: 'product, attrTerms, gallery enabled price salePrice',
+            product: product.value._id,
+          })
+        ).docs
+      : []
 
-  selectedVariant.value = { ...variants.value[0] }
-  selectedTerms.value = selectedVariant.value.attrTerms.map((t) => t._id)
+    selectedVariant.value = { ...variants.value[0] }
+    selectedTerms.value = selectedVariant.value.attrTerms.map((t) => t._id)
+  }
 }
 
 const getProductImage = () => {
   if (product.value.productType === 'simple') {
-    console.log('KKKKKKKK')
     return product.value.gallery && product.value.gallery[1] ? product.value.gallery[1].path : '/placeholder.png'
   } else if (product.value.productType === 'variable') {
     return selectedVariant.gallery && selectedVariant.gallery[0]
@@ -71,6 +63,12 @@ const setSelectedTerms = (i, termId) => {
   selectedVariant.value = variants.value.filter((v) => v._id == found)[0]
   selectedTerms.value = selectedVariant.value.attrTerms.map((t) => t._id)
 }
+
+const handleItemQuantitySelected = (event) => {
+  resetSelectQuantities()
+  showSelectQty = event.status
+  cart.addItem(props.products[i], event.quantity)
+}
 </script>
 
 <template>
@@ -88,7 +86,16 @@ const setSelectedTerms = (i, termId) => {
           <div>
             <EcommerceProductsCoffeeIntensity :intensity="product.intensity" :total="13" v-if="product.intensity" />
           </div>
-          <button class="btn btn__checkout wfull justify-between px1 py05">
+          <EcommerceCheckoutQuantitySelector
+            v-if="product.productType === 'simple'"
+            :minVal="0"
+            :maxVal="140"
+            :stepVal="10"
+            :showSelectQty="showSelectQty"
+            @okBtnClicked="handleItemQuantitySelected"
+            @cancel="showSelectQty = false"
+          />
+          <button class="btn btn__checkout w-full justify-between px1 py05">
             <IconsShoppingBag />
             Add To Bag
             <IconsPlus />

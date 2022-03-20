@@ -1,5 +1,5 @@
 <script setup>
-import { useCart } from '~/store/useCart'
+// import { useCart } from '~/store/useCart'
 
 const props = defineProps({
   product: {
@@ -14,13 +14,24 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['selectQuantityBtnClicked', 'closeSelectQuantity', 'itemQuantitySelected'])
+const emit = defineEmits([
+  'selectQuantityBtnClicked',
+  'closeSelectQuantity',
+  'itemQuantitySelected',
+  'resetSelectQuantities',
+])
 
-const { products, variants } = useStore()
-const { fetchAll } = useStore()
-const cart = useCart()
+// const { products, variants } = useStore()
+// const { fetchAll } = useStore()
+// const cart = useCart()
+const { cart } = useCart()
 const hide = ref(true)
 // const variants = ref([])
+
+const getcartItemCount = () => {
+  const found = cart.value.items.find((i) => i.product == props.product._id)
+  return found ? found.quantity : 0
+}
 
 // variants.value = props.product._id
 //   ? await fetchAll('variants', {
@@ -48,7 +59,7 @@ const hide = ref(true)
     <div class="product-details flex-col items-center justify-center gap2">
       <div class="thumb-and-description" @mouseenter="hide = false" @mouseleave="hide = true">
         <div class="thumb" :class="{ hide: !hide }" v-if="product.gallery.length > 1">
-          <img class="wfull hfull contain" :src="product.gallery[0].path" :alt="`${product.gallery[0].name} Image`" />
+          <img class="w-full hfull contain" :src="product.gallery[0].path" :alt="`${product.gallery[0].name} Image`" />
         </div>
         <div class="description flex-row items-center" :class="{ hide: hide }">{{ product.excerpt }}</div>
       </div>
@@ -70,8 +81,10 @@ const hide = ref(true)
         :minVal="0"
         :maxVal="140"
         :stepVal="10"
+        :btnText="getcartItemCount()"
         :showSelectQty="showSelectQty"
         @okBtnClicked="$emit('itemQuantitySelected', $event)"
+        @cancel="$emit('resetSelectQuantities')"
       />
       <div v-if="product.productType === 'variable'">
         <NuxtLink

@@ -9,7 +9,9 @@ const emit = defineEmits([
 ])
 
 const { product } = useStore()
-const { errorMsg, fetchAll } = useFactory()
+const { fetchAll } = useFactory()
+const { errorMsg } = useAppState()
+
 
 const showActionKeys = ref([])
 const deletedTerms = ref([])

@@ -39,9 +39,9 @@ const signin = async () => {
 </script>
 
 <template>
-  <div class="secure wfull flex1 bg-slate-900 flex-row justify-center">
+  <div class="secure w-full flex-1 bg-slate-900 flex-row justify-center">
     <!-- <div class="content flex-row items-start gap2 w996">
-			<div class="flex1 bg-slate-50 h30 mt4">
+			<div class="flex-1 bg-slate-50 h30 mt4">
 				<h3>I am a Returning Customers</h3>
 				<form @submit.prevent="handleLogin" class="main p2 flex-col items-center gap2">
 					<FormsBaseInput type="email" label="Email" v-model="user.email" :required="true" />
@@ -50,12 +50,12 @@ const signin = async () => {
 					<NuxtLink class="link items-self-start" :to="{ name: `auth-forgot-password` }">Forgot Password?</NuxtLink>
 				</form>
 			</div>
-			<div class="flex1 bg-slate-50 h30 mt4">
+			<div class="flex-1 bg-slate-50 h30 mt4">
 				<h3>I am a New Customers</h3>
 				<div class="main p2 fles-col items-center gap1">
 					<h4 class="text-center">Create a YRL account</h4>
 					<p class="text-center">and receive these great benefits</p>
-					<div class="promos flex-row justify-evenly my4 wfull">
+					<div class="promos flex-row justify-evenly my4 w-full">
 						<div class="promo">
 							<IconsWelcomeGift />
 							<p>Welcome</p>

@@ -2,6 +2,8 @@
 // import { useAuth } from '~/store/useAuth'
 // import { useCart } from '~/store/useCart'
 const { isAuthenticated } = useAuth()
+const { showCartSlideout } = useAppState()
+
 // const cart = useCart()
 
 // console.log(useCookie('auth'))
@@ -31,7 +33,7 @@ const { isAuthenticated } = useAuth()
               <ProfileDropdown v-else />
             </div>
             <EcommerceCheckoutNavCart />
-            <!-- <EcommerceCartSlideout /> -->
+            <EcommerceCheckoutCart v-if="showCartSlideout" />
           </div>
         </div>
       </div>
@@ -39,11 +41,8 @@ const { isAuthenticated } = useAuth()
         <MainNav />
       </nav>
     </header>
-
     <main>
-      <!-- <div class="main"> -->
       <slot />
-      <!-- </div> -->
     </main>
     <footer><Footer /></footer>
   </div>

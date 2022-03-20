@@ -10,18 +10,8 @@ definePageMeta({
 })
 
 const { product, variants } = useStore()
-const {
-  errorMsg,
-  message,
-  galleryMedia,
-  mediaReference,
-  showMediaSelector,
-  fetchBySlug,
-  fetchAll,
-  saveDoc,
-  saveDocs,
-  deleteMany,
-} = useFactory()
+const { galleryMedia, mediaReference, fetchBySlug, fetchAll, saveDoc, saveDocs, deleteMany } = useFactory()
+const { errorMsg, message, showMediaSelector } = useAppState()
 
 const route = useRoute()
 const router = useRouter()
@@ -110,7 +100,7 @@ provide('saveProduct', saveProduct)
 
 <template>
   <div class="hfull flex-col items-center gap2 p3">
-    <header class="flex-col gap2 wfull max-width-130">
+    <header class="flex-col gap2 w-full max-width-130">
       <div class="go-back" id="product-go-back">
         <NuxtLink class="admin-link" :to="{ name: 'admin-ecommerce-products' }">
           <IconsArrowWest /><span>Products</span>
@@ -119,7 +109,7 @@ provide('saveProduct', saveProduct)
       <h3 class="header">Edit Product</h3>
     </header>
     <!-- {{ product }} -->
-    <main class="main flex1 max-width-130 wfull">
+    <main class="main flex-1 max-width-130 w-full">
       <div class="left-sidebar shadow-md">
         <EcommerceAdminProductLeftSidebar />
       </div>
@@ -212,7 +202,7 @@ provide('saveProduct', saveProduct)
         </div>
       </div>
     </main>
-    <footer class="wfull max-width-130">Footer</footer>
+    <footer class="w-full max-width-130">Footer</footer>
   </div>
 </template>
 

@@ -2,7 +2,7 @@
 const router = useRouter()
 const route = useRoute()
 const { user, token, isAuthenticated, login } = useAuth()
-const { errorMsg, message } = useFactory()
+const { errorMsg, message } = useAppState()
 const showAuthDropdown = ref(false)
 const formUser = reactive({
   email: '',
@@ -53,17 +53,17 @@ const forgotPassword = async () => {
         </div>
 
         <div>
-          <button class="btn btn__secondary wfull justify-between px1 py05 text-xs" @click.prevent="forgotPassword">
+          <button class="btn btn__secondary w-full justify-between px1 py05 text-xs" @click.prevent="forgotPassword">
             <p>Forgot Password?</p>
             <IconsChevronRight />
           </button>
         </div>
-        <button class="btn btn__secondary wfull flex-row justify-between px1 py05 text-xs" @click.prevent="signin">
+        <button class="btn btn__secondary w-full flex-row justify-between px1 py05 text-xs" @click.prevent="signin">
           <p>Sign in</p>
           <IconsChevronRight />
         </button>
         <p class="text-sm">New User?</p>
-        <button class="btn btn__secondary wfull justify-between px1 py05 text-xs" @click.prevent="signup">
+        <button class="btn btn__secondary w-full justify-between px1 py05 text-xs" @click.prevent="signup">
           <p>Create an account</p>
           <IconsChevronRight />
         </button>

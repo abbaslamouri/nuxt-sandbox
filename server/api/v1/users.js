@@ -1,8 +1,8 @@
 import { useBody, useQuery, useCookies } from 'h3'
-
 import Model from '~/server/models/user'
 import errorHandler from '~/server/utils/errorHandler'
 import ApiFeatures from '~/server/utils/ApiFeatures'
+import { getDoc } from '~/server/controllers/factory'
 
 export default async (req, res) => {
   res.statusCode = 200
@@ -48,6 +48,10 @@ export default async (req, res) => {
     // console.log('DDDDD', doc)
     return doc.length ? doc[0] : null
   }
+
+  // if (req.method === 'GET' && params.id) {
+  //   return await getDoc(Model)
+  // }
 
   if (req.method === 'GET') {
     let features

@@ -1,20 +1,17 @@
 <script setup>
-import { useCart } from '~/store/useCart'
-
 defineProps({
   showTaxesAndTotal: {
     type: Boolean,
     default: false,
   },
 })
-const cart = useCart()
-
+const { cart, cartTotal } = useCart()
 </script>
 
 <template>
   <div class="cart-total">
     <div class="row">
-      <span> Subtotal</span><span class="currency">${{ cart.total.toFixed(2) }}</span>
+      <span> Subtotal</span><span class="currency">${{ cartTotal().toFixed(2) }}</span>
     </div>
     <div class="row" v-if="showTaxesAndTotal">
       <span> Estimated Taxes</span>
@@ -23,8 +20,8 @@ const cart = useCart()
     </div>
     <div class="row" v-if="showTaxesAndTotal">
       <span> Total</span>
-      <span v-if="cart.taxes" class="currency">${{ (cart.total + cart.taxes).toFixed }}</span>
-      <span v-else class="currency">${{ cart.total.toFixed(2) }}</span>
+      <span v-if="cart.taxes" class="currency">${{ (cartTotal() + cart.taxes).toFixed }}</span>
+      <span v-else class="currency">${{ cartTotal().toFixed(2) }}</span>
     </div>
   </div>
 </template>

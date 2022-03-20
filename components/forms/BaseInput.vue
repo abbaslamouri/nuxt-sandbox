@@ -43,7 +43,6 @@ export default {
 <template>
   <div class="base-input">
     <div class="currency" v-if="currency">$</div>
-
     <input
       ref="inputRef"
       :type="type"

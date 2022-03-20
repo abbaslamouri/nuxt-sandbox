@@ -1,6 +1,7 @@
 <script setup>
-const { showCartSlideout } = useStore()
-const { message, errorMsg, alert, showMediaSelector } = useFactory()
+// const { showCartSlideout } = useStore()
+// const { ,  } = useFactory()
+const { message, errorMsg, showCartSlideout, alert, showMediaSelector } = useAppState()
 
 const hideSnackbar = () => {
   errorMsg.value = null

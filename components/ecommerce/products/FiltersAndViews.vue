@@ -1,10 +1,4 @@
 <script setup>
-// defineProps({
-//   hasProducts: {
-//     type: Boolean,
-//   },
-// })
-
 const listType = ref('tile')
 </script>
 

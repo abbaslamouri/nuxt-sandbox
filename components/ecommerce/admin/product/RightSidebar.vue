@@ -29,7 +29,7 @@ const updateProductCategories = (event) => {
 
 <template>
   <div class="flex-col gap2">
-    <section class="shadow-md wfull bg-white p2 br5" id="details">
+    <section class="shadow-md w-full bg-white p2 br5" id="details">
       <div class="flex-col gap2">
         <div class="flex-col gap2">
           <button class="btn btn__checkout" @click.prevent="$emit('saveProduct')">Save Changes</button>
@@ -37,7 +37,7 @@ const updateProductCategories = (event) => {
         </div>
       </div>
     </section>
-    <section class="shadow-md wfull bg-white p2 br5" id="details">
+    <section class="shadow-md w-full bg-white p2 br5" id="details">
       <div class="flex-row items-center justify-between text-sm mb1">
         <div class="uppercase inline-block border-b-stone-300 font-bold pb05">Categories</div>
         <div></div>

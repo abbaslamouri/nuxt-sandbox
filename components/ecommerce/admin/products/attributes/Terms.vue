@@ -53,7 +53,7 @@ const handleAddTerm = () => {
             attribute.terms.length != allAttributeTerms.filter((t) => t.parent._id == attribute.attribute._id).length
           "
         >
-          <select v-model="termSelectId" @change="handleAddTerm" class="wfull text-xs">
+          <select v-model="termSelectId" @change="handleAddTerm" class="w-full text-xs">
             <option value="">Add term</option>
             <option
               v-for="term in allAttributeTerms.filter((t) => t.parent._id == attribute.attribute._id)"

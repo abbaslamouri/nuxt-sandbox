@@ -1,7 +1,4 @@
 <script setup>
-import slugify from 'slugify'
-import { useMessage } from '~/store/useMessage'
-
 useMeta({
   title: 'Attributes | YRL',
 })
@@ -9,24 +6,26 @@ definePageMeta({
   layout: 'admin',
 })
 
-// const attributeRefs = ref([])
+const { fetchAll } = useFactory()
+const { errorMsg } = useAppState()
 
-const appMessage = useMessage()
+const showActionKeys = ref([])
 const attributes = ref([])
+const attributeTerms = ref([])
 const count = ref(null) // item count taking into account params
 const totalCount = ref(null) // Total item count in the database
 const keyword = ref(null)
 const page = ref(1)
-const perPage = ref(6)
+const perPage = ref(2)
 const sortField = ref('createdAt')
 const sortOrder = ref('')
-const terms = ref([])
+let response = null
 
 const pages = computed(() =>
   count.value % perPage.value ? parseInt(count.value / perPage.value) + 1 : parseInt(count.value / perPage.value)
 )
 
-// Set query params
+// Attributes query params
 const attributeParams = computed(() => {
   return {
     fields: 'name, slug',
@@ -37,121 +36,97 @@ const attributeParams = computed(() => {
   }
 })
 
-// Set query params
-const attributeTermsParams = computed(() => {
-  return {
-    fields: 'name, slug, parent',
-  }
-})
-
-const fetchAllAttributes = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/attributes', { params: attributeParams.value })
+const fetchAllAttributesAndTerms = async () => {
+  response = await fetchAll('attributes', attributeParams.value)
+  if (response.ok && response.ok == false) {
+    errorMsg.value = response.errorMsg
+    attributes.value = []
+  } else {
     attributes.value = response.docs
     count.value = response.count
     totalCount.value = response.totalCount
-    // console.log(response)
-  } catch (error) {
-    appMessage.errorMsg = error.data
+    response = await fetchAll('attributeterms', {
+      fields: 'name, slug, parent',
+    })
+    if (response.ok && response.ok == false) {
+      errorMsg.value = response.errorMsg
+      attributeTerms.value = []
+    } else {
+      attributeTerms.value = response.docs
+    }
+  }
+}
+await fetchAllAttributesAndTerms()
+
+const resetActions = () => {
+  for (const prop in attributes.value) {
+    showActionKeys.value[prop] = false
   }
 }
 
-const fetchAllTerms = async () => {
-  appMessage.errorMsg = null
-  try {
-    const response = await $fetch('/api/v1/attributeterms', { params: attributeTermsParams.value })
-    terms.value = response.docs
-    // console.log(response)
-  } catch (error) {
-    appMessage.errorMsg = error.data
-  }
+const setActions = (payload) => {
+  resetActions()
+  showActionKeys.value[payload.index] = payload.action
 }
 
-// Fetch all attributes and terms
-await Promise.all([fetchAllAttributes(), fetchAllTerms()])
-
-const handleTermUpdated = async () => {
-  await fetchAllTerms()
-}
-
-const handleAttributeUpdated = async () => {
-  await fetchAllAttributes()
+const handleSearch = async (searchKeyword) => {
+  keyword.value = searchKeyword
+  page.value = 1
+  await fetchAllAttributesAndTerms()
 }
 
 // Set current page
 const setPage = async (currentPage) => {
   page.value = currentPage
-  await fetchAllAttributes()
+  await fetchAllAttributesAndTerms()
 }
 </script>
 
 <template>
-  <div class="admin-attributes">
-    <header>
-      <h2>Attributes</h2>
-      <button class="btn btn-primary" @click="attributes.push({ name: '', terms: [] })">Add New</button>
-    </header>
-    <main>
-      <form @keypress.enter.prevent>
-        <div class="table">
-          <div class="table__header">
-            <div class="row">
-              <div class="th">Name</div>
-              <div class="th">Options</div>
-              <div class="th">Actions</div>
-            </div>
-          </div>
-          <div class="table__body">
-            <EcommerceAdminAttributeCard
-              v-for="attribute in attributes"
-              :attribute="attribute"
-              :key="attribute._id"
-              :attributeTerms="terms.filter((t) => t.parent._id == attribute._id)"
-              @termUpdated="handleTermUpdated"
-              @attributeUpdated="handleAttributeUpdated"
-            />
-          </div>
+  <div class="h-full flex-col items-center gap-2 p-3">
+    <div class="flex-row items-center justify-between w-full max-w-130">
+      <h3>Attributes</h3>
+      <button
+        class="btn btn__primary btn__pill px-2 py-02 flex-row gap1"
+        @click="attributes.push({ name: '', terms: [] })"
+      >
+        <IconsPlus class="w-2 h-2" />
+        Add New
+      </button>
+    </div>
+    <div class="flex-1 max-w-130 w-full flex-col gap3">
+      <div class="flex-col gap-2 br5" v-if="attributes.length">
+        <div class="">
+          <Search @searchKeywordSelected="handleSearch" />
         </div>
-      </form>
-    </main>
-    <footer>
+        <table class="shadow-md border border-slate-300">
+          <thead class="bg-slate-300">
+            <tr>
+              <th>Attribute Name</th>
+              <th>Attribute Terms</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <EcommerceAdminAttributesCard
+              v-for="(attribute, index) in attributes"
+              :key="attribute._id"
+              :attribute="attribute"
+              :index="index"
+              :attributeTerms="attributeTerms.filter((t) => t.parent._id == attribute._id)"
+              :showAction="showActionKeys[index]"
+              @setActions="setActions"
+              @attributeUpdated="fetchAllAttributesAndTerms"
+            />
+          </tbody>
+        </table>
+      </div>
+      <EcommerceAdminAttributesEmptyMsg v-else />
+    </div>
+    <div class="w-full max-width-130">
       <Pagination :page="page" :pages="pages" @pageSet="setPage" v-if="pages > 1" />
-      <!-- <button class="btn btn-primary" @click.prevent="saveAttributes">Save Changes</button> -->
-    </footer>
+    </div>
   </div>
 </template>
 
-<style lang="scss" scoped>
-@import '@/assets/scss/variables';
-
-.admin-attributes {
-  min-height: 92vh;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  padding: 4rem 2rem;
-
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 2rem;
-  }
-
-  main {
-    flex: 1;
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-
-      .btn {
-        align-self: flex-end;
-        margin-top: 1rem;
-      }
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

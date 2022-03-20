@@ -68,10 +68,14 @@
   border-top: 1px solid $slate-500;
 }
 
-.br3 {
+.br-3 {
   border-radius: 3px;
 }
 
-.br5 {
+.br-5 {
   border-radius: 5px;
+}
+
+.br-50per {
+  border-radius: 50%;
 }

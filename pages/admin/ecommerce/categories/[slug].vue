@@ -93,7 +93,7 @@ watch(
 
 <template>
   <div class="hfull flex-col items-center gap2 p3">
-    <header class="flex-col gap2 wfull max-width-130">
+    <header class="flex-col gap2 w-full max-width-130">
       <div class="go-back" id="product-go-back">
         <NuxtLink class="admin-link" :to="{ name: 'admin-ecommerce-categories' }">
           <IconsArrowWest /><span>Categories</span>
@@ -102,7 +102,7 @@ watch(
       <h3 class="header">Edit Category</h3>
     </header>
     <!-- {{ product }} -->
-    <main class="main flex1 max-width-130 wfull">
+    <main class="main flex-1 max-width-130 w-full">
       <div class="center-col flex-col gap2">
         <EcommerceAdminCategoriesDetails />
         <section class="admin-image-gallery shadow-md p2 flex-col gap2 bg-white" id="image-gallery">
@@ -140,15 +140,15 @@ watch(
       </div>
       <!-- </div> -->
     </main>
-    <footer class="wfull max-width-130">Footer</footer>
+    <footer class="w-full max-width-130">Footer</footer>
   </div>
-  <!-- <div class="flex1 flex-col items-center p3">
-    <div class="categories flex1 flex-col gap2">
+  <!-- <div class="flex-1 flex-col items-center p3">
+    <div class="categories flex-1 flex-col gap2">
       <NuxtLink class="link" id="top" :to="{ name: 'admin-ecommerce-categories' }">
         <IconsArrowWest /><span>Category</span>
       </NuxtLink>
       <h3 class="items-self-start">Edit Category</h3>
-      <div class="columns wfull">
+      <div class="columns w-full">
         <div class="main">
           <EcommerceAdminCategoriesDetails />
           <div class="flex-col flex-col items-center gap2">

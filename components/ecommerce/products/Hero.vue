@@ -1,8 +1,6 @@
 <script setup>
 const route = useRoute()
 
-console.log(route.name)
-
 const heroBgImage = computed(() =>
   route.name === 'ecommerce-products' ? '/assets/hero-original.webp' : '/assets/hero-virtuo.webp'
 )
@@ -10,7 +8,7 @@ const heroBgImage = computed(() =>
 
 <template>
   <section
-    class="hero wfull flex-col justify-center gap3 px3 text-slate-50 bg-norepeat bg-cover minh-40 uppercase"
+    class="hero w-full flex-col justify-center gap3 px3 text-slate-50 bg-norepeat bg-cover minh-40 uppercase"
     :style="{ backgroundImage: `url(${heroBgImage})` }"
   >
     <div class="links flex-row">

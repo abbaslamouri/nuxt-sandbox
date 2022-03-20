@@ -29,11 +29,11 @@ const proceed = () => {
     <div class="td">
       <div class="w5 h5">
         <img
-          class="wfull hfull contain"
+          class="w-full hfull contain"
           v-if="doc.gallery.length && doc.gallery[0] && doc.gallery[0].mimetype.includes('image')"
           :src="`${doc.gallery[0].path}`"
         />
-        <img v-else class="wfull hfull contain" :src="`/placeholder.png`" />
+        <img v-else class="w-full hfull contain" :src="`/placeholder.png`" />
       </div>
       <h3 class="title">{{ doc.name }}</h3>
     </div>

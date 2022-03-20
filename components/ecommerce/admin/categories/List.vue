@@ -54,13 +54,13 @@ const handleDeleteCategory = (categoryId) => {
             <td class="flex-row justify-center">
               <div class="w5 h5">
                 <img
-                  class="wfull hfull contain"
+                  class="w-full hfull contain"
                   v-if="
                     category.gallery.length && category.gallery[0] && category.gallery[0].mimetype.includes('image')
                   "
                   :src="`${category.gallery[0].path}`"
                 />
-                <img v-else class="wfull hfull contain" :src="`/placeholder.png`" />
+                <img v-else class="w-full hfull contain" :src="`/placeholder.png`" />
               </div>
             </td>
             <td>

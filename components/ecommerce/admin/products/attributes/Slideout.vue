@@ -2,7 +2,8 @@
 const emit = defineEmits(['saveAttributes', 'closeSlideout'])
 
 const { product, variants } = useStore()
-const { errorMsg, alert } = useFactory()
+// const { errorMsg, alert } = useFactory()
+const { errorMsg, alert } = useAppState()
 
 const attributeToDelteIndex = ref(null)
 const termToDeleteId = ref(null)
@@ -107,7 +108,6 @@ const removeAllAttributes = () => {
   alert.value.show = false
   alert.value.action = ''
 }
-
 
 const showRemoveAttributeAlert = (attributeIndex) => {
   attributeToDelteIndex.value = attributeIndex
